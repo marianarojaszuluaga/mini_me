@@ -1,0 +1,32 @@
+{
+  "name": "orquestrador-360",
+  "version": "0.1.0",
+  "description": "Orquestador SDLC end-to-end: 19 agentes (5 PM + 14 spec-kit) a través de 5 fases (planning/backend/frontend/integration/deploy)",
+  "main": "src/orchestrator.js",
+  "scripts": {
+    "start:map": "node src/server.js",
+    "start:orchestrator": "node src/orchestrator.js",
+    "start": "concurrently -n MAP,ORCH -c blue,green \"npm:start:map\" \"npm:start:orchestrator\"",
+    "dev:map": "nodemon src/server.js",
+    "dev:orchestrator": "nodemon src/orchestrator.js",
+    "dev": "concurrently -n MAP,ORCH -c blue,green \"npm:dev:map\" \"npm:dev:orchestrator\"",
+    "test:health": "curl -H \"Authorization: Bearer $APP_API_KEYS\" http://localhost:3001/health"
+  },
+  "keywords": ["agents", "orchestration", "sdlc", "anthropic-api", "claude"],
+  "author": "Imagine Apps",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.24.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}
