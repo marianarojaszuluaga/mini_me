@@ -17,7 +17,13 @@
 const fs = require("fs");
 const path = require("path");
 
-const STORAGE_DIR = process.env.STORAGE_DIR || path.join(__dirname, "..", "storage");
+// Vercel's function filesystem is read-only except /tmp. Without Redis
+// configured, fall back there instead of a repo-relative path so the
+// function boots at all — state still won't survive between invocations,
+// that part is unavoidable without Redis, but at least it won't crash.
+const isServerless = !!process.env.VERCEL;
+const STORAGE_DIR =
+  process.env.STORAGE_DIR || (isServerless ? "/tmp/orquestrador-360" : path.join(__dirname, "..", "storage"));
 
 // Vercel's Redis Marketplace integration has used different env var prefixes
 // depending on when/how it was added (KV_* for the old native product, now
@@ -31,8 +37,16 @@ if (usingKV) {
   // Lazy-required: local/file-mode deployments never need this package to exist.
   const { Redis } = require("@upstash/redis");
   redis = new Redis({ url: REDIS_URL, token: REDIS_TOKEN });
-} else if (!fs.existsSync(STORAGE_DIR)) {
-  fs.mkdirSync(STORAGE_DIR, { recursive: true });
+} else {
+  try {
+    if (!fs.existsSync(STORAGE_DIR)) {
+      fs.mkdirSync(STORAGE_DIR, { recursive: true });
+    }
+  } catch (error) {
+    // Fail soft: a crashed module load takes the whole function down. Reads
+    // return empty and writes silently no-op below instead.
+    console.error(`store.js: could not create STORAGE_DIR (${STORAGE_DIR}): ${error.message}`);
+  }
 }
 
 function filePath(name) {
@@ -44,9 +58,14 @@ async function readList(name) {
     const value = await redis.get(name);
     return value || [];
   }
-  const file = filePath(name);
-  if (!fs.existsSync(file)) return [];
-  return JSON.parse(fs.readFileSync(file, "utf8"));
+  try {
+    const file = filePath(name);
+    if (!fs.existsSync(file)) return [];
+    return JSON.parse(fs.readFileSync(file, "utf8"));
+  } catch (error) {
+    console.error(`store.js: readList("${name}") failed: ${error.message}`);
+    return [];
+  }
 }
 
 async function writeList(name, value) {
@@ -54,7 +73,11 @@ async function writeList(name, value) {
     await redis.set(name, value);
     return;
   }
-  fs.writeFileSync(filePath(name), JSON.stringify(value, null, 2));
+  try {
+    fs.writeFileSync(filePath(name), JSON.stringify(value, null, 2));
+  } catch (error) {
+    console.error(`store.js: writeList("${name}") failed: ${error.message}`);
+  }
 }
 
 async function appendLog(name, entry) {
