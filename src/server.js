@@ -25,6 +25,8 @@
  * POST   /orchestrate             - Run next agent for a project's phase/step
  * POST   /agents/:name/invoke     - Invoke specific agent
  * POST   /evaluate                - Evaluate agent output (real rubric via AgentEvaluator)
+ * POST   /brain/ingest-acta       - Feed a meeting acta to Gabriela; she extracts
+ *                                    decisions/alerts into the project's Brain
  */
 
 const express = require("express");
@@ -107,6 +109,20 @@ function writeProjects(projects) {
   fs.writeFileSync(projectsFilePath(), JSON.stringify(projects, null, 2));
 }
 
+function defaultProjectBrain() {
+  return { status: "pending", decisionLog: [], alerts: [], meetingLog: [] };
+}
+
+// Projects created before decisionLog/alerts/meetingLog existed won't have
+// them — backfill defensively rather than crashing on .push().
+function ensureBrainShape(project) {
+  project.memory.projectBrain = project.memory.projectBrain || {};
+  project.memory.projectBrain.decisionLog = project.memory.projectBrain.decisionLog || [];
+  project.memory.projectBrain.alerts = project.memory.projectBrain.alerts || [];
+  project.memory.projectBrain.meetingLog = project.memory.projectBrain.meetingLog || [];
+  return project;
+}
+
 app.get("/projects", (req, res) => {
   try {
     res.json(readProjects());
@@ -140,7 +156,7 @@ app.post("/projects", (req, res) => {
       progress: 0,
       createdAt: new Date().toISOString(),
       memory: {
-        projectBrain: { status: "pending" },
+        projectBrain: defaultProjectBrain(),
         backlogs: {
           hu: { status: "pending", ids: [] },
           plans: { status: "pending", plans: [] },
@@ -320,6 +336,102 @@ app.post("/evaluate", async (req, res) => {
 
     const result = await evaluator.evaluate(agentName, output, context);
     res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================================================
+// PROJECT BRAIN — acta ingestion
+// ============================================================================
+
+// 1. An acta gets created (Santi on-demand, or the Proyecto Actas Apps Script
+//    automatically) → 2. its content + metadata is POSTed here → 3. Gabriela
+//    reads it and extracts decisions (Decision Log) and risks (Alerts) →
+//    4. the project's Brain is updated. If no project matches `projectName`
+//    yet, one is created so the Brain still gets the entry.
+app.post("/brain/ingest-acta", async (req, res) => {
+  try {
+    const { projectName, actaContent, metadata } = req.body;
+
+    if (!projectName || !actaContent) {
+      return res.status(400).json({ error: "projectName and actaContent are required" });
+    }
+
+    const projects = readProjects();
+    let project = projects.find((p) => p.name === projectName);
+
+    if (!project) {
+      project = {
+        id: `Proyecto_${Date.now()}`,
+        name: projectName,
+        owner: (metadata && metadata.attendees) || "unknown",
+        description: `Auto-creado desde acta de reunión: ${(metadata && metadata.meetingTitle) || projectName}`,
+        currentPhase: 1,
+        currentStep: "iniciando",
+        status: "active",
+        progress: 0,
+        createdAt: new Date().toISOString(),
+        memory: {
+          projectBrain: defaultProjectBrain(),
+          backlogs: {
+            hu: { status: "pending", ids: [] },
+            plans: { status: "pending", plans: [] },
+            actas: { status: "pending", actas: [] }
+          },
+          sprints: { current: 1, status: "pending" },
+          timeline: { createdAt: new Date().toISOString(), activities: [] }
+        }
+      };
+      projects.push(project);
+    }
+
+    ensureBrainShape(project);
+
+    const prompt = agentRegistry.buildActaIngestPrompt(actaContent, metadata);
+    const response = await client.messages.create({
+      model: "claude-3-5-sonnet-20241022",
+      max_tokens: 1500,
+      messages: [{ role: "user", content: prompt }]
+    });
+
+    const text = response.content[0].text;
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    const parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : { decisions: [], alerts: [] };
+
+    const timestamp = new Date().toISOString();
+    const source = (metadata && metadata.docLink) || null;
+
+    (parsed.decisions || []).forEach((d) => {
+      project.memory.projectBrain.decisionLog.push({ ...d, timestamp, source });
+    });
+    (parsed.alerts || []).forEach((a) => {
+      project.memory.projectBrain.alerts.push({ ...a, timestamp, status: "open", source });
+    });
+    project.memory.projectBrain.meetingLog.push({
+      timestamp,
+      meetingTitle: (metadata && metadata.meetingTitle) || null,
+      docLink: source,
+      date: (metadata && metadata.date) || null
+    });
+    project.memory.projectBrain.status = "active";
+
+    project.memory.timeline.activities.push({
+      timestamp,
+      agent: "gabriela",
+      action: "acta ingerida al Project Brain",
+      status: "completed"
+    });
+
+    writeProjects(projects);
+
+    res.json({
+      projectId: project.id,
+      projectName: project.name,
+      decisionsAdded: (parsed.decisions || []).length,
+      alertsAdded: (parsed.alerts || []).length,
+      brain: project.memory.projectBrain
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

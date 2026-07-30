@@ -46,6 +46,10 @@ class ApiClient {
     return this.request("/projects");
   }
 
+  getProject(id) {
+    return this.request(`/projects/${id}`);
+  }
+
   createProject(data) {
     return this.request("/projects", { method: "POST", body: JSON.stringify(data) });
   }
@@ -210,6 +214,62 @@ const ProjectsContent = ({ projects, onCreateProject, onSelectProject, loading }
               </div>
             </form>
           </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Project Brain: decisions + alerts Gabriela extracted from actas
+// (POST /brain/ingest-acta), plus the meeting log that fed them.
+const BrainPanel = ({ project }) => {
+  if (!project) {
+    return (
+      <div className="quality-panel">
+        <h2>🧠 Project Brain</h2>
+        <div className="empty-state">Selecciona un proyecto para ver su Brain.</div>
+      </div>
+    );
+  }
+
+  const brain = project.memory?.projectBrain || { decisionLog: [], alerts: [], meetingLog: [] };
+
+  return (
+    <div className="quality-panel">
+      <h2>🧠 Project Brain — {project.name}</h2>
+
+      <h3 style={{ marginTop: "10px" }}>Decision Log ({brain.decisionLog.length})</h3>
+      {brain.decisionLog.length === 0 ? (
+        <div className="empty-state">Sin decisiones registradas todavía.</div>
+      ) : (
+        <div className="evaluations-list">
+          {brain.decisionLog.map((d, idx) => (
+            <div key={idx} className="evaluation-item">
+              <div className="eval-header">
+                <span className="eval-agent">{d.decision}</span>
+              </div>
+              {d.context && <div>{d.context}</div>}
+            </div>
+          ))}
+        </div>
+      )}
+
+      <h3 style={{ marginTop: "16px" }}>Alerts ({brain.alerts.length})</h3>
+      {brain.alerts.length === 0 ? (
+        <div className="empty-state">Sin alertas abiertas.</div>
+      ) : (
+        <div className="evaluations-list">
+          {brain.alerts.map((a, idx) => (
+            <div
+              key={idx}
+              className={`evaluation-item status-${a.severity === "HIGH" ? "critical" : a.severity === "MEDIUM" ? "warning" : "good"}`}
+            >
+              <div className="eval-header">
+                <span className="eval-agent">{a.alert}</span>
+                <span>{a.severity}</span>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
@@ -399,6 +459,7 @@ export default function App() {
   const [phases, setPhases] = useState([]);
   const [agents, setAgents] = useState([]);
   const [projects, setProjects] = useState([]);
+  const [selectedProjectDetail, setSelectedProjectDetail] = useState(null);
   const [evaluations, setEvaluations] = useState([]);
   const [loginError, setLoginError] = useState("");
 
@@ -443,6 +504,15 @@ export default function App() {
     setEvaluations((prev) => [...prev, evaluation]);
   };
 
+  const handleSelectProject = async (projectId) => {
+    try {
+      const detail = await api.getProject(projectId);
+      setSelectedProjectDetail(detail);
+    } catch (error) {
+      console.error("Error loading project detail:", error);
+    }
+  };
+
   if (!authenticated) {
     return (
       <div className="login-container">
@@ -475,7 +545,7 @@ export default function App() {
             <ProjectsContent
               projects={projects}
               onCreateProject={handleCreateProject}
-              onSelectProject={() => {}}
+              onSelectProject={handleSelectProject}
               loading={loading}
             />
             <AgentInvokePanel api={api} agents={agents} projects={projects} onEvaluated={handleEvaluated} />
@@ -483,6 +553,7 @@ export default function App() {
           <div className="bottom-section">
             <AgentStatus agents={agents} evaluations={evaluations} />
             <QualityDashboard evaluations={evaluations} />
+            <BrainPanel project={selectedProjectDetail} />
           </div>
         </div>
       </div>

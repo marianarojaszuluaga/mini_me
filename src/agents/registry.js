@@ -106,6 +106,11 @@ INPUT: ${input}
 
 Proporciona resumen del Project Brain.`,
 
+  // Santi is the on-demand path: paste a raw transcript in the dashboard and get
+  // an acta back. The real, automated path is the "Proyecto Actas" Google Apps
+  // Script (Calendar → transcript → Gemini → Doc + email draft) — Santi does not
+  // run in that flow. What DOES run for both paths is buildActaIngestPrompt()
+  // below, which is how either acta's content reaches the Project Brain.
   santi: (input, context) => `Eres SANTI, especialista en documentación de reuniones técnicas.
 Tu trabajo es transformar transcripciones en actas profesionales:
 - Estructura: Notas (H2/H3) + Action Items ☐ + Alertas + RedFlags
@@ -177,6 +182,38 @@ function buildPrompt(agentId, input, context) {
   return null;
 }
 
+/**
+ * Gabriela's acta-ingestion prompt: given an acta's content (from either Santi
+ * or the Proyecto Actas Apps Script), extract decisions → Decision Log and
+ * risks/blockers → Alerts. Strict JSON, no invented content when the acta has
+ * neither.
+ */
+function buildActaIngestPrompt(actaContent, metadata) {
+  return `Eres GABRIELA, guardiana del Project Brain.
+
+Acaba de generarse un acta de reunión. Tu tarea es analizarla y extraer, en JSON estricto:
+
+1. "decisions": decisiones o acuerdos tomados en la reunión, para el Decision Log del proyecto.
+   Cada una: { "decision": "...", "context": "..." }
+2. "alerts": riesgos, bloqueos o temas que requieren atención del equipo.
+   Cada una: { "alert": "...", "severity": "LOW|MEDIUM|HIGH" }
+
+Si no hay decisiones o alertas claras en el acta, devuelve arrays vacíos. No inventes
+contenido que no esté explícito o claramente implícito en el acta.
+
+METADATA:
+${JSON.stringify(metadata || {}, null, 2)}
+
+CONTENIDO DEL ACTA:
+${actaContent}
+
+Responde SOLO con este JSON, sin texto adicional:
+{
+  "decisions": [{ "decision": "...", "context": "..." }],
+  "alerts": [{ "alert": "...", "severity": "LOW|MEDIUM|HIGH" }]
+}`;
+}
+
 function listAgents() {
   return [
     ...Object.keys(PM_AGENT_PROMPTS).map((id) => ({ id, family: "pm" })),
@@ -188,4 +225,10 @@ function isKnownAgent(agentId) {
   return !!(PM_AGENT_PROMPTS[agentId] || SPEC_KIT_FILES[agentId]);
 }
 
-module.exports = { buildPrompt, listAgents, isKnownAgent, SPEC_KIT_AGENTS_DIR };
+module.exports = {
+  buildPrompt,
+  buildActaIngestPrompt,
+  listAgents,
+  isKnownAgent,
+  SPEC_KIT_AGENTS_DIR
+};

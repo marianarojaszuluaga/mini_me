@@ -40,6 +40,39 @@ agentes (que vive en MAP) con la lógica de enrutamiento/encadenado (que vive en
 
 ---
 
+## Project Brain: cómo llega un acta al Brain
+
+Gabriela ("guardiana del Project Brain") mantiene, por proyecto, un **Decision Log** y unas
+**Alerts** — ver `memory.projectBrain` en cada proyecto. Hay dos formas de alimentarlas, ambas
+convergen en el mismo endpoint:
+
+```
+Acta creada (Santi, on-demand vía dashboard, O el Apps Script "Proyecto Actas", automático)
+        │
+        ▼
+POST /brain/ingest-acta   { projectName, actaContent, metadata }
+        │
+        ▼
+Gabriela extrae { decisions[], alerts[] } — JSON estricto, no inventa lo que no está en el acta
+        │
+        ▼
+Se agregan a project.memory.projectBrain.decisionLog / .alerts / .meetingLog
+```
+
+Si `projectName` no coincide con ningún proyecto existente, se crea uno automáticamente — el
+Brain no depende de que el proyecto ya exista en MAP. El dashboard muestra el Brain del proyecto
+seleccionado (Decision Log + Alerts) en el panel "🧠 Project Brain".
+
+**Integración con el Apps Script "Proyecto Actas"**: ese script (fuera de este repo, vive en
+Google Apps Script) ya genera actas reales desde Calendar + Gemini. Para que también alimenten
+el Brain, se le agrega una llamada a este endpoint al final de `generarActaIA()` — ver snippet
+y pasos en el mensaje que te compartí, o pídemelo de nuevo si lo perdiste. Requiere 2 Script
+Properties nuevas en ese proyecto de Apps Script: `ORQ_BRAIN_URL` (la URL del backend desplegado)
+y `ORQ_BRAIN_API_KEY` (una `APP_API_KEY` dedicada para el Apps Script, distinta de la del
+dashboard, para poder revocarla por separado).
+
+---
+
 ## Qué se corrigió del prototipo original
 
 - **Tres implementaciones duplicadas → una.** `map.js` y `MAP_orchestrator.js` (SQLite, nunca
