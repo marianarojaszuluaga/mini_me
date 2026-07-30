@@ -126,13 +126,37 @@ en ese repo, no introducida aquí.
 
 ## Despliegue
 
-- **Dashboard → Vercel.** Es un build estático (Vite). Configurar `VITE_API_URL` apuntando al
-  host donde corra el backend. `dashboard/vercel.json` ya define build/output.
-- **API (MAP + Orchestrator) → host persistente** (Railway, Render, EC2). Vercel es serverless
-  con límite de tiempo de ejecución por función — no es buen fit para un orquestador que puede
-  encadenar varias invocaciones de agentes en una sola request. `STORAGE_DIR` debe apuntar a un
-  volumen persistente en ese host: si es efímero, `projects.json`/`activity.log`/`workflows.json`
-  se pierden en cada redeploy.
+Todo corre en Vercel — dos proyectos separados:
+
+- **Dashboard** (`dashboard/`): build estático (Vite). `dashboard/vercel.json` ya define
+  build/output. Necesita `VITE_API_URL` apuntando a `https://<backend>.vercel.app/map` (con
+  rebuild después de setearla — Vite la hornea en build time, no es una env var runtime).
+- **Backend** (raíz del repo, `api/map.js` + `api/orchestrator.js`): **un solo** proyecto Vercel
+  sirve MAP bajo `/map/*` y el Orchestrator bajo `/orchestrator/*` (ver `vercel.json` — rewrites +
+  el middleware de strip de prefijo en cada Express app). `MAP_URL` en las env vars del proyecto
+  debe ser `https://<este-mismo-deployment>.vercel.app/map` para que el Orchestrator le hable al
+  MAP real en vez de `localhost`.
+
+**Requiere Redis para persistir datos entre invocaciones.** Sin esto, la app funciona
+dentro de un mismo request pero cada proyecto/decisión/alerta se pierde al siguiente cold start —
+no es un despliegue real, es una demo de un solo request. Pasos:
+
+1. En el proyecto del backend en Vercel: Storage → Marketplace Database Providers → instalar una
+   integración de Redis (Upstash es la más común; puede tener costo según uso/tier — revisa el
+   pricing antes de confirmar la integración).
+2. Eso inyecta las env vars de Redis automáticamente (`UPSTASH_REDIS_REST_URL` /
+   `UPSTASH_REDIS_REST_TOKEN`, o el prefijo `KV_REST_API_*` si es una integración más antigua —
+   `src/store.js` acepta ambos).
+3. Redeploy para que tome las nuevas env vars.
+
+`@vercel/kv` (el paquete nativo) está deprecado — este repo usa `@upstash/redis` directamente,
+que es lo que la integración de Redis del Marketplace realmente expone.
+
+Si en algún momento el volumen de trabajo justifica un servidor con estado real en vez de
+funciones serverless (ejecuciones largas, más control), la alternativa sigue siendo un host
+persistente (Railway, Render, EC2) corriendo `npm start` — el código de `src/` funciona igual ahí,
+solo usa `STORAGE_DIR` (archivos) en vez de Redis y no necesita `api/`, `vercel.json` ni los
+prefijos `/map`/`/orchestrator`.
 
 ---
 

@@ -11,30 +11,40 @@
  * - map: Project + agent orchestration (19 agents, 5 phases — see src/server.js)
  * - [Other tools]: Extensible architecture
  *
- * Usage:
+ * Usage (local):
  * npm install
  * node src/orchestrator.js
+ *
+ * Usage (Vercel): deployed via api/orchestrator.js, mounted under the
+ * /orchestrator prefix — see the prefix-stripping middleware below. MAP_URL
+ * must point at the deployed MAP service's public URL (e.g. .../map) —
+ * `http://localhost:3001` only works when both run locally.
  */
 
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
-const fs = require("fs");
-const path = require("path");
 
 const { authenticateToken } = require("./middleware/auth");
+const store = require("./store");
 
 const app = express();
 const PORT = process.env.ORCHESTRATOR_PORT || 3000;
-const MAP_PORT = process.env.PORT || 3001;
-const STORAGE_DIR = process.env.STORAGE_DIR || path.join(__dirname, "..", "storage");
+const MAP_URL = process.env.MAP_URL || `http://localhost:${process.env.PORT || 3001}`;
+
+// On Vercel this app is reached via a rewrite from /orchestrator/(.*) to
+// /api/orchestrator, but the request URL the function sees is still the
+// original /orchestrator/... path — strip the prefix so routes below can
+// stay mounted at root either way.
+app.use((req, res, next) => {
+  if (req.url === "/orchestrator" || req.url.startsWith("/orchestrator/")) {
+    req.url = req.url.slice(13) || "/";
+  }
+  next();
+});
 
 app.use(cors());
 app.use(express.json());
-
-if (!fs.existsSync(STORAGE_DIR)) {
-  fs.mkdirSync(STORAGE_DIR, { recursive: true });
-}
 
 // ============================================================================
 // TOOL REGISTRY - Extend this as you add tools
@@ -44,8 +54,7 @@ const toolRegistry = {
   map: {
     name: "MAP",
     description: "Multi-Agent Project Manager — 19 agents across 5 SDLC phases",
-    port: MAP_PORT,
-    url: `http://localhost:${MAP_PORT}`,
+    url: MAP_URL,
     available: ["projects", "agents", "phases", "orchestrate", "evaluate"],
     inputs: ["projectId", "phase", "step"],
     outputs: ["project", "agentResult", "evaluation"]
@@ -82,40 +91,43 @@ app.get("/tools/:name", (req, res) => {
 // TOOL INVOCATION
 // ============================================================================
 
+async function callTool(toolName, action, body, token) {
+  const tool = toolRegistry[toolName];
+  if (!tool) {
+    const err = new Error(`Tool not found: ${toolName}`);
+    err.status = 404;
+    throw err;
+  }
+
+  const response = await fetch(`${tool.url}/${action}`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (!response.ok) {
+    throw new Error(`Tool ${toolName} failed: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
 app.post("/tools/:toolName/:action", async (req, res) => {
   try {
     const { toolName, action } = req.params;
-    const tool = toolRegistry[toolName];
-
-    if (!tool) {
-      return res.status(404).json({ error: `Tool not found: ${toolName}` });
-    }
-
-    const toolUrl = `${tool.url}/${action}`;
-    const response = await fetch(toolUrl, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${req.token}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(req.body)
-    });
-
-    if (!response.ok) {
-      throw new Error(`Tool error: ${response.statusText}`);
-    }
-
-    const result = await response.json();
-    logToolInvocation(toolName, action, result);
-
-    res.json({
+    const result = await callTool(toolName, action, req.body, req.token);
+    await store.logToolInvocation({
+      timestamp: new Date().toISOString(),
       tool: toolName,
       action,
-      timestamp: new Date().toISOString(),
-      result
+      status: "success"
     });
+    res.json({ tool: toolName, action, timestamp: new Date().toISOString(), result });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(error.status || 500).json({ error: error.message });
   }
 });
 
@@ -123,54 +135,43 @@ app.post("/tools/:toolName/:action", async (req, res) => {
 // TOOLCHAIN EXECUTION - Chain multiple tools
 // ============================================================================
 
+// Shared by /toolchain/execute AND /workflows/:id/execute — no internal HTTP
+// call to itself (that relied on `localhost`, which serverless invocations
+// don't share).
+async function executeToolchain(sequence, data, token) {
+  if (!sequence || !Array.isArray(sequence)) {
+    const err = new Error("sequence must be array of {tool, action}");
+    err.status = 400;
+    throw err;
+  }
+
+  let currentData = data || {};
+  const results = [];
+
+  for (const step of sequence) {
+    const { tool, action } = step;
+    const result = await callTool(tool, action, currentData, token);
+    results.push({ tool, action, result });
+
+    currentData = step.passOutput ? result : currentData;
+    await store.logToolInvocation({
+      timestamp: new Date().toISOString(),
+      tool,
+      action,
+      status: "success"
+    });
+  }
+
+  return { sequence, results, finalData: currentData, timestamp: new Date().toISOString() };
+}
+
 app.post("/toolchain/execute", async (req, res) => {
   try {
     const { sequence, data } = req.body;
-
-    if (!sequence || !Array.isArray(sequence)) {
-      return res.status(400).json({ error: "sequence must be array of {tool, action}" });
-    }
-
-    let currentData = data || {};
-    const results = [];
-
-    for (const step of sequence) {
-      const { tool, action } = step;
-      const toolObj = toolRegistry[tool];
-
-      if (!toolObj) {
-        throw new Error(`Tool not found: ${tool}`);
-      }
-
-      const toolUrl = `${toolObj.url}/${action}`;
-      const response = await fetch(toolUrl, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${req.token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(currentData)
-      });
-
-      if (!response.ok) {
-        throw new Error(`Tool ${tool} failed: ${response.statusText}`);
-      }
-
-      const result = await response.json();
-      results.push({ tool, action, result });
-
-      currentData = step.passOutput ? result : currentData;
-      logToolInvocation(tool, action, result);
-    }
-
-    res.json({
-      sequence,
-      results,
-      finalData: currentData,
-      timestamp: new Date().toISOString()
-    });
+    const result = await executeToolchain(sequence, data, req.token);
+    res.json(result);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(error.status || 500).json({ error: error.message });
   }
 });
 
@@ -178,18 +179,9 @@ app.post("/toolchain/execute", async (req, res) => {
 // WORKFLOWS - Save and execute tool sequences
 // ============================================================================
 
-function workflowsFilePath() {
-  return path.join(STORAGE_DIR, "workflows.json");
-}
-
-app.get("/workflows", (req, res) => {
+app.get("/workflows", async (req, res) => {
   try {
-    const file = workflowsFilePath();
-    if (fs.existsSync(file)) {
-      res.json(JSON.parse(fs.readFileSync(file, "utf8")));
-    } else {
-      res.json([]);
-    }
+    res.json(await store.readWorkflows());
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -207,14 +199,9 @@ app.post("/workflows", async (req, res) => {
       createdAt: new Date().toISOString()
     };
 
-    const file = workflowsFilePath();
-    let workflows = [];
-    if (fs.existsSync(file)) {
-      workflows = JSON.parse(fs.readFileSync(file, "utf8"));
-    }
-
+    const workflows = await store.readWorkflows();
     workflows.push(workflow);
-    fs.writeFileSync(file, JSON.stringify(workflows, null, 2));
+    await store.writeWorkflows(workflows);
 
     res.status(201).json(workflow);
   } catch (error) {
@@ -224,30 +211,17 @@ app.post("/workflows", async (req, res) => {
 
 app.post("/workflows/:id/execute", async (req, res) => {
   try {
-    const file = workflowsFilePath();
-    const workflows = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, "utf8")) : [];
+    const workflows = await store.readWorkflows();
     const workflow = workflows.find((w) => w.id === req.params.id);
 
     if (!workflow) {
       return res.status(404).json({ error: "Workflow not found" });
     }
 
-    const response = await fetch(`http://localhost:${PORT}/toolchain/execute`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${req.token}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        sequence: workflow.sequence,
-        data: req.body.data || {}
-      })
-    });
-
-    const result = await response.json();
-    res.json({ workflow: workflow.name, execution: result });
+    const execution = await executeToolchain(workflow.sequence, req.body.data || {}, req.token);
+    res.json({ workflow: workflow.name, execution });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(error.status || 500).json({ error: error.message });
   }
 });
 
@@ -259,36 +233,20 @@ app.get("/system/state", (req, res) => {
   res.json({
     tools: Object.keys(toolRegistry),
     port: PORT,
-    storage: STORAGE_DIR,
+    storage: store.usingKV ? "vercel-kv" : "filesystem",
     timestamp: new Date().toISOString()
   });
 });
 
 // ============================================================================
-// UTILITIES
-// ============================================================================
-
-function logToolInvocation(toolName, action, output) {
-  const logFile = path.join(STORAGE_DIR, "orchestrator.log");
-  const entry = { timestamp: new Date().toISOString(), tool: toolName, action, status: "success" };
-
-  let logs = [];
-  if (fs.existsSync(logFile)) {
-    logs = JSON.parse(fs.readFileSync(logFile, "utf8"));
-  }
-
-  logs.push(entry);
-  fs.writeFileSync(logFile, JSON.stringify(logs, null, 2));
-}
-
-// ============================================================================
-// START
+// START (local/self-hosted only — Vercel requires the app, not a listener)
 // ============================================================================
 
 if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`Master Orchestrator running on port ${PORT}`);
     console.log(`Tools: ${Object.keys(toolRegistry).join(", ")}`);
+    console.log(`MAP_URL: ${MAP_URL}`);
   });
 }
 

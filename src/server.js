@@ -9,10 +9,14 @@
  * - Validates phase/step combinations against ia-hybrid-teams/spec-kit/PHASE_CONTRACTS.md
  * - Integrates with AgentEvaluator for real quality scoring
  * - Real API-key authentication (see middleware/auth.js)
+ * - Storage via src/store.js: plain files locally, Vercel KV in serverless
  *
- * Usage:
+ * Usage (local):
  * npm install
  * node src/server.js
+ *
+ * Usage (Vercel): deployed via api/map.js, mounted under the /map prefix —
+ * see the prefix-stripping middleware below.
  *
  * Endpoints:
  * GET    /health
@@ -33,18 +37,26 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const Anthropic = require("@anthropic-ai/sdk");
-const fs = require("fs");
-const path = require("path");
 
 const { authenticateToken } = require("./middleware/auth");
 const agentRegistry = require("./agents/registry");
 const phaseContracts = require("./phases/phaseContracts");
 const AgentEvaluator = require("./agent-evaluator");
+const store = require("./store");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
-const STORAGE_DIR = process.env.STORAGE_DIR || path.join(__dirname, "..", "storage");
+
+// On Vercel this app is reached via a rewrite from /map/(.*) to /api/map, but
+// the request URL the function sees is still the original /map/... path —
+// strip the prefix so routes below can stay mounted at root either way.
+app.use((req, res, next) => {
+  if (req.url === "/map" || req.url.startsWith("/map/")) {
+    req.url = req.url.slice(4) || "/";
+  }
+  next();
+});
 
 app.use(cors());
 app.use(express.json());
@@ -52,18 +64,15 @@ app.use(express.json());
 const client = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
 const evaluator = new AgentEvaluator(ANTHROPIC_API_KEY);
 
-if (!fs.existsSync(STORAGE_DIR)) {
-  fs.mkdirSync(STORAGE_DIR, { recursive: true });
-}
-
 // Health check stays unauthenticated on purpose: deploy platforms (Railway,
-// Render, etc.) probe this over plain HTTP with no API key to decide whether
-// to route traffic to the instance.
+// Render, Vercel, etc.) probe this over plain HTTP with no API key to decide
+// whether to route traffic to the instance.
 app.get("/health", (req, res) => {
   res.json({
     status: "ok",
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || "development"
+    environment: process.env.NODE_ENV || "development",
+    storage: store.usingKV ? "vercel-kv" : "filesystem"
   });
 });
 
@@ -95,22 +104,32 @@ app.get("/phases/:idOrKey", (req, res) => {
 // PROJECT MANAGEMENT
 // ============================================================================
 
-function projectsFilePath() {
-  return path.join(STORAGE_DIR, "projects.json");
-}
-
-function readProjects() {
-  const file = projectsFilePath();
-  if (!fs.existsSync(file)) return [];
-  return JSON.parse(fs.readFileSync(file, "utf8"));
-}
-
-function writeProjects(projects) {
-  fs.writeFileSync(projectsFilePath(), JSON.stringify(projects, null, 2));
-}
-
 function defaultProjectBrain() {
   return { status: "pending", decisionLog: [], alerts: [], meetingLog: [] };
+}
+
+function newProjectRecord({ id, name, owner, description, phase }) {
+  return {
+    id,
+    name,
+    owner,
+    description,
+    currentPhase: phase || 1,
+    currentStep: "iniciando",
+    status: "active",
+    progress: 0,
+    createdAt: new Date().toISOString(),
+    memory: {
+      projectBrain: defaultProjectBrain(),
+      backlogs: {
+        hu: { status: "pending", ids: [] },
+        plans: { status: "pending", plans: [] },
+        actas: { status: "pending", actas: [] }
+      },
+      sprints: { current: 1, status: "pending" },
+      timeline: { createdAt: new Date().toISOString(), activities: [] }
+    }
+  };
 }
 
 // Projects created before decisionLog/alerts/meetingLog existed won't have
@@ -123,17 +142,18 @@ function ensureBrainShape(project) {
   return project;
 }
 
-app.get("/projects", (req, res) => {
+app.get("/projects", async (req, res) => {
   try {
-    res.json(readProjects());
+    res.json(await store.readProjects());
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-app.get("/projects/:id", (req, res) => {
+app.get("/projects/:id", async (req, res) => {
   try {
-    const project = readProjects().find((p) => p.id === req.params.id);
+    const projects = await store.readProjects();
+    const project = projects.find((p) => p.id === req.params.id);
     if (!project) return res.status(404).json({ error: "Project not found" });
     res.json(project);
   } catch (error) {
@@ -141,38 +161,20 @@ app.get("/projects/:id", (req, res) => {
   }
 });
 
-app.post("/projects", (req, res) => {
+app.post("/projects", async (req, res) => {
   try {
     const { name, owner, description, phase } = req.body;
-
-    const newProject = {
+    const newProject = newProjectRecord({
       id: `Proyecto_${Date.now()}`,
       name,
       owner,
       description,
-      currentPhase: phase || 1,
-      currentStep: "iniciando",
-      status: "active",
-      progress: 0,
-      createdAt: new Date().toISOString(),
-      memory: {
-        projectBrain: defaultProjectBrain(),
-        backlogs: {
-          hu: { status: "pending", ids: [] },
-          plans: { status: "pending", plans: [] },
-          actas: { status: "pending", actas: [] }
-        },
-        sprints: { current: 1, status: "pending" },
-        timeline: {
-          createdAt: new Date().toISOString(),
-          activities: []
-        }
-      }
-    };
+      phase
+    });
 
-    const projects = readProjects();
+    const projects = await store.readProjects();
     projects.push(newProject);
-    writeProjects(projects);
+    await store.writeProjects(projects);
 
     res.status(201).json(newProject);
   } catch (error) {
@@ -184,42 +186,56 @@ app.post("/projects", (req, res) => {
 // AGENT INVOCATION
 // ============================================================================
 
+// Shared by the /agents/:name/invoke route AND /orchestrate — no internal
+// HTTP call to itself. That pattern relied on `localhost` being reachable,
+// which isn't true across serverless invocations (and was wasteful even
+// locally: same process, two network round-trips for one Claude call).
+async function invokeAgentCore(name, projectId, input, context) {
+  if (!agentRegistry.isKnownAgent(name)) {
+    const err = new Error(`Unknown agent: ${name}`);
+    err.status = 400;
+    throw err;
+  }
+
+  const prompt = agentRegistry.buildPrompt(name, input, context);
+  const requestPayload = {
+    model: "claude-3-5-haiku-20241022",
+    max_tokens: 2000,
+    messages: [{ role: "user", content: prompt.user }]
+  };
+  if (prompt.system) {
+    requestPayload.system = prompt.system;
+  }
+
+  const response = await client.messages.create(requestPayload);
+
+  const result = {
+    agent: name,
+    projectId,
+    timestamp: new Date().toISOString(),
+    output: response.content[0].text,
+    usage: response.usage
+  };
+
+  await store.logActivity({
+    timestamp: result.timestamp,
+    projectId,
+    agent: name,
+    action: "invoked",
+    status: "completed"
+  });
+
+  return result;
+}
+
 app.post("/agents/:name/invoke", async (req, res) => {
   try {
     const { name } = req.params;
     const { projectId, input, context } = req.body;
-
-    if (!agentRegistry.isKnownAgent(name)) {
-      return res.status(400).json({ error: `Unknown agent: ${name}` });
-    }
-
-    const prompt = agentRegistry.buildPrompt(name, input, context);
-    const messages = [{ role: "user", content: prompt.user }];
-
-    const requestPayload = {
-      model: "claude-3-5-haiku-20241022",
-      max_tokens: 2000,
-      messages
-    };
-    if (prompt.system) {
-      requestPayload.system = prompt.system;
-    }
-
-    const response = await client.messages.create(requestPayload);
-
-    const result = {
-      agent: name,
-      projectId,
-      timestamp: new Date().toISOString(),
-      output: response.content[0].text,
-      usage: response.usage
-    };
-
-    logActivity(projectId, name, "invoked", "completed");
-
+    const result = await invokeAgentCore(name, projectId, input, context);
     res.json(result);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(error.status || 500).json({ error: error.message });
   }
 });
 
@@ -272,30 +288,16 @@ app.post("/orchestrate", async (req, res) => {
       });
     }
 
-    const projects = readProjects();
+    const projects = await store.readProjects();
     const project = projects.find((p) => p.id === projectId);
     if (!project) {
       return res.status(404).json({ error: "Project not found" });
     }
 
-    const agentResponse = await fetch(`http://localhost:${PORT}/agents/${agentToInvoke}/invoke`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${req.token}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        projectId,
-        input: step,
-        context: { phase: phaseContract.key, step }
-      })
+    const agentResult = await invokeAgentCore(agentToInvoke, projectId, step, {
+      phase: phaseContract.key,
+      step
     });
-
-    if (!agentResponse.ok) {
-      throw new Error("Agent invocation failed");
-    }
-
-    const agentResult = await agentResponse.json();
 
     project.currentPhase = phaseContract.id;
     project.currentStep = step;
@@ -307,7 +309,7 @@ app.post("/orchestrate", async (req, res) => {
       status: "completed"
     });
 
-    writeProjects(projects);
+    await store.writeProjects(projects);
 
     res.json({
       projectId,
@@ -318,7 +320,7 @@ app.post("/orchestrate", async (req, res) => {
       projectUpdated: project
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(error.status || 500).json({ error: error.message });
   }
 });
 
@@ -358,31 +360,16 @@ app.post("/brain/ingest-acta", async (req, res) => {
       return res.status(400).json({ error: "projectName and actaContent are required" });
     }
 
-    const projects = readProjects();
+    const projects = await store.readProjects();
     let project = projects.find((p) => p.name === projectName);
 
     if (!project) {
-      project = {
+      project = newProjectRecord({
         id: `Proyecto_${Date.now()}`,
         name: projectName,
         owner: (metadata && metadata.attendees) || "unknown",
-        description: `Auto-creado desde acta de reunión: ${(metadata && metadata.meetingTitle) || projectName}`,
-        currentPhase: 1,
-        currentStep: "iniciando",
-        status: "active",
-        progress: 0,
-        createdAt: new Date().toISOString(),
-        memory: {
-          projectBrain: defaultProjectBrain(),
-          backlogs: {
-            hu: { status: "pending", ids: [] },
-            plans: { status: "pending", plans: [] },
-            actas: { status: "pending", actas: [] }
-          },
-          sprints: { current: 1, status: "pending" },
-          timeline: { createdAt: new Date().toISOString(), activities: [] }
-        }
-      };
+        description: `Auto-creado desde acta de reunión: ${(metadata && metadata.meetingTitle) || projectName}`
+      });
       projects.push(project);
     }
 
@@ -423,7 +410,7 @@ app.post("/brain/ingest-acta", async (req, res) => {
       status: "completed"
     });
 
-    writeProjects(projects);
+    await store.writeProjects(projects);
 
     res.json({
       projectId: project.id,
@@ -438,30 +425,14 @@ app.post("/brain/ingest-acta", async (req, res) => {
 });
 
 // ============================================================================
-// UTILITIES
-// ============================================================================
-
-function logActivity(projectId, agent, action, status) {
-  const logFile = path.join(STORAGE_DIR, "activity.log");
-  const logEntry = { timestamp: new Date().toISOString(), projectId, agent, action, status };
-
-  let logs = [];
-  if (fs.existsSync(logFile)) {
-    logs = JSON.parse(fs.readFileSync(logFile, "utf8"));
-  }
-
-  logs.push(logEntry);
-  fs.writeFileSync(logFile, JSON.stringify(logs, null, 2));
-}
-
-// ============================================================================
-// START SERVER
+// START SERVER (local/self-hosted only — Vercel requires the app, not a listener)
 // ============================================================================
 
 if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`MAP Backend Server running on port ${PORT}`);
     console.log(`Anthropic API key: ${ANTHROPIC_API_KEY ? "configured" : "MISSING"}`);
+    console.log(`Storage: ${store.usingKV ? "Vercel KV" : "filesystem"}`);
     console.log(`Spec-kit agents dir: ${agentRegistry.SPEC_KIT_AGENTS_DIR}`);
   });
 }
