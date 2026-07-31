@@ -1,7 +1,7 @@
 /**
  * Agent Registry
  *
- * Two agent families, one lookup table:
+ * Three agent families, one lookup table:
  *
  * 1. PM agents (gimena, gabi, gabriela, santi, daniel) — prompts are inline,
  *    ported as-is from the original MAP prototype (no canonical .md source exists
@@ -12,9 +12,14 @@
  *    We do not paraphrase or reinvent them: the .md file IS the system prompt,
  *    per ia-hybrid-teams/claude.md rule "no inventar... que no esté en la documentación".
  *
+ * 3. External agents — ready-made subagent personas from outside ia-hybrid-teams
+ *    (e.g. vic-release-notes, ported from a real Claude Code subagent spec for a
+ *    different product). Same verbatim-load principle as spec-kit agents, just a
+ *    different source folder since they aren't part of that methodology repo.
+ *
  * SPEC_KIT_AGENTS_DIR must point at the ia-hybrid-teams `agents/` folder (or a
- * copy of it). If the folder isn't reachable, spec-kit agents are simply absent
- * from the registry (fail loud at invoke time, not at boot).
+ * copy of it). If a folder isn't reachable, those agents are simply absent from
+ * the registry (fail loud at invoke time, not at boot).
  */
 
 const fs = require("fs");
@@ -22,6 +27,8 @@ const path = require("path");
 
 const SPEC_KIT_AGENTS_DIR =
   process.env.SPEC_KIT_AGENTS_DIR || path.join(__dirname, "spec-kit-agents");
+const EXTERNAL_AGENTS_DIR =
+  process.env.EXTERNAL_AGENTS_DIR || path.join(__dirname, "external-agents");
 
 // canon agent_id -> source .md filename (per ia-hybrid-teams/spec-kit/AGENT_REGISTRY.md)
 const SPEC_KIT_FILES = {
@@ -145,6 +152,18 @@ INPUT: ${input}
 Genera ambas versiones de release notes.`
 };
 
+const EXTERNAL_AGENT_FILES = {
+  "vic-release-notes": "vic-release-notes.md",
+  // The next 3 are derived from esquema-planeacion.md (Mariana's own reusable
+  // planning playbook), covering the 3 sub-phases of Planeación (Fase 1 of
+  // PHASE_CONTRACTS.md) that had no owning agent: Milestones, DoD, and the
+  // scope↔capacity↔date Reconciliation gate. See phaseContracts.js's
+  // planningSubPhases for how they chain together.
+  "milestone-writer": "milestone-writer.md",
+  "dod-definer": "dod-definer.md",
+  "capacity-reconciler": "capacity-reconciler.md"
+};
+
 function loadSpecKitPrompt(agentId) {
   const filename = SPEC_KIT_FILES[agentId];
   if (!filename) return null;
@@ -154,6 +173,20 @@ function loadSpecKitPrompt(agentId) {
     throw new Error(
       `Spec-kit agent "${agentId}" registered but source file missing: ${filePath}. ` +
         `Set SPEC_KIT_AGENTS_DIR to your ia-hybrid-teams/agents folder.`
+    );
+  }
+  return fs.readFileSync(filePath, "utf8");
+}
+
+function loadExternalPrompt(agentId) {
+  const filename = EXTERNAL_AGENT_FILES[agentId];
+  if (!filename) return null;
+
+  const filePath = path.join(EXTERNAL_AGENTS_DIR, filename);
+  if (!fs.existsSync(filePath)) {
+    throw new Error(
+      `External agent "${agentId}" registered but source file missing: ${filePath}. ` +
+        `Set EXTERNAL_AGENTS_DIR if you moved it.`
     );
   }
   return fs.readFileSync(filePath, "utf8");
@@ -176,6 +209,14 @@ function buildPrompt(agentId, input, context) {
     return {
       system: systemPrompt,
       user: `CONTEXTO: ${JSON.stringify(context || {})}\nINPUT: ${input}\n\nResponde siguiendo estrictamente tu rol, comportamiento y restricciones definidos arriba.`
+    };
+  }
+
+  if (EXTERNAL_AGENT_FILES[agentId]) {
+    const systemPrompt = loadExternalPrompt(agentId);
+    return {
+      system: systemPrompt,
+      user: `CONTEXT: ${JSON.stringify(context || {})}\nINPUT: ${input}\n\nFollow your role and rules exactly as defined above.`
     };
   }
 
@@ -217,12 +258,13 @@ Responde SOLO con este JSON, sin texto adicional:
 function listAgents() {
   return [
     ...Object.keys(PM_AGENT_PROMPTS).map((id) => ({ id, family: "pm" })),
-    ...Object.keys(SPEC_KIT_FILES).map((id) => ({ id, family: "spec-kit" }))
+    ...Object.keys(SPEC_KIT_FILES).map((id) => ({ id, family: "spec-kit" })),
+    ...Object.keys(EXTERNAL_AGENT_FILES).map((id) => ({ id, family: "external" }))
   ];
 }
 
 function isKnownAgent(agentId) {
-  return !!(PM_AGENT_PROMPTS[agentId] || SPEC_KIT_FILES[agentId]);
+  return !!(PM_AGENT_PROMPTS[agentId] || SPEC_KIT_FILES[agentId] || EXTERNAL_AGENT_FILES[agentId]);
 }
 
 module.exports = {
@@ -230,5 +272,6 @@ module.exports = {
   buildActaIngestPrompt,
   listAgents,
   isKnownAgent,
-  SPEC_KIT_AGENTS_DIR
+  SPEC_KIT_AGENTS_DIR,
+  EXTERNAL_AGENTS_DIR
 };

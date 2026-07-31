@@ -245,10 +245,25 @@ app.post("/agents/:name/invoke", async (req, res) => {
 
 // Which agent handles a given (phase, step) — validated against phaseContracts
 // so we never invoke an agent that isn't actually assigned to that phase.
+//
+// Phase 1 steps follow esquema-planeacion.md's 7 sub-phases (0-6) in order —
+// see phaseContracts.js's PLANNING_SUB_PHASES for objective/output/gate per step.
+//
+// santi/daniel (actas, release notes) are intentionally NOT here: they aren't
+// tied to a single phase step, they run continuously across the whole
+// lifecycle. Invoke them directly via /agents/:name/invoke instead of through
+// /orchestrate. (They used to be mapped to "3:meeting_minutes"/"3:release_notes"
+// here, but neither is in Phase 3's agent list in phaseContracts.js, so those
+// calls always 400'd — removed rather than fixed, since forcing them into one
+// phase was the wrong model to begin with.)
 const STEP_TO_AGENT = {
-  "1:project_brain": "gabriela",
-  "1:user_stories": "gimena",
-  "1:scheduling": "gina-scheduler",
+  "1:lock_scope": "gimena",
+  "1:milestones": "milestone-writer",
+  "1:dod": "dod-definer",
+  "1:estimation": "gabi",
+  "1:reconciliation": "capacity-reconciler",
+  "1:timeline": "gina-scheduler",
+  "1:transversales": "auditor",
   "2:data_model": "data-engineer",
   "2:work_plan": "gabi",
   "2:review": "auditor",
@@ -257,9 +272,7 @@ const STEP_TO_AGENT = {
   "3:integration": "integration",
   "4:sonar_gate": "sonar-quality-gate",
   "4:unit_test_review": "unit-test-standards-reviewer",
-  "4:quality_report": "quality-report-generator",
-  "3:meeting_minutes": "santi",
-  "3:release_notes": "daniel"
+  "4:quality_report": "quality-report-generator"
 };
 
 app.post("/orchestrate", async (req, res) => {

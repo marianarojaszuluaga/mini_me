@@ -6,7 +6,84 @@
  * Phase 5 (Deploy) has no agent participants in the source doc (it notes tooling
  * predominates there and recommends a future "Deployment Operator Agent" spec),
  * so its `agents` list stays empty here rather than inventing one.
+ *
+ * Phase 1 (Planeación)'s internal structure is further transcribed from
+ * `esquema-planeacion.md` (Mariana's own reusable planning playbook, not part
+ * of ia-hybrid-teams) — see `planningSubPhases` below. That doc's "Regla de
+ * oro" governs Fase 4 (Reconciliación): scope, time, and capacity cannot all
+ * be fixed at once — if they don't reconcile, one has to give, in the
+ * documented lever order (see capacity-reconciler agent).
  */
+
+const PLANNING_SUB_PHASES = [
+  {
+    id: 0,
+    key: "lock_scope",
+    title: "Lock de alcance + baseline",
+    objective: "Congelar qué es el MVP y medir lo ya avanzado",
+    output: "Backlog del alcance + % de avance real",
+    gate: "¿El alcance está congelado?",
+    agent: "gimena"
+  },
+  {
+    id: 1,
+    key: "milestones",
+    title: "Milestones (de cara al cliente)",
+    objective: "Partir el alcance en hitos que digan 'qué vas a poder ver/hacer'",
+    output: "Lista de milestones con su promesa de valor",
+    gate: "¿Los milestones son demostrables y aprobados?",
+    agent: "milestone-writer"
+  },
+  {
+    id: 2,
+    key: "dod",
+    title: "Definition of Done",
+    objective: "Definir 'terminado' objetivo: global + por milestone",
+    output: "DoD global + DoD por milestone",
+    gate: "¿El DoD es objetivo y acordado?",
+    agent: "dod-definer"
+  },
+  {
+    id: 3,
+    key: "estimation",
+    title: "Estimación",
+    objective: "Dimensionar el esfuerzo por tarea/módulo",
+    output: "Estimación preliminar contra capacidad",
+    gate: null,
+    agent: "gabi"
+  },
+  {
+    id: 4,
+    key: "reconciliation",
+    title: "Reconciliación alcance ↔ capacidad ↔ fecha",
+    objective: "Ver si cabe; si no, aplicar palancas — es un loop",
+    output: "Brecha calculada + decisiones de ajuste",
+    gate: "¿La brecha alcance↔capacidad↔fecha está cerrada o decidida? (el gate más importante)",
+    agent: "capacity-reconciler"
+  },
+  {
+    id: 5,
+    key: "timeline",
+    title: "Timeline",
+    objective: "Ubicar tareas en el calendario: fechas internas vs cliente + buffer",
+    output: "Cronograma / Gantt comprometible",
+    gate: "¿El timeline es comprometible con buffer?",
+    agent: "gina-scheduler"
+  },
+  {
+    id: 6,
+    key: "transversales",
+    title: "Transversales",
+    objective: "Cerrar lo que cruza todos los hitos",
+    output: "Notas de multiplataforma, deploy, pruebas, seguridad",
+    gate: null,
+    // Cross-cutting by nature — auditor listed as the representative owner
+    // for /orchestrate's single-agent-per-step mapping, but qa-integrator and
+    // architect also contribute here per their own phase listings and can be
+    // invoked directly regardless of this mapping.
+    agent: "auditor"
+  }
+];
 
 const PHASES = [
   {
@@ -19,13 +96,29 @@ const PHASES = [
       "database design.sql",
       "Arquitectura (documentos)",
       "Notas técnicas adicionales",
-      "HUs/conceptos a construir (si aplica)"
+      "HUs/conceptos a construir (si aplica)",
+      "Marco del proyecto: alcance, fechas, capacidad (esquema-planeacion.md §2)"
     ],
     outputs: [
-      "Conjunto de HUs para todos los módulos",
-      "Scheduler final (módulos, HUs, timing, hitos, asignación de recursos)"
+      "Backlog del alcance + baseline de avance",
+      "Milestones de cara al cliente",
+      "Definition of Done (global + por milestone)",
+      "Estimación preliminar",
+      "Brecha alcance↔capacidad↔fecha cerrada o decidida",
+      "Timeline/Gantt comprometible con buffer",
+      "Notas transversales (multiplataforma, deploy, pruebas, seguridad)"
     ],
-    agents: ["gabriela", "hu-work-planner", "gimena", "gina-scheduler"]
+    agents: [
+      "gabriela",
+      "hu-work-planner",
+      "gimena",
+      "gina-scheduler",
+      "gabi",
+      "milestone-writer",
+      "dod-definer",
+      "capacity-reconciler"
+    ],
+    planningSubPhases: PLANNING_SUB_PHASES
   },
   {
     id: 2,
