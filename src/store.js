@@ -25,11 +25,26 @@ const isServerless = !!process.env.VERCEL;
 const STORAGE_DIR =
   process.env.STORAGE_DIR || (isServerless ? "/tmp/orquestrador-360" : path.join(__dirname, "..", "storage"));
 
-// Vercel's Redis Marketplace integration has used different env var prefixes
-// depending on when/how it was added (KV_* for the old native product, now
-// UPSTASH_REDIS_* for the Marketplace integration) — accept either.
-const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
-const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
+// Vercel's Redis Marketplace integration (Upstash) namespaces every env var
+// with a store-specific prefix to avoid collisions when a project has more
+// than one database connected — e.g. "orquestradormar_KV_REST_API_URL", not
+// the bare "KV_REST_API_URL". There's no way to predict that prefix, so
+// instead of one exact name, match ANY env var ending in the expected
+// suffix. Also accepts the old unprefixed native-KV names and the
+// UPSTASH_REDIS_REST_* names, for whichever integration flavor ends up wired.
+function findEnvBySuffix(suffixes) {
+  const key = Object.keys(process.env).find((k) => suffixes.some((suffix) => k.endsWith(suffix)));
+  return key ? process.env[key] : undefined;
+}
+
+const REDIS_URL =
+  process.env.UPSTASH_REDIS_REST_URL ||
+  process.env.KV_REST_API_URL ||
+  findEnvBySuffix(["_KV_REST_API_URL", "_REDIS_REST_URL"]);
+const REDIS_TOKEN =
+  process.env.UPSTASH_REDIS_REST_TOKEN ||
+  process.env.KV_REST_API_TOKEN ||
+  findEnvBySuffix(["_KV_REST_API_TOKEN", "_REDIS_REST_TOKEN"]);
 const usingKV = !!(REDIS_URL && REDIS_TOKEN);
 
 let redis = null;
