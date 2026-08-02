@@ -198,9 +198,10 @@ async function invokeAgentCore(name, projectId, input, context) {
   }
 
   const prompt = agentRegistry.buildPrompt(name, input, context);
+  const { model, maxTokens } = agentRegistry.getModelConfig(name);
   const requestPayload = {
-    model: "claude-3-5-haiku-20241022",
-    max_tokens: 2000,
+    model,
+    max_tokens: maxTokens,
     messages: [{ role: "user", content: prompt.user }]
   };
   if (prompt.system) {
@@ -214,7 +215,8 @@ async function invokeAgentCore(name, projectId, input, context) {
     projectId,
     timestamp: new Date().toISOString(),
     output: response.content[0].text,
-    usage: response.usage
+    usage: response.usage,
+    model
   };
 
   await store.logActivity({
@@ -389,9 +391,10 @@ app.post("/brain/ingest-acta", async (req, res) => {
     ensureBrainShape(project);
 
     const prompt = agentRegistry.buildActaIngestPrompt(actaContent, metadata);
+    const { model, maxTokens } = agentRegistry.getModelConfig("gabriela");
     const response = await client.messages.create({
-      model: "claude-3-5-sonnet-20241022",
-      max_tokens: 1500,
+      model,
+      max_tokens: maxTokens,
       messages: [{ role: "user", content: prompt }]
     });
 

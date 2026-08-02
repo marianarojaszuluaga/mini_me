@@ -110,7 +110,6 @@ const PHASES = [
     ],
     agents: [
       "gabriela",
-      "hu-work-planner",
       "gimena",
       "gina-scheduler",
       "gabi",

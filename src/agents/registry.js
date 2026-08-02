@@ -1,25 +1,55 @@
 /**
  * Agent Registry
  *
- * Three agent families, one lookup table:
+ * Two agent families, one lookup table:
  *
- * 1. PM agents (gimena, gabi, gabriela, santi, daniel) — prompts are inline,
- *    ported as-is from the original MAP prototype (no canonical .md source exists
- *    for these; they predate the ia-hybrid-teams spec-kit).
+ * 1. PM agents (santi, daniel) — prompts are inline. No canonical .md source
+ *    exists for these; they predate the ia-hybrid-teams spec-kit and no
+ *    equivalent file was ever authored for them.
  *
- * 2. Spec-kit agents (architect, fullstack-developer, flutter-developer, ...) —
- *    prompts are loaded VERBATIM from ia-hybrid-teams/agents/*.md at request time.
- *    We do not paraphrase or reinvent them: the .md file IS the system prompt,
- *    per ia-hybrid-teams/claude.md rule "no inventar... que no esté en la documentación".
+ * 2. Spec-kit agents (architect, fullstack-developer, gimena, gabi, gabriela,
+ *    ...) — prompts are loaded VERBATIM from ia-hybrid-teams/agents/*.md at
+ *    request time. We do not paraphrase or reinvent them: the .md file IS the
+ *    system prompt, per ia-hybrid-teams/claude.md rule "no inventar... que no
+ *    esté en la documentación".
  *
- * 3. External agents — ready-made subagent personas from outside ia-hybrid-teams
- *    (e.g. vic-release-notes, ported from a real Claude Code subagent spec for a
- *    different product). Same verbatim-load principle as spec-kit agents, just a
- *    different source folder since they aren't part of that methodology repo.
+ *    gimena/gabi/gabriela used to run a simplified inline paraphrase instead
+ *    of their real specs (Gimena-userstorywriter.md v1.6, Gabi-workplanner.md
+ *    v1.1) — that violated the same verbatim principle applied to every other
+ *    spec-kit agent, so they were moved here. gabriela is the one exception:
+ *    her canonical file (Gabriela-ProjectBrain.md) is the Project Brain
+ *    DOCUMENT TEMPLATE she maintains, not a behavior spec for "being
+ *    Gabriela" — loading it as-is as a system prompt would tell the model
+ *    "you are a template with blank fields," not "you are Gabriela." She
+ *    stays inline, rewritten to require producing output in that template's
+ *    exact structure instead of a looser one we made up.
+ *
+ *    hu-work-planner was retired (2026-08) — it and Gabi-workplanner.md are
+ *    the same agent: the file's own body repeatedly self-identifies as
+ *    "el agente hu-work-planner" even though the filename says Gabi. Two
+ *    registry entries for one job was a real redundancy, not a naming quirk.
+ *    Kept as "gabi" since that's what phaseContracts.js already wires into
+ *    Fase 1 (Estimación) and Fase 2.
  *
  * SPEC_KIT_AGENTS_DIR must point at the ia-hybrid-teams `agents/` folder (or a
  * copy of it). If a folder isn't reachable, those agents are simply absent from
  * the registry (fail loud at invoke time, not at boot).
+ *
+ * "external" agents (milestone-writer, dod-definer, capacity-reconciler) are
+ * derived from esquema-planeacion.md (Mariana's own reusable planning
+ * playbook, outside ia-hybrid-teams) — same verbatim-load mechanism, separate
+ * folder since they aren't part of that methodology repo. vic-release-notes
+ * (a ported product-specific release-notes agent) was retired 2026-08 in
+ * favor of the generic `daniel` — kept as one agent for release notes
+ * instead of two with no rule for which to use.
+ *
+ * MODEL SELECTION: every agent has a declared model tier + max_tokens in
+ * AGENT_MODEL_CONFIG below, instead of one hardcoded model for every call.
+ * Mechanical/structured output (reports, video-evidence logging) gets haiku
+ * and a small cap; planning/writing/judgment work gets sonnet and enough
+ * room for a full document. Opus is deliberately not assigned by default
+ * anywhere — available as a manual override for a specific high-stakes call,
+ * not a standing cost commitment.
  */
 
 const fs = require("fs");
@@ -30,7 +60,8 @@ const SPEC_KIT_AGENTS_DIR =
 const EXTERNAL_AGENTS_DIR =
   process.env.EXTERNAL_AGENTS_DIR || path.join(__dirname, "external-agents");
 
-// canon agent_id -> source .md filename (per ia-hybrid-teams/spec-kit/AGENT_REGISTRY.md)
+// canon agent_id -> source .md filename (per ia-hybrid-teams/spec-kit/AGENT_REGISTRY.md,
+// corrected where the registry doc itself is wrong — see file header)
 const SPEC_KIT_FILES = {
   architect: "architect.md",
   "fullstack-developer": "fullstack-developer.md",
@@ -38,7 +69,8 @@ const SPEC_KIT_FILES = {
   "data-engineer": "data-engineer.md",
   auditor: "auditor.md",
   "fixed-errors": "fixed-errors.md",
-  "hu-work-planner": "hu-work-planner.md",
+  gimena: "Gimena-userstorywriter.md",
+  gabi: "Gabi-workplanner.md",
   // NOTE: AGENT_REGISTRY.md references "gimena-scheduler.md" but the actual file
   // in agents/ is "Gina-scheduler.md" — this is a pre-existing inconsistency in
   // ia-hybrid-teams itself, not something introduced here. Pointing at the real file.
@@ -53,65 +85,31 @@ const SPEC_KIT_FILES = {
 };
 
 const PM_AGENT_PROMPTS = {
-  gimena: (input, context) => `Eres GIMENA, especialista en generar Historias de Usuario técnicas.
-Tu trabajo es transformar requerimientos en HUs estandarizadas:
-- Contexto (Como X Quiero Y Para Z)
-- Criterios de Aceptación
-- Casos de Uso y Reglas de Negocio
-- Manejo de Errores
-- Referencias visuales
-
-IMPORTANTE:
-1. Consulta project_brain_[project_name].md para contexto
-2. Registra HUs en backlog.md con ID incremental (HU-001, HU-002...)
-3. Crea output: HU_RUN-[RUN_ID]_[DATE].md
-4. Responde SOLO en JSON
-
-CONTEXTO: ${JSON.stringify(context)}
-INPUT: ${input}
-
-Genera HUs técnicas basadas en este input.`,
-
-  gabi: (input, context) => `Eres GABI, Arquitecto de Planificación Técnica especializado en TDD y SOLID.
-Tu trabajo es crear un Plan de Trabajo completo para una HU:
-- Análisis de Requisitos (Funcionales y No Funcionales)
-- Estrategia de Pruebas (TDD: Unit, Integration, API, E2E)
-- Principios SOLID (SRP, OCP, LSP, ISP, DIP)
-- Hoja de Ruta (5 fases: DB → Backend → API → Frontend → Integración)
-- Estimaciones (Optimista, Realista, Pesimista)
-- Riesgos y Dependencias
-
-IMPORTANTE:
-1. Consulta project_brain_[project_name].md y CLAUDE.md
-2. NO generes código - solo planificación
-3. Crea output: PLAN_[HU-###]_[DATE].txt
-4. Responde SOLO en JSON
-
-CONTEXTO: ${JSON.stringify(context)}
-INPUT: ${input}
-
-Crea Plan de Trabajo con TDD y SOLID.`,
-
+  // Gabriela stays inline (see file header for why) but now targets the real
+  // V2.0.0 Project Brain template structure (Gabriela-ProjectBrain.md) instead
+  // of a looser, made-up section list.
   gabriela: (input, context) => `Eres GABRIELA, guardiana del Project Brain.
-Tu responsabilidad es mantener centralizado:
-- Descripción ejecutiva del proyecto
-- Stakeholders y roles
-- Scope Matrix (In/Out de scope)
-- Timeline y Milestones
-- Reglas de Negocio críticas
-- Master Meeting Log
-- Change Log y Decision Log
+
+Tu responsabilidad es mantener el Project Brain del proyecto siguiendo EXACTAMENTE
+la estructura del template canónico (ia-hybrid-teams/agents/Gabriela-ProjectBrain.md,
+V2.0.0), no una estructura libre:
+
+1. Strategic Definition & Governance (Executive Summary, Stakeholders and Approvers)
+2. Scope Management (Scope Matrix In/Out por módulo)
+3. Timeline & Milestones (Start/End Date, Delivery Roadmap con status)
+4. Dynamic Knowledge & Meeting Logs (Master Meeting Doc, Change Log / Decision Log)
+5. Functional Requirements (Key Characteristics, Critical Business Rules)
 
 IMPORTANTE:
 1. Archivo: project_brain_[project_name].md
-2. Los agentes (Gimena, Gabi) consultan este documento ANTES de cualquier decisión
-3. Cualquier cambio aprobado debe reflejarse aquí
+2. Ante cualquier discrepancia entre este documento y el Decision Log, gana el Decision Log
+3. Los agentes gimena/gabi consultan este documento ANTES de cualquier decisión
 4. Responde SOLO en JSON
 
 CONTEXTO: ${JSON.stringify(context)}
 INPUT: ${input}
 
-Proporciona resumen del Project Brain.`,
+Proporciona resumen del Project Brain siguiendo esa estructura de 5 secciones.`,
 
   // Santi is the on-demand path: paste a raw transcript in the dashboard and get
   // an acta back. The real, automated path is the "Proyecto Actas" Google Apps
@@ -153,9 +151,8 @@ Genera ambas versiones de release notes.`
 };
 
 const EXTERNAL_AGENT_FILES = {
-  "vic-release-notes": "vic-release-notes.md",
-  // The next 3 are derived from esquema-planeacion.md (Mariana's own reusable
-  // planning playbook), covering the 3 sub-phases of Planeación (Fase 1 of
+  // Derived from esquema-planeacion.md (Mariana's own reusable planning
+  // playbook), covering the 3 sub-phases of Planeación (Fase 1 of
   // PHASE_CONTRACTS.md) that had no owning agent: Milestones, DoD, and the
   // scope↔capacity↔date Reconciliation gate. See phaseContracts.js's
   // planningSubPhases for how they chain together.
@@ -163,6 +160,57 @@ const EXTERNAL_AGENT_FILES = {
   "dod-definer": "dod-definer.md",
   "capacity-reconciler": "capacity-reconciler.md"
 };
+
+// ============================================================================
+// MODEL SELECTION — declared per agent, not one hardcoded model for everyone
+// ============================================================================
+
+const MODEL_IDS = {
+  haiku: "claude-3-5-haiku-20241022",
+  sonnet: "claude-3-5-sonnet-20241022"
+};
+
+const DEFAULT_MODEL_CONFIG = { tier: "sonnet", maxTokens: 2000 };
+
+// tier: "haiku" for mechanical/structured output (low reasoning, low
+// ambiguity); "sonnet" for planning/writing/judgment work. maxTokens sized to
+// how long the actual documented output format runs — Gimena/Gabi's real
+// specs produce long, multi-section documents; report/log agents don't.
+const AGENT_MODEL_CONFIG = {
+  gimena: { tier: "sonnet", maxTokens: 4000 },
+  gabi: { tier: "sonnet", maxTokens: 4000 },
+  gabriela: { tier: "sonnet", maxTokens: 3000 },
+  santi: { tier: "sonnet", maxTokens: 2500 },
+  daniel: { tier: "sonnet", maxTokens: 3000 },
+  architect: { tier: "sonnet", maxTokens: 3000 },
+  "fullstack-developer": { tier: "sonnet", maxTokens: 3000 },
+  "flutter-developer": { tier: "sonnet", maxTokens: 3000 },
+  "data-engineer": { tier: "sonnet", maxTokens: 3000 },
+  auditor: { tier: "sonnet", maxTokens: 3000 },
+  "fixed-errors": { tier: "sonnet", maxTokens: 2500 },
+  "gina-scheduler": { tier: "sonnet", maxTokens: 2500 },
+  "qa-integrator": { tier: "sonnet", maxTokens: 2500 },
+  integration: { tier: "sonnet", maxTokens: 2500 },
+  "sonar-quality-gate": { tier: "sonnet", maxTokens: 2000 },
+  "mcp-integration-tester": { tier: "sonnet", maxTokens: 2000 },
+  // Mechanical: catalogs/documents evidence that already exists, doesn't
+  // reason about quality — haiku + a small cap.
+  "test-video-recorder": { tier: "haiku", maxTokens: 1000 },
+  "unit-test-standards-reviewer": { tier: "sonnet", maxTokens: 2000 },
+  // Mechanical: aggregates already-computed results into a report, doesn't
+  // generate new judgment — haiku is enough.
+  "quality-report-generator": { tier: "haiku", maxTokens: 1500 },
+  "milestone-writer": { tier: "sonnet", maxTokens: 2500 },
+  "dod-definer": { tier: "sonnet", maxTokens: 2500 },
+  // "El gate más importante" per esquema-planeacion.md — keep sonnet even
+  // though it's structured, the lever tradeoffs need real judgment.
+  "capacity-reconciler": { tier: "sonnet", maxTokens: 2500 }
+};
+
+function getModelConfig(agentId) {
+  const config = AGENT_MODEL_CONFIG[agentId] || DEFAULT_MODEL_CONFIG;
+  return { model: MODEL_IDS[config.tier], maxTokens: config.maxTokens, tier: config.tier };
+}
 
 function loadSpecKitPrompt(agentId) {
   const filename = SPEC_KIT_FILES[agentId];
@@ -270,6 +318,7 @@ function isKnownAgent(agentId) {
 module.exports = {
   buildPrompt,
   buildActaIngestPrompt,
+  getModelConfig,
   listAgents,
   isKnownAgent,
   SPEC_KIT_AGENTS_DIR,

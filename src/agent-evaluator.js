@@ -17,7 +17,11 @@ const Anthropic = require("@anthropic-ai/sdk");
 class AgentEvaluator {
   constructor(apiKey) {
     this.client = new Anthropic({ apiKey });
-    this.model = "claude-3-5-sonnet-20241022";
+    // Scoring against a fixed, structured rubric is mechanical enough for
+    // haiku — this can run on every single agent invocation, so it's the
+    // highest-volume call in the system. Bump back to sonnet if scores start
+    // looking unreliable in practice.
+    this.model = "claude-3-5-haiku-20241022";
 
     this.evaluationCriteria = {
       gimena: {
