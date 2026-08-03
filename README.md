@@ -38,6 +38,14 @@ El propósito original del orchestrator era ser una capa neutral que pudiera enr
 tools, no solo a MAP. Mantenerlos separados conserva esa extensibilidad sin acoplar la lógica de
 agentes (que vive en MAP) con la lógica de enrutamiento/encadenado (que vive en el orchestrator).
 
+### Principio: agnóstico al ecosistema y al front (confirmado, agosto 2026)
+
+El "cerebro" (agentes + reglas de negocio) no debe saber nada de qué herramienta externa
+concreta se usa — Basecamp, n8n, Apps Script, WhatsApp, Slack, o lo que sea el año que viene.
+Cada una es un **adaptador intercambiable** detrás de una interfaz común (`toolRegistry` de
+`orchestrator.js`), no código bespoke por integración. Mismo principio para el frontend: el
+dashboard React es un consumidor más de la API, no el único front posible.
+
 ---
 
 ## Project Brain: cómo llega un acta al Brain
