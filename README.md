@@ -31,6 +31,8 @@ orquestrador-360/
 output. **Orchestrator** (`orchestrator.js`, puerto 3000) es la capa meta que registra "tools"
 (hoy solo `map`) y permite encadenarlos (`/toolchain/execute`) o guardarlos como workflows
 reutilizables. Si en el futuro se agregan más tools (Slack, Basecamp, etc.), se registran ahí.
+Ver [`adapters/basecamp/`](adapters/basecamp/README.md) — seed sin conectar aún, para Planning
+y Follow-up.
 
 ### Por qué dos procesos y no uno
 

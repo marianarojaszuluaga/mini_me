@@ -1,0 +1,2242 @@
+﻿[
+    {
+        "id":  9693212616,
+        "status":  "active",
+        "visible_to_clients":  true,
+        "created_at":  "2026-03-18T14:18:31.719Z",
+        "updated_at":  "2026-03-18T14:27:51.910Z",
+        "title":  "%Ticket% SSP First Contract – Sales \u0026 Ops Feedback (Issues + Improvements)",
+        "inherits_status":  true,
+        "type":  "Kanban::Card",
+        "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/cards/9693212616.json",
+        "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9693212616",
+        "bookmark_url":  "https://3.basecampapi.com/5172885/my/bookmarks/BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9SZWNvcmRpbmcvOTY5MzIxMjYxNj9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg1yZWFkYWJsZQY7AFQ=--4b48f85b1546e2bc8502503c673035d369772a34.json",
+        "subscription_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9693212616/subscription.json",
+        "comments_count":  0,
+        "comments_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9693212616/comments.json",
+        "boosts_count":  0,
+        "boosts_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9693212616/boosts.json",
+        "position":  1,
+        "parent":  {
+                       "id":  9175270358,
+                       "title":  "Figuring it out",
+                       "type":  "Kanban::Triage",
+                       "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/columns/9175270358.json",
+                       "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/columns/9175270358"
+                   },
+        "bucket":  {
+                       "id":  44382327,
+                       "name":  "Finanz Butik // Imagine Apps",
+                       "type":  "Project"
+                   },
+        "creator":  {
+                        "id":  50115697,
+                        "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNTAxMTU2OTc_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--f06cc5b819bf3a11ed83693f5c45524dfe8064c3",
+                        "name":  "MarianaFB Murzi",
+                        "email_address":  "mariana@finanzbutik.com",
+                        "personable_type":  "User",
+                        "title":  "",
+                        "bio":  "",
+                        "location":  "",
+                        "created_at":  "2025-10-15T00:56:32.666Z",
+                        "updated_at":  "2025-10-22T19:06:06.639Z",
+                        "admin":  false,
+                        "owner":  false,
+                        "client":  true,
+                        "employee":  false,
+                        "time_zone":  "America/New_York",
+                        "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBHG0%2FAI=--efd2fc2bc23db2805983467f7eae1376606eff79/avatar",
+                        "company":  {
+                                        "id":  4041920,
+                                        "name":  "Finanax Butik"
+                                    },
+                        "can_ping":  true,
+                        "can_manage_projects":  false,
+                        "can_manage_people":  false,
+                        "can_access_timesheet":  false,
+                        "can_access_hill_charts":  false
+                    },
+        "description":  "\u003cdiv\u003eHi Team! \u003cbc-attachment sgid=\"BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNDI4NzU3NjY_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--3622ae40b7c6d25d65bfe1245183d074341675bb\" content-type=\"application/vnd.basecamp.mention\"\u003e\u003cfigure\u003e\n  \u003cimg data-avatar-for-person-id=\"42875766\" alt=\"Mariana Rojas\" title=\"Mariana Rojas, Product Delivery Manager at Imagine Apps\" class=\"avatar\" loading=\"lazy\" decoding=\"async\" src=\"https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBHY7jgI=--c6dabc3463414e70529ced021605fa5285004f03/avatar\" width=\"20\" height=\"20\"\u003e\n  \u003cfigcaption\u003e\n    Mariana\n  \u003c/figcaption\u003e\n\u003c/figure\u003e\u003c/bc-attachment\u003e \u003cbc-attachment sgid=\"BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNTAxNDE3ODU_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--c87baf64ca7bb6f9762f52dc71341a3016802152\" content-type=\"application/vnd.basecamp.mention\"\u003e\u003cfigure\u003e\n  \u003cimg data-avatar-for-person-id=\"50141785\" alt=\"David Pineda\" title=\"David Pineda, Salesforce Dev at Imagine Apps\" class=\"avatar\" loading=\"lazy\" decoding=\"async\" src=\"https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBFka%2FQI=--d7a469bf30a78ec28ee2feb165c6c583454a4d5e/avatar\" width=\"20\" height=\"20\"\u003e\n  \u003cfigcaption\u003e\n    David\n  \u003c/figcaption\u003e\n\u003c/figure\u003e\u003c/bc-attachment\u003e \u003cbc-attachment sgid=\"BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNTAxMTU2ODc_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--db4f4712b5ef90dee168c3f243d9ca0ab16b8d38\" content-type=\"application/vnd.basecamp.mention\"\u003e\u003cfigure\u003e\n  \u003cimg data-avatar-for-person-id=\"50115687\" alt=\"Emelia Ballestas\" title=\"Emelia Ballestas, Rokk3r\" class=\"avatar avatar--client\" loading=\"lazy\" decoding=\"async\" src=\"https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBGe0%2FAI=--3f2122e01bdd6d0deb98556c54b0f5003df0f178/avatar\" width=\"20\" height=\"20\"\u003e\n  \u003cfigcaption\u003e\n    Emelia\n  \u003c/figcaption\u003e\n\u003c/figure\u003e\u003c/bc-attachment\u003e \u003cbr\u003e\u003cstrong\u003e\u003cbr\u003eSSP First Contract – Sales \u0026amp; Ops Feedback (Issues + Improvements)\u003c/strong\u003e\n\u003c/div\u003e\u003cdiv\u003eSharing feedback collected from the first SSP contract execution highlighting usability issues, technical bugs, and process improvements across Sales and Ops. Several blockers affected client experience and required manual intervention.\u003c/div\u003e\u003cdiv\u003e\u003cstrong\u003e\u003cbr\u003eSales Feedback\u003c/strong\u003e\u003c/div\u003e\u003cdiv\u003e\n\u003cstrong\u003e1. Platform Invitation Failure: \u003c/strong\u003e“Send Platform Invite Link” did not work.\u003c/div\u003e\u003cdiv\u003e\n\u003cbr\u003e\u003cstrong\u003e2. Mobile Experience Issues\u003c/strong\u003e\n\u003c/div\u003e\u003cul\u003e\n\u003cli\u003eClient was unable to complete the process from their phone; screens would freeze, the FB CASH CAP investment page will not open, hard to read, etc.\u0026nbsp;\u003c/li\u003e\n\u003cli\u003eThis prevented progress entirely on mobile.\u003c/li\u003e\n\u003c/ul\u003e\u003cdiv\u003e\u003cstrong\u003e3. Data Persistence Issue\u003c/strong\u003e\u003c/div\u003e\u003cul\u003e\n\u003cli\u003eWhen re-entering from mobile, the system required re-uploading documents.\u003c/li\u003e\n\u003cli\u003eOther data fields remained saved.\u003c/li\u003e\n\u003cli\u003e\n\u003cstrong\u003eRequest:\u003c/strong\u003e Enable document saving in draft version.\u003c/li\u003e\n\u003c/ul\u003e\u003cdiv\u003e\u003cstrong\u003e4. UX / Client Experience\u003c/strong\u003e\u003c/div\u003e\u003cul\u003e\n\u003cli\u003eFlow is intuitive for internal users assisting clients.\u003c/li\u003e\n\u003cli\u003eHowever, client stated they would not have been able to complete the process without assistance. - will request more feedback on this but not relevant for this version.\u0026nbsp;\u003c/li\u003e\n\u003c/ul\u003e\u003cdiv\u003e\n\u003cstrong\u003e5. Opportunity Owner: \u003c/strong\u003eall opportunities are being created under Fernando Cano\u0027s name:\u003c/div\u003e\u003cul\u003e\u003cli\u003eOpportunities should be created under the related Account Owner\u0027s Name, they should match: Account Owner = Opportunity Owner\u0026nbsp;\u003c/li\u003e\u003c/ul\u003e\u003cdiv\u003e\n\u003cstrong\u003e\u003cbr\u003e6. Timing: \u003c/strong\u003eTotal process duration: ~1 hour 30 minutes.\u003cbr\u003e\u003cbr\u003e\n\u003c/div\u003e\u003cdiv\u003e\u003cstrong\u003eOps Feedback\u003c/strong\u003e\u003c/div\u003e\u003cdiv\u003e\u003cstrong\u003e1. KYC / Sumsub Integration\u003c/strong\u003e\u003c/div\u003e\u003cul\u003e\n\u003cli\u003eConnect updated correct flow: “Full KYC - Onboarding”\u003c/li\u003e\n\u003cli\u003e\n\u003cstrong\u003eIssue: \u003c/strong\u003e“AML Check” field in Salesforce does NOT update automatically after KYC approval in sumsub. This blocks process progression until Ops manually updates it.\u003c/li\u003e\n\u003cli\u003e\n\u003cstrong\u003eFix needed:\u003c/strong\u003e Automate AML field update post-KYC approval, and make sure that the KYC process is properly opened for new users.\u0026nbsp;\u003c/li\u003e\n\u003c/ul\u003e\u003cdiv\u003e\u003cstrong\u003e2. Bank Account Information Issues\u003c/strong\u003e\u003c/div\u003e\u003cul\u003e\n\u003cli\u003eCLABE is missing in contract (only account number appears).\u003c/li\u003e\n\u003cli\u003eCLABE is also missing in Salesforce “Preview” view for approval.\u003c/li\u003e\n\u003cli\u003eIn SSP Flow (user-facing UX):\u003cul\u003e\n\u003cli\u003eRemove “CLABE” reference from account number field.\u003c/li\u003e\n\u003cli\u003eKeep CLABE as a separate required field (since it is mandatory for contract approval).\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003cstrong\u003eReported case:\u003c/strong\u003e User entered CLABE, but it did NOT populate in Salesforce, contract, or any record.\u003c/li\u003e\n\u003c/ul\u003e\u003cdiv\u003e\u003cstrong\u003e3. Notifications\u003c/strong\u003e\u003c/div\u003e\u003cul\u003e\u003cli\u003eNotifications to Tania are not active.\u003c/li\u003e\u003c/ul\u003e\u003cdiv\u003e\u003c/div\u003e",
+        "completed":  false,
+        "content":  "\u003cdiv\u003eHi Team! \u003cbc-attachment sgid=\"BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNDI4NzU3NjY_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--3622ae40b7c6d25d65bfe1245183d074341675bb\" content-type=\"application/vnd.basecamp.mention\"\u003e\u003c/bc-attachment\u003e \u003cbc-attachment sgid=\"BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNTAxNDE3ODU_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--c87baf64ca7bb6f9762f52dc71341a3016802152\" content-type=\"application/vnd.basecamp.mention\"\u003e\u003c/bc-attachment\u003e \u003cbc-attachment sgid=\"BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNTAxMTU2ODc_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--db4f4712b5ef90dee168c3f243d9ca0ab16b8d38\" content-type=\"application/vnd.basecamp.mention\"\u003e\u003c/bc-attachment\u003e \u003cbr\u003e\u003cstrong\u003e\u003cbr\u003eSSP First Contract – Sales \u0026amp; Ops Feedback (Issues + Improvements)\u003c/strong\u003e\u003c/div\u003e\u003cdiv\u003eSharing feedback collected from the first SSP contract execution highlighting usability issues, technical bugs, and process improvements across Sales and Ops. Several blockers affected client experience and required manual intervention.\u003c/div\u003e\u003cdiv\u003e\u003cstrong\u003e\u003cbr\u003eSales Feedback\u003c/strong\u003e\u003c/div\u003e\u003cdiv\u003e\u003cstrong\u003e1. Platform Invitation Failure: \u003c/strong\u003e“Send Platform Invite Link” did not work.\u003c/div\u003e\u003cdiv\u003e\u003cbr\u003e\u003cstrong\u003e2. Mobile Experience Issues\u003c/strong\u003e\u003c/div\u003e\u003cul\u003e\u003cli\u003eClient was unable to complete the process from their phone; screens would freeze, the FB CASH CAP investment page will not open, hard to read, etc.\u0026nbsp;\u003c/li\u003e\u003cli\u003eThis prevented progress entirely on mobile.\u003c/li\u003e\u003c/ul\u003e\u003cdiv\u003e\u003cstrong\u003e3. Data Persistence Issue\u003c/strong\u003e\u003c/div\u003e\u003cul\u003e\u003cli\u003eWhen re-entering from mobile, the system required re-uploading documents.\u003c/li\u003e\u003cli\u003eOther data fields remained saved.\u003c/li\u003e\u003cli\u003e\u003cstrong\u003eRequest:\u003c/strong\u003e Enable document saving in draft version.\u003c/li\u003e\u003c/ul\u003e\u003cdiv\u003e\u003cstrong\u003e4. UX / Client Experience\u003c/strong\u003e\u003c/div\u003e\u003cul\u003e\u003cli\u003eFlow is intuitive for internal users assisting clients.\u003c/li\u003e\u003cli\u003eHowever, client stated they would not have been able to complete the process without assistance. - will request more feedback on this but not relevant for this version.\u0026nbsp;\u003c/li\u003e\u003c/ul\u003e\u003cdiv\u003e\u003cstrong\u003e5. Opportunity Owner: \u003c/strong\u003eall opportunities are being created under Fernando Cano\u0027s name:\u003c/div\u003e\u003cul\u003e\u003cli\u003eOpportunities should be created under the related Account Owner\u0027s Name, they should match: Account Owner = Opportunity Owner\u0026nbsp;\u003c/li\u003e\u003c/ul\u003e\u003cdiv\u003e\u003cstrong\u003e\u003cbr\u003e6. Timing: \u003c/strong\u003eTotal process duration: ~1 hour 30 minutes.\u003cbr\u003e\u003cbr\u003e\u003c/div\u003e\u003cdiv\u003e\u003cstrong\u003eOps Feedback\u003c/strong\u003e\u003c/div\u003e\u003cdiv\u003e\u003cstrong\u003e1. KYC / Sumsub Integration\u003c/strong\u003e\u003c/div\u003e\u003cul\u003e\u003cli\u003eConnect updated correct flow: “Full KYC - Onboarding”\u003c/li\u003e\u003cli\u003e\u003cstrong\u003eIssue: \u003c/strong\u003e“AML Check” field in Salesforce does NOT update automatically after KYC approval in sumsub. This blocks process progression until Ops manually updates it.\u003c/li\u003e\u003cli\u003e\u003cstrong\u003eFix needed:\u003c/strong\u003e Automate AML field update post-KYC approval, and make sure that the KYC process is properly opened for new users.\u0026nbsp;\u003c/li\u003e\u003c/ul\u003e\u003cdiv\u003e\u003cstrong\u003e2. Bank Account Information Issues\u003c/strong\u003e\u003c/div\u003e\u003cul\u003e\u003cli\u003eCLABE is missing in contract (only account number appears).\u003c/li\u003e\u003cli\u003eCLABE is also missing in Salesforce “Preview” view for approval.\u003c/li\u003e\u003cli\u003eIn SSP Flow (user-facing UX):\u003cul\u003e\u003cli\u003eRemove “CLABE” reference from account number field.\u003c/li\u003e\u003cli\u003eKeep CLABE as a separate required field (since it is mandatory for contract approval).\u003c/li\u003e\u003c/ul\u003e\u003c/li\u003e\u003cli\u003e\u003cstrong\u003eReported case:\u003c/strong\u003e User entered CLABE, but it did NOT populate in Salesforce, contract, or any record.\u003c/li\u003e\u003c/ul\u003e\u003cdiv\u003e\u003cstrong\u003e3. Notifications\u003c/strong\u003e\u003c/div\u003e\u003cul\u003e\u003cli\u003eNotifications to Tania are not active.\u003c/li\u003e\u003c/ul\u003e\u003cdiv\u003e\u003cbr\u003e\u003c/div\u003e",
+        "due_on":  null,
+        "assignees":  [
+                          {
+                              "id":  42875766,
+                              "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNDI4NzU3NjY_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--3622ae40b7c6d25d65bfe1245183d074341675bb",
+                              "name":  "Mariana Rojas",
+                              "email_address":  "mariana.rojas@imagineapps.co",
+                              "personable_type":  "User",
+                              "title":  "Product Delivery Manager",
+                              "bio":  "",
+                              "location":  "",
+                              "created_at":  "2023-02-08T17:56:55.207Z",
+                              "updated_at":  "2026-03-18T22:07:43.480Z",
+                              "admin":  false,
+                              "owner":  false,
+                              "client":  false,
+                              "employee":  true,
+                              "time_zone":  "America/Bogota",
+                              "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBHY7jgI=--c6dabc3463414e70529ced021605fa5285004f03/avatar",
+                              "company":  {
+                                              "id":  2774543,
+                                              "name":  "Imagine Apps"
+                                          },
+                              "can_ping":  true,
+                              "can_manage_projects":  true,
+                              "can_manage_people":  true,
+                              "can_access_timesheet":  false,
+                              "can_access_hill_charts":  true
+                          }
+                      ],
+        "completion_subscribers":  [
+
+                                   ],
+        "completion_url":  "https://3.basecampapi.com/5172885/buckets/44382327/todos/9693212616/completion.json",
+        "comment_count":  0,
+        "steps":  [
+
+                  ]
+    },
+    {
+        "id":  9689460555,
+        "status":  "active",
+        "visible_to_clients":  true,
+        "created_at":  "2026-03-17T17:00:24.310Z",
+        "updated_at":  "2026-03-17T17:00:24.362Z",
+        "title":  "%Ticket% UX Proposal: Metrics Tooltips (AROI, ROI, MOIC, IRR)",
+        "inherits_status":  true,
+        "type":  "Kanban::Card",
+        "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/cards/9689460555.json",
+        "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9689460555",
+        "bookmark_url":  "https://3.basecampapi.com/5172885/my/bookmarks/BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9SZWNvcmRpbmcvOTY4OTQ2MDU1NT9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg1yZWFkYWJsZQY7AFQ=--128eb8b274e37dc9bbd2e710c350f3e165575082.json",
+        "subscription_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9689460555/subscription.json",
+        "comments_count":  0,
+        "comments_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9689460555/comments.json",
+        "boosts_count":  0,
+        "boosts_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9689460555/boosts.json",
+        "position":  2,
+        "parent":  {
+                       "id":  9175270358,
+                       "title":  "Figuring it out",
+                       "type":  "Kanban::Triage",
+                       "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/columns/9175270358.json",
+                       "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/columns/9175270358"
+                   },
+        "bucket":  {
+                       "id":  44382327,
+                       "name":  "Finanz Butik // Imagine Apps",
+                       "type":  "Project"
+                   },
+        "creator":  {
+                        "id":  50115697,
+                        "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNTAxMTU2OTc_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--f06cc5b819bf3a11ed83693f5c45524dfe8064c3",
+                        "name":  "MarianaFB Murzi",
+                        "email_address":  "mariana@finanzbutik.com",
+                        "personable_type":  "User",
+                        "title":  "",
+                        "bio":  "",
+                        "location":  "",
+                        "created_at":  "2025-10-15T00:56:32.666Z",
+                        "updated_at":  "2025-10-22T19:06:06.639Z",
+                        "admin":  false,
+                        "owner":  false,
+                        "client":  true,
+                        "employee":  false,
+                        "time_zone":  "America/New_York",
+                        "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBHG0%2FAI=--efd2fc2bc23db2805983467f7eae1376606eff79/avatar",
+                        "company":  {
+                                        "id":  4041920,
+                                        "name":  "Finanax Butik"
+                                    },
+                        "can_ping":  true,
+                        "can_manage_projects":  false,
+                        "can_manage_people":  false,
+                        "can_access_timesheet":  false,
+                        "can_access_hill_charts":  false
+                    },
+        "description":  "\u003cdiv\u003eHi team: proposal to improve clarity on investment metrics.\u003cbr\u003e\u003cbr\u003e\n\u003c/div\u003e\u003cdiv\u003e\n\u003cstrong\u003eGoal: \u003c/strong\u003eHelp users understand the difference between AROI, ROI, Multiple, and IRR.\u003cbr\u003e\u003cbr\u003e\n\u003c/div\u003e\u003cdiv\u003e\u003cstrong\u003eScope:\u0026nbsp;\u003c/strong\u003e\u003c/div\u003e\u003cul\u003e\n\u003cli\u003eAdd info bubbles/tooltips next to each metric\u003c/li\u003e\n\u003cli\u003eShort, simple explanations (non-technical)\u003c/li\u003e\n\u003c/ul\u003e\u003cdiv\u003eGoal is better understanding without cluttering the UI.\u003c/div\u003e",
+        "completed":  false,
+        "content":  "\u003cdiv\u003eHi team: proposal to improve clarity on investment metrics.\u003cbr\u003e\u003cbr\u003e\u003c/div\u003e\u003cdiv\u003e\u003cstrong\u003eGoal: \u003c/strong\u003eHelp users understand the difference between AROI, ROI, Multiple, and IRR.\u003cbr\u003e\u003cbr\u003e\u003c/div\u003e\u003cdiv\u003e\u003cstrong\u003eScope:\u0026nbsp;\u003c/strong\u003e\u003c/div\u003e\u003cul\u003e\u003cli\u003eAdd info bubbles/tooltips next to each metric\u003c/li\u003e\u003cli\u003eShort, simple explanations (non-technical)\u003c/li\u003e\u003c/ul\u003e\u003cdiv\u003eGoal is better understanding without cluttering the UI.\u003cbr\u003e\u003cbr\u003e\u003c/div\u003e",
+        "due_on":  null,
+        "assignees":  [
+                          {
+                              "id":  47833329,
+                              "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNDc4MzMzMjk_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--b25488638ae67d6aed1ccfbf06263f87586aab75",
+                              "name":  "Alejandro Morales",
+                              "email_address":  "alejandro.morales@imagineapps.co",
+                              "personable_type":  "User",
+                              "title":  "Diseñador UIUX",
+                              "bio":  null,
+                              "location":  null,
+                              "created_at":  "2025-03-03T23:49:47.080Z",
+                              "updated_at":  "2026-01-08T19:11:09.698Z",
+                              "admin":  false,
+                              "owner":  false,
+                              "client":  false,
+                              "employee":  true,
+                              "time_zone":  "America/Bogota",
+                              "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBPHg2QI=--0e136b159184f1e053431f15fb6722e7b6fb8052/avatar",
+                              "company":  {
+                                              "id":  2774543,
+                                              "name":  "Imagine Apps"
+                                          },
+                              "can_ping":  true,
+                              "can_manage_projects":  true,
+                              "can_manage_people":  true,
+                              "can_access_timesheet":  false,
+                              "can_access_hill_charts":  true
+                          },
+                          {
+                              "id":  42875766,
+                              "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNDI4NzU3NjY_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--3622ae40b7c6d25d65bfe1245183d074341675bb",
+                              "name":  "Mariana Rojas",
+                              "email_address":  "mariana.rojas@imagineapps.co",
+                              "personable_type":  "User",
+                              "title":  "Product Delivery Manager",
+                              "bio":  "",
+                              "location":  "",
+                              "created_at":  "2023-02-08T17:56:55.207Z",
+                              "updated_at":  "2026-03-18T22:07:43.480Z",
+                              "admin":  false,
+                              "owner":  false,
+                              "client":  false,
+                              "employee":  true,
+                              "time_zone":  "America/Bogota",
+                              "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBHY7jgI=--c6dabc3463414e70529ced021605fa5285004f03/avatar",
+                              "company":  {
+                                              "id":  2774543,
+                                              "name":  "Imagine Apps"
+                                          },
+                              "can_ping":  true,
+                              "can_manage_projects":  true,
+                              "can_manage_people":  true,
+                              "can_access_timesheet":  false,
+                              "can_access_hill_charts":  true
+                          }
+                      ],
+        "completion_subscribers":  [
+
+                                   ],
+        "completion_url":  "https://3.basecampapi.com/5172885/buckets/44382327/todos/9689460555/completion.json",
+        "comment_count":  0,
+        "steps":  [
+
+                  ]
+    },
+    {
+        "id":  9689407657,
+        "status":  "active",
+        "visible_to_clients":  true,
+        "created_at":  "2026-03-17T16:51:17.259Z",
+        "updated_at":  "2026-03-17T16:51:17.301Z",
+        "title":  "%Ticket% UX Request: Display Maturity Date (PNs)",
+        "inherits_status":  true,
+        "type":  "Kanban::Card",
+        "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/cards/9689407657.json",
+        "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9689407657",
+        "bookmark_url":  "https://3.basecampapi.com/5172885/my/bookmarks/BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9SZWNvcmRpbmcvOTY4OTQwNzY1Nz9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg1yZWFkYWJsZQY7AFQ=--6d113362da97dd0edae4dc0d270a9be9abeb2452.json",
+        "subscription_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9689407657/subscription.json",
+        "comments_count":  0,
+        "comments_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9689407657/comments.json",
+        "boosts_count":  0,
+        "boosts_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9689407657/boosts.json",
+        "position":  3,
+        "parent":  {
+                       "id":  9175270358,
+                       "title":  "Figuring it out",
+                       "type":  "Kanban::Triage",
+                       "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/columns/9175270358.json",
+                       "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/columns/9175270358"
+                   },
+        "bucket":  {
+                       "id":  44382327,
+                       "name":  "Finanz Butik // Imagine Apps",
+                       "type":  "Project"
+                   },
+        "creator":  {
+                        "id":  50115697,
+                        "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNTAxMTU2OTc_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--f06cc5b819bf3a11ed83693f5c45524dfe8064c3",
+                        "name":  "MarianaFB Murzi",
+                        "email_address":  "mariana@finanzbutik.com",
+                        "personable_type":  "User",
+                        "title":  "",
+                        "bio":  "",
+                        "location":  "",
+                        "created_at":  "2025-10-15T00:56:32.666Z",
+                        "updated_at":  "2025-10-22T19:06:06.639Z",
+                        "admin":  false,
+                        "owner":  false,
+                        "client":  true,
+                        "employee":  false,
+                        "time_zone":  "America/New_York",
+                        "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBHG0%2FAI=--efd2fc2bc23db2805983467f7eae1376606eff79/avatar",
+                        "company":  {
+                                        "id":  4041920,
+                                        "name":  "Finanax Butik"
+                                    },
+                        "can_ping":  true,
+                        "can_manage_projects":  false,
+                        "can_manage_people":  false,
+                        "can_access_timesheet":  false,
+                        "can_access_hill_charts":  false
+                    },
+        "description":  "\u003cdiv\u003eHi team, opening this as a UX/UI proposal, coming from team feedback\u003c/div\u003e\u003cdiv\u003e\n\u003cbr\u003e\u003cstrong\u003eContext: \u003c/strong\u003eWe already have a \u003cem\u003ematurity date\u003c/em\u003e field for Promissory Notes (PNs), but it’s not clearly surfaced to users.\u003c/div\u003e\u003cdiv\u003e\n\u003cstrong\u003e\u003cbr\u003eGoal: \u003c/strong\u003eImprove visibility by displaying this as a “Expected Closing Date” within the Investments (Portfolio) view. (we may need a bubble or disclaimer here, working with Pepe on it, since this is always \u003cstrong\u003eexpected \u003c/strong\u003enot guaranteed.\u0026nbsp;\u003cbr\u003e\u003cbr\u003e\n\u003c/div\u003e\u003cdiv\u003e\u003cstrong\u003eScope (Phase 1)\u003c/strong\u003e\u003c/div\u003e\u003cul\u003e\n\u003cli\u003eApply only to \u003cstrong\u003ePromissory Notes (PNs)\u003c/strong\u003e\n\u003c/li\u003e\n\u003cli\u003eFuture: replicate for Deals - we are internally currently working on defining effective and maturity dates for deals, as they do not work exactly like with promissory notes.\u0026nbsp;\u003c/li\u003e\n\u003c/ul\u003e\u003cdiv\u003e\u003cstrong\u003eAsk\u003c/strong\u003e\u003c/div\u003e\u003cul\u003e\n\u003cli\u003ePropose how/where to show “Expected Closing Date” in the portfolio view\u003c/li\u003e\n\u003cli\u003eKeep it clear and easy to understand for users\u003c/li\u003e\n\u003cli\u003eGoal is to align on UX before implementation.\u003c/li\u003e\n\u003c/ul\u003e",
+        "completed":  false,
+        "content":  "\u003cdiv\u003eHi team, opening this as a UX/UI proposal, coming from team feedback\u003c/div\u003e\u003cdiv\u003e\u003cbr\u003e\u003cstrong\u003eContext: \u003c/strong\u003eWe already have a \u003cem\u003ematurity date\u003c/em\u003e field for Promissory Notes (PNs), but it’s not clearly surfaced to users.\u003c/div\u003e\u003cdiv\u003e\u003cstrong\u003e\u003cbr\u003eGoal: \u003c/strong\u003eImprove visibility by displaying this as a “Expected Closing Date” within the Investments (Portfolio) view. (we may need a bubble or disclaimer here, working with Pepe on it, since this is always \u003cstrong\u003eexpected \u003c/strong\u003enot guaranteed.\u0026nbsp;\u003cbr\u003e\u003cbr\u003e\u003c/div\u003e\u003cdiv\u003e\u003cstrong\u003eScope (Phase 1)\u003c/strong\u003e\u003c/div\u003e\u003cul\u003e\u003cli\u003eApply only to \u003cstrong\u003ePromissory Notes (PNs)\u003c/strong\u003e\u003c/li\u003e\u003cli\u003eFuture: replicate for Deals - we are internally currently working on defining effective and maturity dates for deals, as they do not work exactly like with promissory notes.\u0026nbsp;\u003c/li\u003e\u003c/ul\u003e\u003cdiv\u003e\u003cstrong\u003eAsk\u003c/strong\u003e\u003c/div\u003e\u003cul\u003e\u003cli\u003ePropose how/where to show “Expected Closing Date” in the portfolio view\u003c/li\u003e\u003cli\u003eKeep it clear and easy to understand for users\u003c/li\u003e\u003cli\u003eGoal is to align on UX before implementation.\u003cbr\u003e\u003cbr\u003e\u003c/li\u003e\u003c/ul\u003e",
+        "due_on":  null,
+        "assignees":  [
+                          {
+                              "id":  47833329,
+                              "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNDc4MzMzMjk_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--b25488638ae67d6aed1ccfbf06263f87586aab75",
+                              "name":  "Alejandro Morales",
+                              "email_address":  "alejandro.morales@imagineapps.co",
+                              "personable_type":  "User",
+                              "title":  "Diseñador UIUX",
+                              "bio":  null,
+                              "location":  null,
+                              "created_at":  "2025-03-03T23:49:47.080Z",
+                              "updated_at":  "2026-01-08T19:11:09.698Z",
+                              "admin":  false,
+                              "owner":  false,
+                              "client":  false,
+                              "employee":  true,
+                              "time_zone":  "America/Bogota",
+                              "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBPHg2QI=--0e136b159184f1e053431f15fb6722e7b6fb8052/avatar",
+                              "company":  {
+                                              "id":  2774543,
+                                              "name":  "Imagine Apps"
+                                          },
+                              "can_ping":  true,
+                              "can_manage_projects":  true,
+                              "can_manage_people":  true,
+                              "can_access_timesheet":  false,
+                              "can_access_hill_charts":  true
+                          },
+                          {
+                              "id":  42875766,
+                              "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNDI4NzU3NjY_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--3622ae40b7c6d25d65bfe1245183d074341675bb",
+                              "name":  "Mariana Rojas",
+                              "email_address":  "mariana.rojas@imagineapps.co",
+                              "personable_type":  "User",
+                              "title":  "Product Delivery Manager",
+                              "bio":  "",
+                              "location":  "",
+                              "created_at":  "2023-02-08T17:56:55.207Z",
+                              "updated_at":  "2026-03-18T22:07:43.480Z",
+                              "admin":  false,
+                              "owner":  false,
+                              "client":  false,
+                              "employee":  true,
+                              "time_zone":  "America/Bogota",
+                              "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBHY7jgI=--c6dabc3463414e70529ced021605fa5285004f03/avatar",
+                              "company":  {
+                                              "id":  2774543,
+                                              "name":  "Imagine Apps"
+                                          },
+                              "can_ping":  true,
+                              "can_manage_projects":  true,
+                              "can_manage_people":  true,
+                              "can_access_timesheet":  false,
+                              "can_access_hill_charts":  true
+                          }
+                      ],
+        "completion_subscribers":  [
+
+                                   ],
+        "completion_url":  "https://3.basecampapi.com/5172885/buckets/44382327/todos/9689407657/completion.json",
+        "comment_count":  0,
+        "steps":  [
+
+                  ]
+    },
+    {
+        "id":  9689299661,
+        "status":  "active",
+        "visible_to_clients":  true,
+        "created_at":  "2026-03-17T16:32:09.874Z",
+        "updated_at":  "2026-03-17T16:43:59.583Z",
+        "title":  "%Ticket% QA Review: Password Reset Loop \u0026 Invite Link Flow Failure",
+        "inherits_status":  true,
+        "type":  "Kanban::Card",
+        "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/cards/9689299661.json",
+        "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9689299661",
+        "bookmark_url":  "https://3.basecampapi.com/5172885/my/bookmarks/BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9SZWNvcmRpbmcvOTY4OTI5OTY2MT9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg1yZWFkYWJsZQY7AFQ=--b519bfa51450fef3bbea380a35d80968c10e2756.json",
+        "subscription_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9689299661/subscription.json",
+        "comments_count":  0,
+        "comments_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9689299661/comments.json",
+        "boosts_count":  0,
+        "boosts_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9689299661/boosts.json",
+        "position":  4,
+        "parent":  {
+                       "id":  9175270358,
+                       "title":  "Figuring it out",
+                       "type":  "Kanban::Triage",
+                       "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/columns/9175270358.json",
+                       "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/columns/9175270358"
+                   },
+        "bucket":  {
+                       "id":  44382327,
+                       "name":  "Finanz Butik // Imagine Apps",
+                       "type":  "Project"
+                   },
+        "creator":  {
+                        "id":  50115697,
+                        "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNTAxMTU2OTc_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--f06cc5b819bf3a11ed83693f5c45524dfe8064c3",
+                        "name":  "MarianaFB Murzi",
+                        "email_address":  "mariana@finanzbutik.com",
+                        "personable_type":  "User",
+                        "title":  "",
+                        "bio":  "",
+                        "location":  "",
+                        "created_at":  "2025-10-15T00:56:32.666Z",
+                        "updated_at":  "2025-10-22T19:06:06.639Z",
+                        "admin":  false,
+                        "owner":  false,
+                        "client":  true,
+                        "employee":  false,
+                        "time_zone":  "America/New_York",
+                        "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBHG0%2FAI=--efd2fc2bc23db2805983467f7eae1376606eff79/avatar",
+                        "company":  {
+                                        "id":  4041920,
+                                        "name":  "Finanax Butik"
+                                    },
+                        "can_ping":  true,
+                        "can_manage_projects":  false,
+                        "can_manage_people":  false,
+                        "can_access_timesheet":  false,
+                        "can_access_hill_charts":  false
+                    },
+        "description":  "\u003cdiv\u003eHi team, flagging two related issues affecting client and internal user access. Requesting QA review + root cause analysis.\u003cbr\u003e\u003cbr\u003e\n\u003c/div\u003e\u003cdiv\u003e\n\u003cstrong\u003e1. Password Reset Loop\u003c/strong\u003e\u003cbr\u003eUsers (clients + internal) are being asked to reset passwords multiple times.\u003c/div\u003e\u003cdiv\u003e\n\u003cstrong\u003e\u003cbr\u003e2. Invite Link Issue\u003c/strong\u003e\u003cbr\u003e“Send Platform Invite Link” is not letting some clients complete access → accounts are being activated manually. Reported they cannot move forward in the process after the first page, sometimes it takes them back to the login page without creating the account.\u0026nbsp;\u003cbr\u003e\u003cbr\u003e\n\u003c/div\u003e\u003cdiv\u003e\u003cstrong\u003eAsk\u003c/strong\u003e\u003c/div\u003e\u003cul\u003e\n\u003cli\u003eQA review both flows (login + invite)\u003c/li\u003e\n\u003cli\u003eIdentify root cause(s)\u003c/li\u003e\n\u003cli\u003eConfirm if bug vs config issue\u003c/li\u003e\n\u003c/ul\u003e\u003cdiv\u003e\u003cbr\u003e\u003c/div\u003e\u003cdiv\u003e\u003c/div\u003e",
+        "completed":  false,
+        "content":  "\u003cdiv\u003eHi team, flagging two related issues affecting client and internal user access. Requesting QA review + root cause analysis.\u003cbr\u003e\u003cbr\u003e\u003c/div\u003e\u003cdiv\u003e\u003cstrong\u003e1. Password Reset Loop\u003c/strong\u003e\u003cbr\u003eUsers (clients + internal) are being asked to reset passwords multiple times.\u003c/div\u003e\u003cdiv\u003e\u003cstrong\u003e\u003cbr\u003e2. Invite Link Issue\u003c/strong\u003e\u003cbr\u003e“Send Platform Invite Link” is not letting some clients complete access → accounts are being activated manually. Reported they cannot move forward in the process after the first page, sometimes it takes them back to the login page without creating the account.\u0026nbsp;\u003cbr\u003e\u003cbr\u003e\u003c/div\u003e\u003cdiv\u003e\u003cstrong\u003eAsk\u003c/strong\u003e\u003c/div\u003e\u003cul\u003e\u003cli\u003eQA review both flows (login + invite)\u003c/li\u003e\u003cli\u003eIdentify root cause(s)\u003c/li\u003e\u003cli\u003eConfirm if bug vs config issue\u003c/li\u003e\u003c/ul\u003e\u003cdiv\u003e\u003cbr\u003e\u003c/div\u003e\u003cdiv\u003e\u003cbr\u003e\u003c/div\u003e",
+        "due_on":  null,
+        "assignees":  [
+                          {
+                              "id":  42875766,
+                              "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNDI4NzU3NjY_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--3622ae40b7c6d25d65bfe1245183d074341675bb",
+                              "name":  "Mariana Rojas",
+                              "email_address":  "mariana.rojas@imagineapps.co",
+                              "personable_type":  "User",
+                              "title":  "Product Delivery Manager",
+                              "bio":  "",
+                              "location":  "",
+                              "created_at":  "2023-02-08T17:56:55.207Z",
+                              "updated_at":  "2026-03-18T22:07:43.480Z",
+                              "admin":  false,
+                              "owner":  false,
+                              "client":  false,
+                              "employee":  true,
+                              "time_zone":  "America/Bogota",
+                              "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBHY7jgI=--c6dabc3463414e70529ced021605fa5285004f03/avatar",
+                              "company":  {
+                                              "id":  2774543,
+                                              "name":  "Imagine Apps"
+                                          },
+                              "can_ping":  true,
+                              "can_manage_projects":  true,
+                              "can_manage_people":  true,
+                              "can_access_timesheet":  false,
+                              "can_access_hill_charts":  true
+                          }
+                      ],
+        "completion_subscribers":  [
+
+                                   ],
+        "completion_url":  "https://3.basecampapi.com/5172885/buckets/44382327/todos/9689299661/completion.json",
+        "comment_count":  0,
+        "steps":  [
+
+                  ]
+    },
+    {
+        "id":  9689265582,
+        "status":  "active",
+        "visible_to_clients":  true,
+        "created_at":  "2026-03-17T16:26:19.981Z",
+        "updated_at":  "2026-03-17T16:26:20.030Z",
+        "title":  "%Ticket% UX/UI + product definition ticket",
+        "inherits_status":  true,
+        "type":  "Kanban::Card",
+        "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/cards/9689265582.json",
+        "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9689265582",
+        "bookmark_url":  "https://3.basecampapi.com/5172885/my/bookmarks/BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9SZWNvcmRpbmcvOTY4OTI2NTU4Mj9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg1yZWFkYWJsZQY7AFQ=--9ca08cacd00824ee4c42fc60bca3a3a49105cd76.json",
+        "subscription_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9689265582/subscription.json",
+        "comments_count":  0,
+        "comments_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9689265582/comments.json",
+        "boosts_count":  0,
+        "boosts_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9689265582/boosts.json",
+        "position":  5,
+        "parent":  {
+                       "id":  9175270358,
+                       "title":  "Figuring it out",
+                       "type":  "Kanban::Triage",
+                       "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/columns/9175270358.json",
+                       "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/columns/9175270358"
+                   },
+        "bucket":  {
+                       "id":  44382327,
+                       "name":  "Finanz Butik // Imagine Apps",
+                       "type":  "Project"
+                   },
+        "creator":  {
+                        "id":  50115697,
+                        "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNTAxMTU2OTc_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--f06cc5b819bf3a11ed83693f5c45524dfe8064c3",
+                        "name":  "MarianaFB Murzi",
+                        "email_address":  "mariana@finanzbutik.com",
+                        "personable_type":  "User",
+                        "title":  "",
+                        "bio":  "",
+                        "location":  "",
+                        "created_at":  "2025-10-15T00:56:32.666Z",
+                        "updated_at":  "2025-10-22T19:06:06.639Z",
+                        "admin":  false,
+                        "owner":  false,
+                        "client":  true,
+                        "employee":  false,
+                        "time_zone":  "America/New_York",
+                        "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBHG0%2FAI=--efd2fc2bc23db2805983467f7eae1376606eff79/avatar",
+                        "company":  {
+                                        "id":  4041920,
+                                        "name":  "Finanax Butik"
+                                    },
+                        "can_ping":  true,
+                        "can_manage_projects":  false,
+                        "can_manage_people":  false,
+                        "can_access_timesheet":  false,
+                        "can_access_hill_charts":  false
+                    },
+        "description":  "\u003cdiv\u003eHi team, opening this as a UX/UI + product definition ticket.\u003c/div\u003e\u003cdiv\u003e\u003cbr\u003e\u003c/div\u003e\u003cul\u003e\n\u003cli\u003e\n\u003cstrong\u003eContext: \u003c/strong\u003eCurrently, clients have little to no visibility into \u003cem\u003eupcoming distributions\u003c/em\u003e. This creates uncertainty, as they don’t know when to expect incoming transactions.\u003c/li\u003e\n\u003cli\u003e\n\u003cstrong\u003eProblem: \u003c/strong\u003eUpcoming distributions are not being clearly communicated or surfaced in the platform, leaving clients “blind” to what’s coming next.\u003c/li\u003e\n\u003cli\u003e\n\u003cstrong\u003eGoal: \u003c/strong\u003eDesign a solution that makes upcoming distributions visible and understandable for clients, improving transparency and overall experience.\u003c/li\u003e\n\u003c/ul\u003e\u003cdiv\u003e\n\u003cstrong\u003eScope (Exploration + Proposal Needed)\u003c/strong\u003e\u003cbr\u003eWe are \u003cstrong\u003enot defining the solution yet\u003c/strong\u003e — the goal is for the team to propose the best approach.\u003cbr\u003e\u003cbr\u003e\n\u003c/div\u003e\u003cdiv\u003eThe solution should consider:\u003c/div\u003e\u003cul\u003e\n\u003cli\u003eVisibility within the platform (UX/UI)\u003c/li\u003e\n\u003cli\u003eProactive communication (notifications, push, email, etc.)\u003c/li\u003e\n\u003cli\u003eClear indication of timing, status, and type of transaction\u003c/li\u003e\n\u003c/ul\u003e\u003cdiv\u003e\u003cstrong\u003eKey Considerations / Constraints\u003c/strong\u003e\u003c/div\u003e\u003cul\u003e\n\u003cli\u003eScope is limited to \u003cstrong\u003eDistributions only\u003c/strong\u003e (for now)\u003c/li\u003e\n\u003cli\u003eWe need to align with Ops \u0026amp; Finance on:\u003cul\u003e\n\u003cli\u003eWhat data is available today\u003c/li\u003e\n\u003cli\u003eWhether upcoming distributions can be predicted vs manually defined\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003eThe solution may involve a mix of:\u003cul\u003e\n\u003cli\u003eSystem-generated data\u003c/li\u003e\n\u003cli\u003eManual inputs (if needed)\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\u003cdiv\u003e\n\u003cstrong\u003eKey Questions to Address\u0026nbsp;\u003c/strong\u003e(Will set up call with Ops/Finance/CX)\u003c/div\u003e\u003cul\u003e\n\u003cli\u003eHow should “upcoming” be defined (timeframe, certainty level)?\u003c/li\u003e\n\u003cli\u003eHow do we handle uncertainty (estimated vs confirmed distributions)?\u003c/li\u003e\n\u003cli\u003eWhere should this be surfaced in the user journey?\u003c/li\u003e\n\u003cli\u003eWhat’s the right balance between visibility (UI) and proactive alerts?\u003c/li\u003e\n\u003c/ul\u003e\u003cdiv\u003e\n\u003cstrong\u003eDeliverable\u003c/strong\u003e\u003cbr\u003ePropose 1–2 solution approaches (flows or low-fidelity mockups are fine. The goal is to align on direction before moving into implementation.\u003cbr\u003e\u003cbr\u003e\n\u003c/div\u003e\u003cdiv\u003eLet me know thoughts.\u003c/div\u003e",
+        "completed":  false,
+        "content":  "\u003cdiv\u003eHi team, opening this as a UX/UI + product definition ticket.\u003c/div\u003e\u003cdiv\u003e\u003cbr\u003e\u003c/div\u003e\u003cul\u003e\u003cli\u003e\u003cstrong\u003eContext: \u003c/strong\u003eCurrently, clients have little to no visibility into \u003cem\u003eupcoming distributions\u003c/em\u003e. This creates uncertainty, as they don’t know when to expect incoming transactions.\u003c/li\u003e\u003cli\u003e\u003cstrong\u003eProblem: \u003c/strong\u003eUpcoming distributions are not being clearly communicated or surfaced in the platform, leaving clients “blind” to what’s coming next.\u003c/li\u003e\u003cli\u003e\u003cstrong\u003eGoal: \u003c/strong\u003eDesign a solution that makes upcoming distributions visible and understandable for clients, improving transparency and overall experience.\u003c/li\u003e\u003c/ul\u003e\u003cdiv\u003e\u003cstrong\u003eScope (Exploration + Proposal Needed)\u003c/strong\u003e\u003cbr\u003eWe are \u003cstrong\u003enot defining the solution yet\u003c/strong\u003e — the goal is for the team to propose the best approach.\u003cbr\u003e\u003cbr\u003e\u003c/div\u003e\u003cdiv\u003eThe solution should consider:\u003c/div\u003e\u003cul\u003e\u003cli\u003eVisibility within the platform (UX/UI)\u003c/li\u003e\u003cli\u003eProactive communication (notifications, push, email, etc.)\u003c/li\u003e\u003cli\u003eClear indication of timing, status, and type of transaction\u003c/li\u003e\u003c/ul\u003e\u003cdiv\u003e\u003cstrong\u003eKey Considerations / Constraints\u003c/strong\u003e\u003c/div\u003e\u003cul\u003e\u003cli\u003eScope is limited to \u003cstrong\u003eDistributions only\u003c/strong\u003e (for now)\u003c/li\u003e\u003cli\u003eWe need to align with Ops \u0026amp; Finance on:\u003cul\u003e\u003cli\u003eWhat data is available today\u003c/li\u003e\u003cli\u003eWhether upcoming distributions can be predicted vs manually defined\u003c/li\u003e\u003c/ul\u003e\u003c/li\u003e\u003cli\u003eThe solution may involve a mix of:\u003cul\u003e\u003cli\u003eSystem-generated data\u003c/li\u003e\u003cli\u003eManual inputs (if needed)\u003c/li\u003e\u003c/ul\u003e\u003c/li\u003e\u003c/ul\u003e\u003cdiv\u003e\u003cstrong\u003eKey Questions to Address\u0026nbsp;\u003c/strong\u003e(Will set up call with Ops/Finance/CX)\u003c/div\u003e\u003cul\u003e\u003cli\u003eHow should “upcoming” be defined (timeframe, certainty level)?\u003c/li\u003e\u003cli\u003eHow do we handle uncertainty (estimated vs confirmed distributions)?\u003c/li\u003e\u003cli\u003eWhere should this be surfaced in the user journey?\u003c/li\u003e\u003cli\u003eWhat’s the right balance between visibility (UI) and proactive alerts?\u003c/li\u003e\u003c/ul\u003e\u003cdiv\u003e\u003cstrong\u003eDeliverable\u003c/strong\u003e\u003cbr\u003ePropose 1–2 solution approaches (flows or low-fidelity mockups are fine. The goal is to align on direction before moving into implementation.\u003cbr\u003e\u003cbr\u003e\u003c/div\u003e\u003cdiv\u003eLet me know thoughts.\u003cbr\u003e\u003cbr\u003e\u003c/div\u003e",
+        "due_on":  null,
+        "assignees":  [
+                          {
+                              "id":  47833329,
+                              "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNDc4MzMzMjk_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--b25488638ae67d6aed1ccfbf06263f87586aab75",
+                              "name":  "Alejandro Morales",
+                              "email_address":  "alejandro.morales@imagineapps.co",
+                              "personable_type":  "User",
+                              "title":  "Diseñador UIUX",
+                              "bio":  null,
+                              "location":  null,
+                              "created_at":  "2025-03-03T23:49:47.080Z",
+                              "updated_at":  "2026-01-08T19:11:09.698Z",
+                              "admin":  false,
+                              "owner":  false,
+                              "client":  false,
+                              "employee":  true,
+                              "time_zone":  "America/Bogota",
+                              "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBPHg2QI=--0e136b159184f1e053431f15fb6722e7b6fb8052/avatar",
+                              "company":  {
+                                              "id":  2774543,
+                                              "name":  "Imagine Apps"
+                                          },
+                              "can_ping":  true,
+                              "can_manage_projects":  true,
+                              "can_manage_people":  true,
+                              "can_access_timesheet":  false,
+                              "can_access_hill_charts":  true
+                          },
+                          {
+                              "id":  42875766,
+                              "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNDI4NzU3NjY_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--3622ae40b7c6d25d65bfe1245183d074341675bb",
+                              "name":  "Mariana Rojas",
+                              "email_address":  "mariana.rojas@imagineapps.co",
+                              "personable_type":  "User",
+                              "title":  "Product Delivery Manager",
+                              "bio":  "",
+                              "location":  "",
+                              "created_at":  "2023-02-08T17:56:55.207Z",
+                              "updated_at":  "2026-03-18T22:07:43.480Z",
+                              "admin":  false,
+                              "owner":  false,
+                              "client":  false,
+                              "employee":  true,
+                              "time_zone":  "America/Bogota",
+                              "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBHY7jgI=--c6dabc3463414e70529ced021605fa5285004f03/avatar",
+                              "company":  {
+                                              "id":  2774543,
+                                              "name":  "Imagine Apps"
+                                          },
+                              "can_ping":  true,
+                              "can_manage_projects":  true,
+                              "can_manage_people":  true,
+                              "can_access_timesheet":  false,
+                              "can_access_hill_charts":  true
+                          }
+                      ],
+        "completion_subscribers":  [
+
+                                   ],
+        "completion_url":  "https://3.basecampapi.com/5172885/buckets/44382327/todos/9689265582/completion.json",
+        "comment_count":  0,
+        "steps":  [
+
+                  ]
+    },
+    {
+        "id":  9689211748,
+        "status":  "active",
+        "visible_to_clients":  true,
+        "created_at":  "2026-03-17T16:17:38.752Z",
+        "updated_at":  "2026-03-17T16:17:38.813Z",
+        "title":  "%Ticket% Transactions View on Deals",
+        "inherits_status":  true,
+        "type":  "Kanban::Card",
+        "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/cards/9689211748.json",
+        "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9689211748",
+        "bookmark_url":  "https://3.basecampapi.com/5172885/my/bookmarks/BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9SZWNvcmRpbmcvOTY4OTIxMTc0OD9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg1yZWFkYWJsZQY7AFQ=--e14f5e3a2abc9d6ed12162fdf5ec603cbb5dd666.json",
+        "subscription_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9689211748/subscription.json",
+        "comments_count":  0,
+        "comments_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9689211748/comments.json",
+        "boosts_count":  0,
+        "boosts_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9689211748/boosts.json",
+        "position":  6,
+        "parent":  {
+                       "id":  9175270358,
+                       "title":  "Figuring it out",
+                       "type":  "Kanban::Triage",
+                       "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/columns/9175270358.json",
+                       "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/columns/9175270358"
+                   },
+        "bucket":  {
+                       "id":  44382327,
+                       "name":  "Finanz Butik // Imagine Apps",
+                       "type":  "Project"
+                   },
+        "creator":  {
+                        "id":  50115697,
+                        "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNTAxMTU2OTc_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--f06cc5b819bf3a11ed83693f5c45524dfe8064c3",
+                        "name":  "MarianaFB Murzi",
+                        "email_address":  "mariana@finanzbutik.com",
+                        "personable_type":  "User",
+                        "title":  "",
+                        "bio":  "",
+                        "location":  "",
+                        "created_at":  "2025-10-15T00:56:32.666Z",
+                        "updated_at":  "2025-10-22T19:06:06.639Z",
+                        "admin":  false,
+                        "owner":  false,
+                        "client":  true,
+                        "employee":  false,
+                        "time_zone":  "America/New_York",
+                        "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBHG0%2FAI=--efd2fc2bc23db2805983467f7eae1376606eff79/avatar",
+                        "company":  {
+                                        "id":  4041920,
+                                        "name":  "Finanax Butik"
+                                    },
+                        "can_ping":  true,
+                        "can_manage_projects":  false,
+                        "can_manage_people":  false,
+                        "can_access_timesheet":  false,
+                        "can_access_hill_charts":  false
+                    },
+        "description":  "\u003cdiv\u003eHi Mar, We still cannot see the transactions object on the \"Related\" Page of Deals, we want to standardize this view on transactions for all opportunity types as we did with PN and Services.\u0026nbsp;\u003cbc-attachment sgid=\"BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9BdHRhY2htZW50LzgyNjU4Mzc5Mz9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg9hdHRhY2hhYmxlBjsAVA==--13875c6ef3dc0b888e192ae8df3ec536ac5e3ad4\" content-type=\"image/png\" url=\"https://preview.3.basecamp.com/5172885/blobs/b0abaad6-221c-11f1-94b7-0242ac120003/previews/full\" href=\"https://storage.3.basecamp.com/5172885/blobs/b0abaad6-221c-11f1-94b7-0242ac120003/download/Screenshot%202026-03-17%20at%2012.16.39%E2%80%AFPM.png\" filename=\"Screenshot 2026-03-17 at 12.16.39 PM.png\" filesize=\"461656\" width=\"2832\" height=\"1470\" previewable=\"true\" presentation=\"gallery\"\u003e\u003cfigure\u003e\n    \u003cimg srcset=\"https://preview.3.basecamp.com/5172885/blobs/b0abaad6-221c-11f1-94b7-0242ac120003/previews/full?dppx=2 2x, https://preview.3.basecamp.com/5172885/blobs/b0abaad6-221c-11f1-94b7-0242ac120003/previews/full?dppx=1 1x, https://preview.3.basecamp.com/5172885/blobs/b0abaad6-221c-11f1-94b7-0242ac120003/previews/full?dppx=3 3x, https://preview.3.basecamp.com/5172885/blobs/b0abaad6-221c-11f1-94b7-0242ac120003/previews/full?dppx=4 4x\" src=\"https://preview.3.basecamp.com/5172885/blobs/b0abaad6-221c-11f1-94b7-0242ac120003/previews/full\"\u003e\n  \u003cfigcaption\u003e\n    Screenshot 2026-03-17 at 12.16.39 PM.png\n  \u003c/figcaption\u003e\n\u003c/figure\u003e\u003c/bc-attachment\u003e\n\u003c/div\u003e",
+        "completed":  false,
+        "content":  "\u003cdiv\u003eHi Mar, We still cannot see the transactions object on the \"Related\" Page of Deals, we want to standardize this view on transactions for all opportunity types as we did with PN and Services.\u0026nbsp;\u003cbc-attachment sgid=\"BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9BdHRhY2htZW50LzgyNjU4Mzc5Mz9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg9hdHRhY2hhYmxlBjsAVA==--13875c6ef3dc0b888e192ae8df3ec536ac5e3ad4\" content-type=\"image/png\" url=\"https://preview.3.basecamp.com/5172885/blobs/b0abaad6-221c-11f1-94b7-0242ac120003/previews/full?dppx=2\" href=\"https://storage.3.basecamp.com/5172885/blobs/b0abaad6-221c-11f1-94b7-0242ac120003/download/Screenshot%202026-03-17%20at%2012.16.39%E2%80%AFPM.png\" filename=\"Screenshot 2026-03-17 at 12.16.39 PM.png\" filesize=\"461656\" width=\"2832\" height=\"1470\" previewable=\"true\" presentation=\"gallery\"\u003e\u003c/bc-attachment\u003e\u003c/div\u003e",
+        "due_on":  null,
+        "assignees":  [
+                          {
+                              "id":  42875766,
+                              "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNDI4NzU3NjY_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--3622ae40b7c6d25d65bfe1245183d074341675bb",
+                              "name":  "Mariana Rojas",
+                              "email_address":  "mariana.rojas@imagineapps.co",
+                              "personable_type":  "User",
+                              "title":  "Product Delivery Manager",
+                              "bio":  "",
+                              "location":  "",
+                              "created_at":  "2023-02-08T17:56:55.207Z",
+                              "updated_at":  "2026-03-18T22:07:43.480Z",
+                              "admin":  false,
+                              "owner":  false,
+                              "client":  false,
+                              "employee":  true,
+                              "time_zone":  "America/Bogota",
+                              "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBHY7jgI=--c6dabc3463414e70529ced021605fa5285004f03/avatar",
+                              "company":  {
+                                              "id":  2774543,
+                                              "name":  "Imagine Apps"
+                                          },
+                              "can_ping":  true,
+                              "can_manage_projects":  true,
+                              "can_manage_people":  true,
+                              "can_access_timesheet":  false,
+                              "can_access_hill_charts":  true
+                          }
+                      ],
+        "completion_subscribers":  [
+
+                                   ],
+        "completion_url":  "https://3.basecampapi.com/5172885/buckets/44382327/todos/9689211748/completion.json",
+        "comment_count":  0,
+        "steps":  [
+
+                  ]
+    },
+    {
+        "id":  9689175549,
+        "status":  "active",
+        "visible_to_clients":  true,
+        "created_at":  "2026-03-17T16:11:38.780Z",
+        "updated_at":  "2026-03-17T16:11:38.828Z",
+        "title":  "%Ticket% Bank Address on SSP Flow",
+        "inherits_status":  true,
+        "type":  "Kanban::Card",
+        "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/cards/9689175549.json",
+        "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9689175549",
+        "bookmark_url":  "https://3.basecampapi.com/5172885/my/bookmarks/BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9SZWNvcmRpbmcvOTY4OTE3NTU0OT9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg1yZWFkYWJsZQY7AFQ=--2a3c019d586431b6388108848cf7f21fdbb08042.json",
+        "subscription_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9689175549/subscription.json",
+        "comments_count":  0,
+        "comments_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9689175549/comments.json",
+        "boosts_count":  0,
+        "boosts_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9689175549/boosts.json",
+        "position":  7,
+        "parent":  {
+                       "id":  9175270358,
+                       "title":  "Figuring it out",
+                       "type":  "Kanban::Triage",
+                       "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/columns/9175270358.json",
+                       "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/columns/9175270358"
+                   },
+        "bucket":  {
+                       "id":  44382327,
+                       "name":  "Finanz Butik // Imagine Apps",
+                       "type":  "Project"
+                   },
+        "creator":  {
+                        "id":  50115697,
+                        "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNTAxMTU2OTc_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--f06cc5b819bf3a11ed83693f5c45524dfe8064c3",
+                        "name":  "MarianaFB Murzi",
+                        "email_address":  "mariana@finanzbutik.com",
+                        "personable_type":  "User",
+                        "title":  "",
+                        "bio":  "",
+                        "location":  "",
+                        "created_at":  "2025-10-15T00:56:32.666Z",
+                        "updated_at":  "2025-10-22T19:06:06.639Z",
+                        "admin":  false,
+                        "owner":  false,
+                        "client":  true,
+                        "employee":  false,
+                        "time_zone":  "America/New_York",
+                        "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBHG0%2FAI=--efd2fc2bc23db2805983467f7eae1376606eff79/avatar",
+                        "company":  {
+                                        "id":  4041920,
+                                        "name":  "Finanax Butik"
+                                    },
+                        "can_ping":  true,
+                        "can_manage_projects":  false,
+                        "can_manage_people":  false,
+                        "can_access_timesheet":  false,
+                        "can_access_hill_charts":  false
+                    },
+        "description":  "\u003cdiv\u003eHi team — the Sales team asked if we can add a dropdown field in the Bank Account section of the SSP/Platform.\u003c/div\u003e\u003cdiv\u003e\n\u003cbr\u003eWhen a bank is selected, its address should auto-populate using the attached catalog of common banks. We should also include an “Other” option for cases not covered in the list.\u003cbr\u003e\u003cbr\u003e\n\u003c/div\u003e\u003cdiv\u003eGoal: reduce input errors and standardize bank address data.\u003c/div\u003e\u003cdiv\u003eLet me know feasibility and estimated effort.\u003c/div\u003e\u003cdiv\u003e\u003cbc-attachment sgid=\"BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9BdHRhY2htZW50LzgyNjU4MDY2Nz9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg9hdHRhY2hhYmxlBjsAVA==--868d20513dbe5aec357fec881d3c66507454670a\" content-type=\"image/png\" url=\"https://preview.3.basecamp.com/5172885/blobs/e80cc4b6-221b-11f1-8ec8-0242ac120004/previews/full\" href=\"https://storage.3.basecamp.com/5172885/blobs/e80cc4b6-221b-11f1-8ec8-0242ac120004/download/Screenshot%202026-03-17%20at%2012.09.13%E2%80%AFPM.png\" filename=\"Screenshot 2026-03-17 at 12.09.13 PM.png\" filesize=\"234140\" width=\"1894\" height=\"992\" previewable=\"true\" presentation=\"gallery\"\u003e\u003cfigure\u003e\n    \u003cimg srcset=\"https://preview.3.basecamp.com/5172885/blobs/e80cc4b6-221b-11f1-8ec8-0242ac120004/previews/full?dppx=2 2x, https://preview.3.basecamp.com/5172885/blobs/e80cc4b6-221b-11f1-8ec8-0242ac120004/previews/full?dppx=1 1x, https://preview.3.basecamp.com/5172885/blobs/e80cc4b6-221b-11f1-8ec8-0242ac120004/previews/full?dppx=3 3x, https://preview.3.basecamp.com/5172885/blobs/e80cc4b6-221b-11f1-8ec8-0242ac120004/previews/full?dppx=4 4x\" src=\"https://preview.3.basecamp.com/5172885/blobs/e80cc4b6-221b-11f1-8ec8-0242ac120004/previews/full\"\u003e\n  \u003cfigcaption\u003e\n    Screenshot 2026-03-17 at 12.09.13 PM.png\n  \u003c/figcaption\u003e\n\u003c/figure\u003e\u003c/bc-attachment\u003e\u003c/div\u003e",
+        "completed":  false,
+        "content":  "\u003cdiv\u003eHi team — the Sales team asked if we can add a dropdown field in the Bank Account section of the SSP/Platform.\u003c/div\u003e\u003cdiv\u003e\u003cbr\u003eWhen a bank is selected, its address should auto-populate using the attached catalog of common banks. We should also include an “Other” option for cases not covered in the list.\u003cbr\u003e\u003cbr\u003e\u003c/div\u003e\u003cdiv\u003eGoal: reduce input errors and standardize bank address data.\u003c/div\u003e\u003cdiv\u003eLet me know feasibility and estimated effort.\u003c/div\u003e\u003cdiv\u003e\u003cbc-attachment sgid=\"BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9BdHRhY2htZW50LzgyNjU4MDY2Nz9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg9hdHRhY2hhYmxlBjsAVA==--868d20513dbe5aec357fec881d3c66507454670a\" content-type=\"image/png\" url=\"https://preview.3.basecamp.com/5172885/blobs/e80cc4b6-221b-11f1-8ec8-0242ac120004/previews/full?dppx=2\" href=\"https://storage.3.basecamp.com/5172885/blobs/e80cc4b6-221b-11f1-8ec8-0242ac120004/download/Screenshot%202026-03-17%20at%2012.09.13%E2%80%AFPM.png\" filename=\"Screenshot 2026-03-17 at 12.09.13 PM.png\" filesize=\"234140\" width=\"1894\" height=\"992\" previewable=\"true\" presentation=\"gallery\"\u003e\u003c/bc-attachment\u003e\u003c/div\u003e",
+        "due_on":  null,
+        "assignees":  [
+                          {
+                              "id":  42875766,
+                              "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNDI4NzU3NjY_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--3622ae40b7c6d25d65bfe1245183d074341675bb",
+                              "name":  "Mariana Rojas",
+                              "email_address":  "mariana.rojas@imagineapps.co",
+                              "personable_type":  "User",
+                              "title":  "Product Delivery Manager",
+                              "bio":  "",
+                              "location":  "",
+                              "created_at":  "2023-02-08T17:56:55.207Z",
+                              "updated_at":  "2026-03-18T22:07:43.480Z",
+                              "admin":  false,
+                              "owner":  false,
+                              "client":  false,
+                              "employee":  true,
+                              "time_zone":  "America/Bogota",
+                              "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBHY7jgI=--c6dabc3463414e70529ced021605fa5285004f03/avatar",
+                              "company":  {
+                                              "id":  2774543,
+                                              "name":  "Imagine Apps"
+                                          },
+                              "can_ping":  true,
+                              "can_manage_projects":  true,
+                              "can_manage_people":  true,
+                              "can_access_timesheet":  false,
+                              "can_access_hill_charts":  true
+                          }
+                      ],
+        "completion_subscribers":  [
+
+                                   ],
+        "completion_url":  "https://3.basecampapi.com/5172885/buckets/44382327/todos/9689175549/completion.json",
+        "comment_count":  0,
+        "steps":  [
+
+                  ]
+    },
+    {
+        "id":  9689151519,
+        "status":  "active",
+        "visible_to_clients":  true,
+        "created_at":  "2026-03-17T16:07:21.726Z",
+        "updated_at":  "2026-03-17T16:07:21.779Z",
+        "title":  "%Ticket% Graph on Client Portfolio Page",
+        "inherits_status":  true,
+        "type":  "Kanban::Card",
+        "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/cards/9689151519.json",
+        "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9689151519",
+        "bookmark_url":  "https://3.basecampapi.com/5172885/my/bookmarks/BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9SZWNvcmRpbmcvOTY4OTE1MTUxOT9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg1yZWFkYWJsZQY7AFQ=--f61b9efa51a236f1d7aa210dbdd94038063aa1d6.json",
+        "subscription_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9689151519/subscription.json",
+        "comments_count":  0,
+        "comments_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9689151519/comments.json",
+        "boosts_count":  0,
+        "boosts_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9689151519/boosts.json",
+        "position":  8,
+        "parent":  {
+                       "id":  9175270358,
+                       "title":  "Figuring it out",
+                       "type":  "Kanban::Triage",
+                       "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/columns/9175270358.json",
+                       "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/columns/9175270358"
+                   },
+        "bucket":  {
+                       "id":  44382327,
+                       "name":  "Finanz Butik // Imagine Apps",
+                       "type":  "Project"
+                   },
+        "creator":  {
+                        "id":  50115697,
+                        "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNTAxMTU2OTc_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--f06cc5b819bf3a11ed83693f5c45524dfe8064c3",
+                        "name":  "MarianaFB Murzi",
+                        "email_address":  "mariana@finanzbutik.com",
+                        "personable_type":  "User",
+                        "title":  "",
+                        "bio":  "",
+                        "location":  "",
+                        "created_at":  "2025-10-15T00:56:32.666Z",
+                        "updated_at":  "2025-10-22T19:06:06.639Z",
+                        "admin":  false,
+                        "owner":  false,
+                        "client":  true,
+                        "employee":  false,
+                        "time_zone":  "America/New_York",
+                        "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBHG0%2FAI=--efd2fc2bc23db2805983467f7eae1376606eff79/avatar",
+                        "company":  {
+                                        "id":  4041920,
+                                        "name":  "Finanax Butik"
+                                    },
+                        "can_ping":  true,
+                        "can_manage_projects":  false,
+                        "can_manage_people":  false,
+                        "can_access_timesheet":  false,
+                        "can_access_hill_charts":  false
+                    },
+        "description":  "\u003cdiv\u003eHi Team, this graph is still not easy to understand. int he example the color labels are General Real Estate, while the bars are labeled as undefined and there is no data for any other products. What\u0027s the progress on this? I know we were reviewing it.\u0026nbsp;\u003cbc-attachment sgid=\"BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9BdHRhY2htZW50LzgyNjU3Nzk0Nz9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg9hdHRhY2hhYmxlBjsAVA==--57278697996fc639277dc9fa4f7025d6652dea72\" content-type=\"image/png\" url=\"https://preview.3.basecamp.com/5172885/blobs/32ca67b6-221b-11f1-8557-0242ac120004/previews/full\" href=\"https://storage.3.basecamp.com/5172885/blobs/32ca67b6-221b-11f1-8557-0242ac120004/download/Screenshot%202026-02-19%20at%206.36.20%E2%80%AFPM.png\" filename=\"Screenshot 2026-02-19 at 6.36.20 PM.png\" filesize=\"138289\" width=\"1866\" height=\"934\" previewable=\"true\" presentation=\"gallery\"\u003e\u003cfigure\u003e\n    \u003cimg srcset=\"https://preview.3.basecamp.com/5172885/blobs/32ca67b6-221b-11f1-8557-0242ac120004/previews/full?dppx=2 2x, https://preview.3.basecamp.com/5172885/blobs/32ca67b6-221b-11f1-8557-0242ac120004/previews/full?dppx=1 1x, https://preview.3.basecamp.com/5172885/blobs/32ca67b6-221b-11f1-8557-0242ac120004/previews/full?dppx=3 3x, https://preview.3.basecamp.com/5172885/blobs/32ca67b6-221b-11f1-8557-0242ac120004/previews/full?dppx=4 4x\" src=\"https://preview.3.basecamp.com/5172885/blobs/32ca67b6-221b-11f1-8557-0242ac120004/previews/full\"\u003e\n  \u003cfigcaption\u003e\n    Screenshot 2026-02-19 at 6.36.20 PM.png\n  \u003c/figcaption\u003e\n\u003c/figure\u003e\u003c/bc-attachment\u003e\n\u003c/div\u003e",
+        "completed":  false,
+        "content":  "\u003cdiv\u003eHi Team, this graph is still not easy to understand. int he example the color labels are General Real Estate, while the bars are labeled as undefined and there is no data for any other products. What\u0027s the progress on this? I know we were reviewing it.\u0026nbsp;\u003cbc-attachment sgid=\"BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9BdHRhY2htZW50LzgyNjU3Nzk0Nz9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg9hdHRhY2hhYmxlBjsAVA==--57278697996fc639277dc9fa4f7025d6652dea72\" content-type=\"image/png\" url=\"https://preview.3.basecamp.com/5172885/blobs/32ca67b6-221b-11f1-8557-0242ac120004/previews/full?dppx=2\" href=\"https://storage.3.basecamp.com/5172885/blobs/32ca67b6-221b-11f1-8557-0242ac120004/download/Screenshot%202026-02-19%20at%206.36.20%E2%80%AFPM.png\" filename=\"Screenshot 2026-02-19 at 6.36.20 PM.png\" filesize=\"138289\" width=\"1866\" height=\"934\" previewable=\"true\" presentation=\"gallery\"\u003e\u003c/bc-attachment\u003e\u003c/div\u003e",
+        "due_on":  null,
+        "assignees":  [
+                          {
+                              "id":  42875766,
+                              "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNDI4NzU3NjY_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--3622ae40b7c6d25d65bfe1245183d074341675bb",
+                              "name":  "Mariana Rojas",
+                              "email_address":  "mariana.rojas@imagineapps.co",
+                              "personable_type":  "User",
+                              "title":  "Product Delivery Manager",
+                              "bio":  "",
+                              "location":  "",
+                              "created_at":  "2023-02-08T17:56:55.207Z",
+                              "updated_at":  "2026-03-18T22:07:43.480Z",
+                              "admin":  false,
+                              "owner":  false,
+                              "client":  false,
+                              "employee":  true,
+                              "time_zone":  "America/Bogota",
+                              "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBHY7jgI=--c6dabc3463414e70529ced021605fa5285004f03/avatar",
+                              "company":  {
+                                              "id":  2774543,
+                                              "name":  "Imagine Apps"
+                                          },
+                              "can_ping":  true,
+                              "can_manage_projects":  true,
+                              "can_manage_people":  true,
+                              "can_access_timesheet":  false,
+                              "can_access_hill_charts":  true
+                          }
+                      ],
+        "completion_subscribers":  [
+
+                                   ],
+        "completion_url":  "https://3.basecampapi.com/5172885/buckets/44382327/todos/9689151519/completion.json",
+        "comment_count":  0,
+        "steps":  [
+
+                  ]
+    },
+    {
+        "id":  9689138097,
+        "status":  "active",
+        "visible_to_clients":  true,
+        "created_at":  "2026-03-17T16:04:59.058Z",
+        "updated_at":  "2026-03-17T16:04:59.545Z",
+        "title":  "%Ticket% Login Page Edits",
+        "inherits_status":  true,
+        "type":  "Kanban::Card",
+        "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/cards/9689138097.json",
+        "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9689138097",
+        "bookmark_url":  "https://3.basecampapi.com/5172885/my/bookmarks/BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9SZWNvcmRpbmcvOTY4OTEzODA5Nz9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg1yZWFkYWJsZQY7AFQ=--fac814110bbbe8e78227d62dccc796757e369c08.json",
+        "subscription_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9689138097/subscription.json",
+        "comments_count":  0,
+        "comments_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9689138097/comments.json",
+        "boosts_count":  0,
+        "boosts_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9689138097/boosts.json",
+        "position":  9,
+        "parent":  {
+                       "id":  9175270358,
+                       "title":  "Figuring it out",
+                       "type":  "Kanban::Triage",
+                       "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/columns/9175270358.json",
+                       "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/columns/9175270358"
+                   },
+        "bucket":  {
+                       "id":  44382327,
+                       "name":  "Finanz Butik // Imagine Apps",
+                       "type":  "Project"
+                   },
+        "creator":  {
+                        "id":  50115697,
+                        "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNTAxMTU2OTc_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--f06cc5b819bf3a11ed83693f5c45524dfe8064c3",
+                        "name":  "MarianaFB Murzi",
+                        "email_address":  "mariana@finanzbutik.com",
+                        "personable_type":  "User",
+                        "title":  "",
+                        "bio":  "",
+                        "location":  "",
+                        "created_at":  "2025-10-15T00:56:32.666Z",
+                        "updated_at":  "2025-10-22T19:06:06.639Z",
+                        "admin":  false,
+                        "owner":  false,
+                        "client":  true,
+                        "employee":  false,
+                        "time_zone":  "America/New_York",
+                        "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBHG0%2FAI=--efd2fc2bc23db2805983467f7eae1376606eff79/avatar",
+                        "company":  {
+                                        "id":  4041920,
+                                        "name":  "Finanax Butik"
+                                    },
+                        "can_ping":  true,
+                        "can_manage_projects":  false,
+                        "can_manage_people":  false,
+                        "can_access_timesheet":  false,
+                        "can_access_hill_charts":  false
+                    },
+        "description":  "\u003cdiv\u003e\n\u003cbc-attachment sgid=\"BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNDI3MTY2NTk_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--b3b611a5aafa1493aa4db48c2347790a7364610c\" content-type=\"application/vnd.basecamp.mention\"\u003e\u003cfigure\u003e\n  \u003cimg data-avatar-for-person-id=\"42716659\" alt=\"Maria Paula Giraldo\" title=\"Maria Paula Giraldo, Diseñadora at Imagine Apps\" class=\"avatar\" loading=\"lazy\" decoding=\"async\" src=\"https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBPPNiwI=--5b0708c22d1fea92aaf235cf4e2a981257d7a73b/avatar\" width=\"20\" height=\"20\"\u003e\n  \u003cfigcaption\u003e\n    Maria\n  \u003c/figcaption\u003e\n\u003c/figure\u003e\u003c/bc-attachment\u003e\u0026nbsp; \u003cbc-attachment sgid=\"BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNDc4MzMzMjk_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--b25488638ae67d6aed1ccfbf06263f87586aab75\" content-type=\"application/vnd.basecamp.mention\"\u003e\u003cfigure\u003e\n  \u003cimg data-avatar-for-person-id=\"47833329\" alt=\"Alejandro Morales\" title=\"Alejandro Morales, Diseñador UIUX at Imagine Apps\" class=\"avatar\" loading=\"lazy\" decoding=\"async\" src=\"https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBPHg2QI=--0e136b159184f1e053431f15fb6722e7b6fb8052/avatar\" width=\"20\" height=\"20\"\u003e\n  \u003cfigcaption\u003e\n    Alejandro\n  \u003c/figcaption\u003e\n\u003c/figure\u003e\u003c/bc-attachment\u003e\u0026nbsp;\u003cbr\u003e Hi Team, Pepe shared the following edits for the login page\u0026nbsp;\u003cbr\u003e\u003cbr\u003e\n\u003c/div\u003e\u003cul\u003e\n\u003cli\u003eRemove the line: \"Exclusive U.S. opportunities for LATAM.\"\u003c/li\u003e\n\u003cli\u003eSince we are using the field \"Last Name\" for both last names, he wants to label it properly in plural as: \"Last Names\" \"Apellidos\" as well as adding the bubble we talked regarding the explicit request for the name to match their legal documents\u0026nbsp;\u003c/li\u003e\n\u003c/ul\u003e\u003cdiv\u003e\n\u003cbr\u003e\u003cbc-attachment sgid=\"BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9BdHRhY2htZW50LzgyNjU3NjQ2Mj9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg9hdHRhY2hhYmxlBjsAVA==--b2dd24c2b4e48a05cd899bbda7d0c0b6e63798d8\" content-type=\"image/png\" url=\"https://preview.3.basecamp.com/5172885/blobs/d38e042e-221a-11f1-94da-0242ac120004/previews/full\" href=\"https://storage.3.basecamp.com/5172885/blobs/d38e042e-221a-11f1-94da-0242ac120004/download/Screenshot%202026-02-19%20at%209.44.02%E2%80%AFAM.png\" filename=\"Screenshot 2026-02-19 at 9.44.02 AM.png\" filesize=\"162281\" width=\"933\" height=\"758\" previewable=\"true\" presentation=\"gallery\"\u003e\u003cfigure\u003e\n    \u003cimg srcset=\"https://preview.3.basecamp.com/5172885/blobs/d38e042e-221a-11f1-94da-0242ac120004/previews/full?dppx=2 2x, https://preview.3.basecamp.com/5172885/blobs/d38e042e-221a-11f1-94da-0242ac120004/previews/full?dppx=1 1x, https://preview.3.basecamp.com/5172885/blobs/d38e042e-221a-11f1-94da-0242ac120004/previews/full?dppx=3 3x, https://preview.3.basecamp.com/5172885/blobs/d38e042e-221a-11f1-94da-0242ac120004/previews/full?dppx=4 4x\" src=\"https://preview.3.basecamp.com/5172885/blobs/d38e042e-221a-11f1-94da-0242ac120004/previews/full\"\u003e\n  \u003cfigcaption\u003e\n    Screenshot 2026-02-19 at 9.44.02 AM.png\n  \u003c/figcaption\u003e\n\u003c/figure\u003e\u003c/bc-attachment\u003e\n\u003c/div\u003e",
+        "completed":  false,
+        "content":  "\u003cdiv\u003e\u003cbc-attachment sgid=\"BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNDI3MTY2NTk_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--b3b611a5aafa1493aa4db48c2347790a7364610c\" content-type=\"application/vnd.basecamp.mention\"\u003e\u003c/bc-attachment\u003e\u0026nbsp; \u003cbc-attachment sgid=\"BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNDc4MzMzMjk_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--b25488638ae67d6aed1ccfbf06263f87586aab75\" content-type=\"application/vnd.basecamp.mention\"\u003e\u003c/bc-attachment\u003e\u0026nbsp;\u003cbr\u003e Hi Team, Pepe shared the following edits for the login page\u0026nbsp;\u003cbr\u003e\u003cbr\u003e\u003c/div\u003e\u003cul\u003e\u003cli\u003eRemove the line: \"Exclusive U.S. opportunities for LATAM.\"\u003c/li\u003e\u003cli\u003eSince we are using the field \"Last Name\" for both last names, he wants to label it properly in plural as: \"Last Names\" \"Apellidos\" as well as adding the bubble we talked regarding the explicit request for the name to match their legal documents\u0026nbsp;\u003c/li\u003e\u003c/ul\u003e\u003cdiv\u003e\u003cbr\u003e\u003cbc-attachment sgid=\"BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9BdHRhY2htZW50LzgyNjU3NjQ2Mj9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg9hdHRhY2hhYmxlBjsAVA==--b2dd24c2b4e48a05cd899bbda7d0c0b6e63798d8\" content-type=\"image/png\" url=\"https://preview.3.basecamp.com/5172885/blobs/d38e042e-221a-11f1-94da-0242ac120004/previews/full?dppx=2\" href=\"https://storage.3.basecamp.com/5172885/blobs/d38e042e-221a-11f1-94da-0242ac120004/download/Screenshot%202026-02-19%20at%209.44.02%E2%80%AFAM.png\" filename=\"Screenshot 2026-02-19 at 9.44.02 AM.png\" filesize=\"162281\" width=\"933\" height=\"758\" previewable=\"true\" presentation=\"gallery\"\u003e\u003c/bc-attachment\u003e\u003c/div\u003e",
+        "due_on":  null,
+        "assignees":  [
+                          {
+                              "id":  42875766,
+                              "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNDI4NzU3NjY_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--3622ae40b7c6d25d65bfe1245183d074341675bb",
+                              "name":  "Mariana Rojas",
+                              "email_address":  "mariana.rojas@imagineapps.co",
+                              "personable_type":  "User",
+                              "title":  "Product Delivery Manager",
+                              "bio":  "",
+                              "location":  "",
+                              "created_at":  "2023-02-08T17:56:55.207Z",
+                              "updated_at":  "2026-03-18T22:07:43.480Z",
+                              "admin":  false,
+                              "owner":  false,
+                              "client":  false,
+                              "employee":  true,
+                              "time_zone":  "America/Bogota",
+                              "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBHY7jgI=--c6dabc3463414e70529ced021605fa5285004f03/avatar",
+                              "company":  {
+                                              "id":  2774543,
+                                              "name":  "Imagine Apps"
+                                          },
+                              "can_ping":  true,
+                              "can_manage_projects":  true,
+                              "can_manage_people":  true,
+                              "can_access_timesheet":  false,
+                              "can_access_hill_charts":  true
+                          }
+                      ],
+        "completion_subscribers":  [
+
+                                   ],
+        "completion_url":  "https://3.basecampapi.com/5172885/buckets/44382327/todos/9689138097/completion.json",
+        "comment_count":  0,
+        "steps":  [
+
+                  ]
+    },
+    {
+        "id":  9674696501,
+        "status":  "active",
+        "visible_to_clients":  true,
+        "created_at":  "2026-03-12T18:52:11.974Z",
+        "updated_at":  "2026-03-16T15:29:30.898Z",
+        "title":  "HOTFIX-113-Salesforce layout-Add new documents ",
+        "inherits_status":  true,
+        "type":  "Kanban::Card",
+        "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/cards/9674696501.json",
+        "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9674696501",
+        "bookmark_url":  "https://3.basecampapi.com/5172885/my/bookmarks/BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9SZWNvcmRpbmcvOTY3NDY5NjUwMT9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg1yZWFkYWJsZQY7AFQ=--7c41c7aa59f5af00f126881fde9a9f4b9915ec95.json",
+        "subscription_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9674696501/subscription.json",
+        "comments_count":  0,
+        "comments_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9674696501/comments.json",
+        "boosts_count":  0,
+        "boosts_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9674696501/boosts.json",
+        "position":  10,
+        "parent":  {
+                       "id":  9175270358,
+                       "title":  "Figuring it out",
+                       "type":  "Kanban::Triage",
+                       "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/columns/9175270358.json",
+                       "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/columns/9175270358"
+                   },
+        "bucket":  {
+                       "id":  44382327,
+                       "name":  "Finanz Butik // Imagine Apps",
+                       "type":  "Project"
+                   },
+        "creator":  {
+                        "id":  42875766,
+                        "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNDI4NzU3NjY_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--3622ae40b7c6d25d65bfe1245183d074341675bb",
+                        "name":  "Mariana Rojas",
+                        "email_address":  "mariana.rojas@imagineapps.co",
+                        "personable_type":  "User",
+                        "title":  "Product Delivery Manager",
+                        "bio":  "",
+                        "location":  "",
+                        "created_at":  "2023-02-08T17:56:55.207Z",
+                        "updated_at":  "2026-03-18T22:07:43.480Z",
+                        "admin":  false,
+                        "owner":  false,
+                        "client":  false,
+                        "employee":  true,
+                        "time_zone":  "America/Bogota",
+                        "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBHY7jgI=--c6dabc3463414e70529ced021605fa5285004f03/avatar",
+                        "company":  {
+                                        "id":  2774543,
+                                        "name":  "Imagine Apps"
+                                    },
+                        "can_ping":  true,
+                        "can_manage_projects":  true,
+                        "can_manage_people":  true,
+                        "can_access_timesheet":  false,
+                        "can_access_hill_charts":  true
+                    },
+        "description":  "\u003cdiv\u003eContext: \u003ca target=\"_blank\" rel=\"noreferrer\" class=\"autolinked\" data-behavior=\"truncate\" href=\"https://chat.google.com/room/AAQAu2awPjQ/mvP7HWZ1UuM/mvP7HWZ1UuM?cls=10\"\u003ehttps://chat.google.com/room/AAQAu2awPjQ/mvP7HWZ1UuM/mvP7HWZ1UuM?cls=10\u003c/a\u003e\u003cbr\u003eCurrent view \u003cbc-attachment sgid=\"BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9BdHRhY2htZW50LzgyNTA3NzI4Mj9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg9hdHRhY2hhYmxlBjsAVA==--cde044c35ac427740df4a98ad5625f415783decf\" content-type=\"image/png\" url=\"https://preview.3.basecamp.com/5172885/blobs/6d8ec146-1e45-11f1-aba5-0242ac120004/previews/full\" href=\"https://storage.3.basecamp.com/5172885/blobs/6d8ec146-1e45-11f1-aba5-0242ac120004/download/image.png\" filename=\"image.png\" filesize=\"66539\" width=\"512\" height=\"306\" previewable=\"true\" presentation=\"gallery\"\u003e\u003cfigure\u003e\n    \u003cimg srcset=\"https://preview.3.basecamp.com/5172885/blobs/6d8ec146-1e45-11f1-aba5-0242ac120004/previews/full?dppx=2 2x, https://preview.3.basecamp.com/5172885/blobs/6d8ec146-1e45-11f1-aba5-0242ac120004/previews/full?dppx=1 1x, https://preview.3.basecamp.com/5172885/blobs/6d8ec146-1e45-11f1-aba5-0242ac120004/previews/full?dppx=3 3x, https://preview.3.basecamp.com/5172885/blobs/6d8ec146-1e45-11f1-aba5-0242ac120004/previews/full?dppx=4 4x\" src=\"https://preview.3.basecamp.com/5172885/blobs/6d8ec146-1e45-11f1-aba5-0242ac120004/previews/full\"\u003e\n  \u003cfigcaption\u003e\n    image.png\n  \u003c/figcaption\u003e\n\u003c/figure\u003e\u003c/bc-attachment\u003e\u003cbr\u003eDesierd view: \u003cbc-attachment sgid=\"BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9BdHRhY2htZW50LzgyNjA2MzY0Nj9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg9hdHRhY2hhYmxlBjsAVA==--300bbcf8af2577c418f7001b2d855cc17685106e\" content-type=\"image/png\" url=\"https://preview.3.basecamp.com/5172885/blobs/e7b5115a-214c-11f1-b495-0242ac120004/previews/full\" href=\"https://storage.3.basecamp.com/5172885/blobs/e7b5115a-214c-11f1-b495-0242ac120004/download/image.png\" filename=\"image.png\" filesize=\"40725\" width=\"512\" height=\"217\" previewable=\"true\" presentation=\"gallery\"\u003e\u003cfigure\u003e\n    \u003cimg srcset=\"https://preview.3.basecamp.com/5172885/blobs/e7b5115a-214c-11f1-b495-0242ac120004/previews/full?dppx=2 2x, https://preview.3.basecamp.com/5172885/blobs/e7b5115a-214c-11f1-b495-0242ac120004/previews/full?dppx=1 1x, https://preview.3.basecamp.com/5172885/blobs/e7b5115a-214c-11f1-b495-0242ac120004/previews/full?dppx=3 3x, https://preview.3.basecamp.com/5172885/blobs/e7b5115a-214c-11f1-b495-0242ac120004/previews/full?dppx=4 4x\" src=\"https://preview.3.basecamp.com/5172885/blobs/e7b5115a-214c-11f1-b495-0242ac120004/previews/full\"\u003e\n  \u003cfigcaption\u003e\n    image.png\n  \u003c/figcaption\u003e\n\u003c/figure\u003e\u003c/bc-attachment\u003e\n\u003c/div\u003e",
+        "completed":  false,
+        "content":  "\u003cdiv\u003eContext: https://chat.google.com/room/AAQAu2awPjQ/mvP7HWZ1UuM/mvP7HWZ1UuM?cls=10\u003cbr\u003eCurrent view \u003cbc-attachment sgid=\"BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9BdHRhY2htZW50LzgyNTA3NzI4Mj9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg9hdHRhY2hhYmxlBjsAVA==--cde044c35ac427740df4a98ad5625f415783decf\" content-type=\"image/png\" url=\"https://preview.3.basecamp.com/5172885/blobs/6d8ec146-1e45-11f1-aba5-0242ac120004/previews/full\" href=\"https://storage.3.basecamp.com/5172885/blobs/6d8ec146-1e45-11f1-aba5-0242ac120004/download/image.png\" filename=\"image.png\" filesize=\"66539\" width=\"512\" height=\"306\" previewable=\"true\" presentation=\"gallery\"\u003e\u003c/bc-attachment\u003e\u003cbr\u003eDesierd view: \u003cbc-attachment sgid=\"BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9BdHRhY2htZW50LzgyNjA2MzY0Nj9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg9hdHRhY2hhYmxlBjsAVA==--300bbcf8af2577c418f7001b2d855cc17685106e\" content-type=\"image/png\" url=\"https://preview.3.basecamp.com/5172885/blobs/e7b5115a-214c-11f1-b495-0242ac120004/previews/full?dppx=1.125\" href=\"https://storage.3.basecamp.com/5172885/blobs/e7b5115a-214c-11f1-b495-0242ac120004/download/image.png\" filename=\"image.png\" filesize=\"40725\" width=\"512\" height=\"217\" previewable=\"true\" presentation=\"gallery\"\u003e\u003c/bc-attachment\u003e\u003c/div\u003e",
+        "due_on":  "2026-03-13",
+        "assignees":  [
+                          {
+                              "id":  50141785,
+                              "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNTAxNDE3ODU_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--c87baf64ca7bb6f9762f52dc71341a3016802152",
+                              "name":  "David Pineda",
+                              "email_address":  "david.pineda@imagineapps.co",
+                              "personable_type":  "User",
+                              "title":  "Salesforce Dev",
+                              "bio":  null,
+                              "location":  null,
+                              "created_at":  "2025-10-17T16:51:37.701Z",
+                              "updated_at":  "2026-01-20T23:56:47.601Z",
+                              "admin":  false,
+                              "owner":  false,
+                              "client":  false,
+                              "employee":  true,
+                              "time_zone":  "America/Bogota",
+                              "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBFka%2FQI=--d7a469bf30a78ec28ee2feb165c6c583454a4d5e/avatar",
+                              "company":  {
+                                              "id":  2774543,
+                                              "name":  "Imagine Apps"
+                                          },
+                              "can_ping":  true,
+                              "can_manage_projects":  true,
+                              "can_manage_people":  true,
+                              "can_access_timesheet":  false,
+                              "can_access_hill_charts":  true
+                          },
+                          {
+                              "id":  50115697,
+                              "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNTAxMTU2OTc_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--f06cc5b819bf3a11ed83693f5c45524dfe8064c3",
+                              "name":  "MarianaFB Murzi",
+                              "email_address":  "mariana@finanzbutik.com",
+                              "personable_type":  "User",
+                              "title":  "",
+                              "bio":  "",
+                              "location":  "",
+                              "created_at":  "2025-10-15T00:56:32.666Z",
+                              "updated_at":  "2025-10-22T19:06:06.639Z",
+                              "admin":  false,
+                              "owner":  false,
+                              "client":  true,
+                              "employee":  false,
+                              "time_zone":  "America/New_York",
+                              "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBHG0%2FAI=--efd2fc2bc23db2805983467f7eae1376606eff79/avatar",
+                              "company":  {
+                                              "id":  4041920,
+                                              "name":  "Finanax Butik"
+                                          },
+                              "can_ping":  true,
+                              "can_manage_projects":  false,
+                              "can_manage_people":  false,
+                              "can_access_timesheet":  false,
+                              "can_access_hill_charts":  false
+                          }
+                      ],
+        "completion_subscribers":  [
+
+                                   ],
+        "completion_url":  "https://3.basecampapi.com/5172885/buckets/44382327/todos/9674696501/completion.json",
+        "comment_count":  0,
+        "steps":  [
+                      {
+                          "id":  9674727343,
+                          "status":  "active",
+                          "visible_to_clients":  true,
+                          "created_at":  "2026-03-12T18:58:57.872Z",
+                          "updated_at":  "2026-03-12T18:58:57.948Z",
+                          "title":  "Debugg report from Mari",
+                          "inherits_status":  true,
+                          "type":  "Kanban::Step",
+                          "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/steps/9674727343.json",
+                          "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9674696501#__recording_9674727343",
+                          "bookmark_url":  "https://3.basecampapi.com/5172885/my/bookmarks/BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9SZWNvcmRpbmcvOTY3NDcyNzM0Mz9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg1yZWFkYWJsZQY7AFQ=--2678ef041935c64637166d8db723e59a07ac0d07.json",
+                          "position":  1,
+                          "parent":  {
+                                         "id":  9674696501,
+                                         "title":  "HOTFIX-113-Salesforce layout-Add new documents ",
+                                         "type":  "Kanban::Card",
+                                         "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/cards/9674696501.json",
+                                         "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9674696501"
+                                     },
+                          "bucket":  {
+                                         "id":  44382327,
+                                         "name":  "Finanz Butik // Imagine Apps",
+                                         "type":  "Project"
+                                     },
+                          "creator":  {
+                                          "id":  42875766,
+                                          "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNDI4NzU3NjY_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--3622ae40b7c6d25d65bfe1245183d074341675bb",
+                                          "name":  "Mariana Rojas",
+                                          "email_address":  "mariana.rojas@imagineapps.co",
+                                          "personable_type":  "User",
+                                          "title":  "Product Delivery Manager",
+                                          "bio":  "",
+                                          "location":  "",
+                                          "created_at":  "2023-02-08T17:56:55.207Z",
+                                          "updated_at":  "2026-03-18T22:07:43.480Z",
+                                          "admin":  false,
+                                          "owner":  false,
+                                          "client":  false,
+                                          "employee":  true,
+                                          "time_zone":  "America/Bogota",
+                                          "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBHY7jgI=--c6dabc3463414e70529ced021605fa5285004f03/avatar",
+                                          "company":  {
+                                                          "id":  2774543,
+                                                          "name":  "Imagine Apps"
+                                                      },
+                                          "can_ping":  true,
+                                          "can_manage_projects":  true,
+                                          "can_manage_people":  true,
+                                          "can_access_timesheet":  false,
+                                          "can_access_hill_charts":  true
+                                      },
+                          "completed":  false,
+                          "due_on":  null,
+                          "assignees":  [
+                                            {
+                                                "id":  50141785,
+                                                "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNTAxNDE3ODU_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--c87baf64ca7bb6f9762f52dc71341a3016802152",
+                                                "name":  "David Pineda",
+                                                "email_address":  "david.pineda@imagineapps.co",
+                                                "personable_type":  "User",
+                                                "title":  "Salesforce Dev",
+                                                "bio":  null,
+                                                "location":  null,
+                                                "created_at":  "2025-10-17T16:51:37.701Z",
+                                                "updated_at":  "2026-01-20T23:56:47.601Z",
+                                                "admin":  false,
+                                                "owner":  false,
+                                                "client":  false,
+                                                "employee":  true,
+                                                "time_zone":  "America/Bogota",
+                                                "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBFka%2FQI=--d7a469bf30a78ec28ee2feb165c6c583454a4d5e/avatar",
+                                                "company":  {
+                                                                "id":  2774543,
+                                                                "name":  "Imagine Apps"
+                                                            },
+                                                "can_ping":  true,
+                                                "can_manage_projects":  true,
+                                                "can_manage_people":  true,
+                                                "can_access_timesheet":  false,
+                                                "can_access_hill_charts":  true
+                                            }
+                                        ],
+                          "completion_url":  "/5172885/buckets/44382327/card_tables/steps/9674727343/completions.json"
+                      },
+                      {
+                          "id":  9674728590,
+                          "status":  "active",
+                          "visible_to_clients":  true,
+                          "created_at":  "2026-03-12T18:59:14.330Z",
+                          "updated_at":  "2026-03-12T19:00:27.957Z",
+                          "title":  "Fix",
+                          "inherits_status":  true,
+                          "type":  "Kanban::Step",
+                          "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/steps/9674728590.json",
+                          "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9674696501#__recording_9674728590",
+                          "bookmark_url":  "https://3.basecampapi.com/5172885/my/bookmarks/BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9SZWNvcmRpbmcvOTY3NDcyODU5MD9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg1yZWFkYWJsZQY7AFQ=--02a517e4128530378073ce4a29d0644104ff3037.json",
+                          "position":  2,
+                          "parent":  {
+                                         "id":  9674696501,
+                                         "title":  "HOTFIX-113-Salesforce layout-Add new documents ",
+                                         "type":  "Kanban::Card",
+                                         "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/cards/9674696501.json",
+                                         "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9674696501"
+                                     },
+                          "bucket":  {
+                                         "id":  44382327,
+                                         "name":  "Finanz Butik // Imagine Apps",
+                                         "type":  "Project"
+                                     },
+                          "creator":  {
+                                          "id":  42875766,
+                                          "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNDI4NzU3NjY_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--3622ae40b7c6d25d65bfe1245183d074341675bb",
+                                          "name":  "Mariana Rojas",
+                                          "email_address":  "mariana.rojas@imagineapps.co",
+                                          "personable_type":  "User",
+                                          "title":  "Product Delivery Manager",
+                                          "bio":  "",
+                                          "location":  "",
+                                          "created_at":  "2023-02-08T17:56:55.207Z",
+                                          "updated_at":  "2026-03-18T22:07:43.480Z",
+                                          "admin":  false,
+                                          "owner":  false,
+                                          "client":  false,
+                                          "employee":  true,
+                                          "time_zone":  "America/Bogota",
+                                          "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBHY7jgI=--c6dabc3463414e70529ced021605fa5285004f03/avatar",
+                                          "company":  {
+                                                          "id":  2774543,
+                                                          "name":  "Imagine Apps"
+                                                      },
+                                          "can_ping":  true,
+                                          "can_manage_projects":  true,
+                                          "can_manage_people":  true,
+                                          "can_access_timesheet":  false,
+                                          "can_access_hill_charts":  true
+                                      },
+                          "completed":  false,
+                          "due_on":  null,
+                          "assignees":  [
+                                            {
+                                                "id":  50141785,
+                                                "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNTAxNDE3ODU_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--c87baf64ca7bb6f9762f52dc71341a3016802152",
+                                                "name":  "David Pineda",
+                                                "email_address":  "david.pineda@imagineapps.co",
+                                                "personable_type":  "User",
+                                                "title":  "Salesforce Dev",
+                                                "bio":  null,
+                                                "location":  null,
+                                                "created_at":  "2025-10-17T16:51:37.701Z",
+                                                "updated_at":  "2026-01-20T23:56:47.601Z",
+                                                "admin":  false,
+                                                "owner":  false,
+                                                "client":  false,
+                                                "employee":  true,
+                                                "time_zone":  "America/Bogota",
+                                                "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBFka%2FQI=--d7a469bf30a78ec28ee2feb165c6c583454a4d5e/avatar",
+                                                "company":  {
+                                                                "id":  2774543,
+                                                                "name":  "Imagine Apps"
+                                                            },
+                                                "can_ping":  true,
+                                                "can_manage_projects":  true,
+                                                "can_manage_people":  true,
+                                                "can_access_timesheet":  false,
+                                                "can_access_hill_charts":  true
+                                            }
+                                        ],
+                          "completion_url":  "/5172885/buckets/44382327/card_tables/steps/9674728590/completions.json"
+                      },
+                      {
+                          "id":  9674734565,
+                          "status":  "active",
+                          "visible_to_clients":  true,
+                          "created_at":  "2026-03-12T19:00:22.367Z",
+                          "updated_at":  "2026-03-12T19:00:22.598Z",
+                          "title":  "Replace component",
+                          "inherits_status":  true,
+                          "type":  "Kanban::Step",
+                          "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/steps/9674734565.json",
+                          "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9674696501#__recording_9674734565",
+                          "bookmark_url":  "https://3.basecampapi.com/5172885/my/bookmarks/BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9SZWNvcmRpbmcvOTY3NDczNDU2NT9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg1yZWFkYWJsZQY7AFQ=--b7acb1465a8dad8664c4a0ba22005680d843773a.json",
+                          "position":  3,
+                          "parent":  {
+                                         "id":  9674696501,
+                                         "title":  "HOTFIX-113-Salesforce layout-Add new documents ",
+                                         "type":  "Kanban::Card",
+                                         "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/cards/9674696501.json",
+                                         "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9674696501"
+                                     },
+                          "bucket":  {
+                                         "id":  44382327,
+                                         "name":  "Finanz Butik // Imagine Apps",
+                                         "type":  "Project"
+                                     },
+                          "creator":  {
+                                          "id":  42875766,
+                                          "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNDI4NzU3NjY_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--3622ae40b7c6d25d65bfe1245183d074341675bb",
+                                          "name":  "Mariana Rojas",
+                                          "email_address":  "mariana.rojas@imagineapps.co",
+                                          "personable_type":  "User",
+                                          "title":  "Product Delivery Manager",
+                                          "bio":  "",
+                                          "location":  "",
+                                          "created_at":  "2023-02-08T17:56:55.207Z",
+                                          "updated_at":  "2026-03-18T22:07:43.480Z",
+                                          "admin":  false,
+                                          "owner":  false,
+                                          "client":  false,
+                                          "employee":  true,
+                                          "time_zone":  "America/Bogota",
+                                          "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBHY7jgI=--c6dabc3463414e70529ced021605fa5285004f03/avatar",
+                                          "company":  {
+                                                          "id":  2774543,
+                                                          "name":  "Imagine Apps"
+                                                      },
+                                          "can_ping":  true,
+                                          "can_manage_projects":  true,
+                                          "can_manage_people":  true,
+                                          "can_access_timesheet":  false,
+                                          "can_access_hill_charts":  true
+                                      },
+                          "completed":  false,
+                          "due_on":  null,
+                          "assignees":  [
+                                            {
+                                                "id":  50141785,
+                                                "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNTAxNDE3ODU_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--c87baf64ca7bb6f9762f52dc71341a3016802152",
+                                                "name":  "David Pineda",
+                                                "email_address":  "david.pineda@imagineapps.co",
+                                                "personable_type":  "User",
+                                                "title":  "Salesforce Dev",
+                                                "bio":  null,
+                                                "location":  null,
+                                                "created_at":  "2025-10-17T16:51:37.701Z",
+                                                "updated_at":  "2026-01-20T23:56:47.601Z",
+                                                "admin":  false,
+                                                "owner":  false,
+                                                "client":  false,
+                                                "employee":  true,
+                                                "time_zone":  "America/Bogota",
+                                                "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBFka%2FQI=--d7a469bf30a78ec28ee2feb165c6c583454a4d5e/avatar",
+                                                "company":  {
+                                                                "id":  2774543,
+                                                                "name":  "Imagine Apps"
+                                                            },
+                                                "can_ping":  true,
+                                                "can_manage_projects":  true,
+                                                "can_manage_people":  true,
+                                                "can_access_timesheet":  false,
+                                                "can_access_hill_charts":  true
+                                            }
+                                        ],
+                          "completion_url":  "/5172885/buckets/44382327/card_tables/steps/9674734565/completions.json"
+                      },
+                      {
+                          "id":  9674735707,
+                          "status":  "active",
+                          "visible_to_clients":  true,
+                          "created_at":  "2026-03-12T19:00:34.318Z",
+                          "updated_at":  "2026-03-12T19:00:34.318Z",
+                          "title":  "PR",
+                          "inherits_status":  true,
+                          "type":  "Kanban::Step",
+                          "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/steps/9674735707.json",
+                          "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9674696501#__recording_9674735707",
+                          "bookmark_url":  "https://3.basecampapi.com/5172885/my/bookmarks/BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9SZWNvcmRpbmcvOTY3NDczNTcwNz9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg1yZWFkYWJsZQY7AFQ=--decb9b1bb054d2c1fdea2273df2f49cf056de8ce.json",
+                          "position":  4,
+                          "parent":  {
+                                         "id":  9674696501,
+                                         "title":  "HOTFIX-113-Salesforce layout-Add new documents ",
+                                         "type":  "Kanban::Card",
+                                         "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/cards/9674696501.json",
+                                         "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9674696501"
+                                     },
+                          "bucket":  {
+                                         "id":  44382327,
+                                         "name":  "Finanz Butik // Imagine Apps",
+                                         "type":  "Project"
+                                     },
+                          "creator":  {
+                                          "id":  42875766,
+                                          "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNDI4NzU3NjY_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--3622ae40b7c6d25d65bfe1245183d074341675bb",
+                                          "name":  "Mariana Rojas",
+                                          "email_address":  "mariana.rojas@imagineapps.co",
+                                          "personable_type":  "User",
+                                          "title":  "Product Delivery Manager",
+                                          "bio":  "",
+                                          "location":  "",
+                                          "created_at":  "2023-02-08T17:56:55.207Z",
+                                          "updated_at":  "2026-03-18T22:07:43.480Z",
+                                          "admin":  false,
+                                          "owner":  false,
+                                          "client":  false,
+                                          "employee":  true,
+                                          "time_zone":  "America/Bogota",
+                                          "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBHY7jgI=--c6dabc3463414e70529ced021605fa5285004f03/avatar",
+                                          "company":  {
+                                                          "id":  2774543,
+                                                          "name":  "Imagine Apps"
+                                                      },
+                                          "can_ping":  true,
+                                          "can_manage_projects":  true,
+                                          "can_manage_people":  true,
+                                          "can_access_timesheet":  false,
+                                          "can_access_hill_charts":  true
+                                      },
+                          "completed":  false,
+                          "due_on":  null,
+                          "assignees":  [
+
+                                        ],
+                          "completion_url":  "/5172885/buckets/44382327/card_tables/steps/9674735707/completions.json"
+                      },
+                      {
+                          "id":  9674736401,
+                          "status":  "active",
+                          "visible_to_clients":  true,
+                          "created_at":  "2026-03-12T19:00:42.965Z",
+                          "updated_at":  "2026-03-12T19:00:42.965Z",
+                          "title":  "Demo video",
+                          "inherits_status":  true,
+                          "type":  "Kanban::Step",
+                          "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/steps/9674736401.json",
+                          "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9674696501#__recording_9674736401",
+                          "bookmark_url":  "https://3.basecampapi.com/5172885/my/bookmarks/BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9SZWNvcmRpbmcvOTY3NDczNjQwMT9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg1yZWFkYWJsZQY7AFQ=--e60c500051e411a0997c67b49279413851bf683a.json",
+                          "position":  5,
+                          "parent":  {
+                                         "id":  9674696501,
+                                         "title":  "HOTFIX-113-Salesforce layout-Add new documents ",
+                                         "type":  "Kanban::Card",
+                                         "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/cards/9674696501.json",
+                                         "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9674696501"
+                                     },
+                          "bucket":  {
+                                         "id":  44382327,
+                                         "name":  "Finanz Butik // Imagine Apps",
+                                         "type":  "Project"
+                                     },
+                          "creator":  {
+                                          "id":  42875766,
+                                          "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNDI4NzU3NjY_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--3622ae40b7c6d25d65bfe1245183d074341675bb",
+                                          "name":  "Mariana Rojas",
+                                          "email_address":  "mariana.rojas@imagineapps.co",
+                                          "personable_type":  "User",
+                                          "title":  "Product Delivery Manager",
+                                          "bio":  "",
+                                          "location":  "",
+                                          "created_at":  "2023-02-08T17:56:55.207Z",
+                                          "updated_at":  "2026-03-18T22:07:43.480Z",
+                                          "admin":  false,
+                                          "owner":  false,
+                                          "client":  false,
+                                          "employee":  true,
+                                          "time_zone":  "America/Bogota",
+                                          "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBHY7jgI=--c6dabc3463414e70529ced021605fa5285004f03/avatar",
+                                          "company":  {
+                                                          "id":  2774543,
+                                                          "name":  "Imagine Apps"
+                                                      },
+                                          "can_ping":  true,
+                                          "can_manage_projects":  true,
+                                          "can_manage_people":  true,
+                                          "can_access_timesheet":  false,
+                                          "can_access_hill_charts":  true
+                                      },
+                          "completed":  false,
+                          "due_on":  null,
+                          "assignees":  [
+
+                                        ],
+                          "completion_url":  "/5172885/buckets/44382327/card_tables/steps/9674736401/completions.json"
+                      }
+                  ]
+    },
+    {
+        "id":  9684113025,
+        "status":  "active",
+        "visible_to_clients":  true,
+        "created_at":  "2026-03-16T15:18:57.269Z",
+        "updated_at":  "2026-03-16T15:18:57.279Z",
+        "title":  "QA ",
+        "inherits_status":  true,
+        "type":  "Kanban::Card",
+        "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/cards/9684113025.json",
+        "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9684113025",
+        "bookmark_url":  "https://3.basecampapi.com/5172885/my/bookmarks/BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9SZWNvcmRpbmcvOTY4NDExMzAyNT9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg1yZWFkYWJsZQY7AFQ=--3779e11d8abc1e3b570c51c605241ed7f39e8402.json",
+        "subscription_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9684113025/subscription.json",
+        "comments_count":  0,
+        "comments_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9684113025/comments.json",
+        "boosts_count":  0,
+        "boosts_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9684113025/boosts.json",
+        "position":  11,
+        "parent":  {
+                       "id":  9175270358,
+                       "title":  "Figuring it out",
+                       "type":  "Kanban::Triage",
+                       "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/columns/9175270358.json",
+                       "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/columns/9175270358"
+                   },
+        "bucket":  {
+                       "id":  44382327,
+                       "name":  "Finanz Butik // Imagine Apps",
+                       "type":  "Project"
+                   },
+        "creator":  {
+                        "id":  42875766,
+                        "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNDI4NzU3NjY_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--3622ae40b7c6d25d65bfe1245183d074341675bb",
+                        "name":  "Mariana Rojas",
+                        "email_address":  "mariana.rojas@imagineapps.co",
+                        "personable_type":  "User",
+                        "title":  "Product Delivery Manager",
+                        "bio":  "",
+                        "location":  "",
+                        "created_at":  "2023-02-08T17:56:55.207Z",
+                        "updated_at":  "2026-03-18T22:07:43.480Z",
+                        "admin":  false,
+                        "owner":  false,
+                        "client":  false,
+                        "employee":  true,
+                        "time_zone":  "America/Bogota",
+                        "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBHY7jgI=--c6dabc3463414e70529ced021605fa5285004f03/avatar",
+                        "company":  {
+                                        "id":  2774543,
+                                        "name":  "Imagine Apps"
+                                    },
+                        "can_ping":  true,
+                        "can_manage_projects":  true,
+                        "can_manage_people":  true,
+                        "can_access_timesheet":  false,
+                        "can_access_hill_charts":  true
+                    },
+        "description":  "",
+        "completed":  false,
+        "content":  "",
+        "due_on":  null,
+        "assignees":  [
+
+                      ],
+        "completion_subscribers":  [
+
+                                   ],
+        "completion_url":  "https://3.basecampapi.com/5172885/buckets/44382327/todos/9684113025/completion.json",
+        "comment_count":  0,
+        "steps":  [
+
+                  ]
+    },
+    {
+        "id":  9559595603,
+        "status":  "active",
+        "visible_to_clients":  true,
+        "created_at":  "2026-02-09T16:55:23.681Z",
+        "updated_at":  "2026-02-09T16:55:23.721Z",
+        "title":  "HU-107-Analytics ",
+        "inherits_status":  true,
+        "type":  "Kanban::Card",
+        "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/cards/9559595603.json",
+        "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9559595603",
+        "bookmark_url":  "https://3.basecampapi.com/5172885/my/bookmarks/BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9SZWNvcmRpbmcvOTU1OTU5NTYwMz9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg1yZWFkYWJsZQY7AFQ=--03026a05b348f438fd233afa1278e7f1d4a9a2c3.json",
+        "subscription_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9559595603/subscription.json",
+        "comments_count":  0,
+        "comments_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9559595603/comments.json",
+        "boosts_count":  0,
+        "boosts_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9559595603/boosts.json",
+        "position":  12,
+        "parent":  {
+                       "id":  9175270358,
+                       "title":  "Figuring it out",
+                       "type":  "Kanban::Triage",
+                       "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/columns/9175270358.json",
+                       "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/columns/9175270358"
+                   },
+        "bucket":  {
+                       "id":  44382327,
+                       "name":  "Finanz Butik // Imagine Apps",
+                       "type":  "Project"
+                   },
+        "creator":  {
+                        "id":  42875766,
+                        "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNDI4NzU3NjY_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--3622ae40b7c6d25d65bfe1245183d074341675bb",
+                        "name":  "Mariana Rojas",
+                        "email_address":  "mariana.rojas@imagineapps.co",
+                        "personable_type":  "User",
+                        "title":  "Product Delivery Manager",
+                        "bio":  "",
+                        "location":  "",
+                        "created_at":  "2023-02-08T17:56:55.207Z",
+                        "updated_at":  "2026-03-18T22:07:43.480Z",
+                        "admin":  false,
+                        "owner":  false,
+                        "client":  false,
+                        "employee":  true,
+                        "time_zone":  "America/Bogota",
+                        "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBHY7jgI=--c6dabc3463414e70529ced021605fa5285004f03/avatar",
+                        "company":  {
+                                        "id":  2774543,
+                                        "name":  "Imagine Apps"
+                                    },
+                        "can_ping":  true,
+                        "can_manage_projects":  true,
+                        "can_manage_people":  true,
+                        "can_access_timesheet":  false,
+                        "can_access_hill_charts":  true
+                    },
+        "description":  "",
+        "completed":  false,
+        "content":  "",
+        "due_on":  null,
+        "assignees":  [
+                          {
+                              "id":  50115686,
+                              "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNTAxMTU2ODY_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--4da9f7622dedaffc3d287f014a3268d4cb839788",
+                              "name":  "Brian Sanchez",
+                              "email_address":  "brian@rokk3r.com",
+                              "personable_type":  "User",
+                              "title":  "",
+                              "bio":  null,
+                              "location":  null,
+                              "created_at":  "2025-10-15T00:53:53.760Z",
+                              "updated_at":  "2025-10-16T12:28:08.334Z",
+                              "admin":  false,
+                              "owner":  false,
+                              "client":  true,
+                              "employee":  false,
+                              "time_zone":  "America/New_York",
+                              "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBGa0%2FAI=--315d2cce88345565b004fb6abde09bb3abbba071/avatar",
+                              "company":  {
+                                              "id":  4041919,
+                                              "name":  "Rokk3r"
+                                          },
+                              "can_ping":  true,
+                              "can_manage_projects":  false,
+                              "can_manage_people":  false,
+                              "can_access_timesheet":  false,
+                              "can_access_hill_charts":  false
+                          }
+                      ],
+        "completion_subscribers":  [
+
+                                   ],
+        "completion_url":  "https://3.basecampapi.com/5172885/buckets/44382327/todos/9559595603/completion.json",
+        "comment_count":  0,
+        "steps":  [
+
+                  ]
+    },
+    {
+        "id":  9548813313,
+        "status":  "active",
+        "visible_to_clients":  true,
+        "created_at":  "2026-02-05T17:05:07.450Z",
+        "updated_at":  "2026-02-05T17:08:37.975Z",
+        "title":  "Analytics Revisions (TBD)",
+        "inherits_status":  true,
+        "type":  "Kanban::Card",
+        "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/cards/9548813313.json",
+        "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9548813313",
+        "bookmark_url":  "https://3.basecampapi.com/5172885/my/bookmarks/BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9SZWNvcmRpbmcvOTU0ODgxMzMxMz9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg1yZWFkYWJsZQY7AFQ=--2db39b3ced73717b8f55f11817e86cb81316dc79.json",
+        "subscription_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9548813313/subscription.json",
+        "comments_count":  1,
+        "comments_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9548813313/comments.json",
+        "boosts_count":  0,
+        "boosts_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9548813313/boosts.json",
+        "position":  13,
+        "parent":  {
+                       "id":  9175270358,
+                       "title":  "Figuring it out",
+                       "type":  "Kanban::Triage",
+                       "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/columns/9175270358.json",
+                       "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/columns/9175270358"
+                   },
+        "bucket":  {
+                       "id":  44382327,
+                       "name":  "Finanz Butik // Imagine Apps",
+                       "type":  "Project"
+                   },
+        "creator":  {
+                        "id":  50115686,
+                        "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNTAxMTU2ODY_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--4da9f7622dedaffc3d287f014a3268d4cb839788",
+                        "name":  "Brian Sanchez",
+                        "email_address":  "brian@rokk3r.com",
+                        "personable_type":  "User",
+                        "title":  "",
+                        "bio":  null,
+                        "location":  null,
+                        "created_at":  "2025-10-15T00:53:53.760Z",
+                        "updated_at":  "2025-10-16T12:28:08.334Z",
+                        "admin":  false,
+                        "owner":  false,
+                        "client":  true,
+                        "employee":  false,
+                        "time_zone":  "America/New_York",
+                        "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBGa0%2FAI=--315d2cce88345565b004fb6abde09bb3abbba071/avatar",
+                        "company":  {
+                                        "id":  4041919,
+                                        "name":  "Rokk3r"
+                                    },
+                        "can_ping":  true,
+                        "can_manage_projects":  false,
+                        "can_manage_people":  false,
+                        "can_access_timesheet":  false,
+                        "can_access_hill_charts":  false
+                    },
+        "description":  "\u003cdiv\u003eEnsure new pages contain the Page View callout\u003c/div\u003e",
+        "completed":  false,
+        "content":  "\u003cdiv\u003eEnsure new pages contain the Page View callout\u003c/div\u003e",
+        "due_on":  null,
+        "assignees":  [
+
+                      ],
+        "completion_subscribers":  [
+
+                                   ],
+        "completion_url":  "https://3.basecampapi.com/5172885/buckets/44382327/todos/9548813313/completion.json",
+        "comment_count":  1,
+        "steps":  [
+
+                  ]
+    },
+    {
+        "id":  9482952903,
+        "status":  "active",
+        "visible_to_clients":  true,
+        "created_at":  "2026-01-19T15:44:47.276Z",
+        "updated_at":  "2026-01-20T23:35:06.926Z",
+        "title":  "HU-064-Mobil App- Loading State recomendation ",
+        "inherits_status":  true,
+        "type":  "Kanban::Card",
+        "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/cards/9482952903.json",
+        "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9482952903",
+        "bookmark_url":  "https://3.basecampapi.com/5172885/my/bookmarks/BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9SZWNvcmRpbmcvOTQ4Mjk1MjkwMz9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg1yZWFkYWJsZQY7AFQ=--da7b0edd7f3d915027637db4b350d6e586fa0788.json",
+        "subscription_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9482952903/subscription.json",
+        "comments_count":  0,
+        "comments_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9482952903/comments.json",
+        "boosts_count":  0,
+        "boosts_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9482952903/boosts.json",
+        "position":  14,
+        "parent":  {
+                       "id":  9175270358,
+                       "title":  "Figuring it out",
+                       "type":  "Kanban::Triage",
+                       "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/columns/9175270358.json",
+                       "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/columns/9175270358"
+                   },
+        "bucket":  {
+                       "id":  44382327,
+                       "name":  "Finanz Butik // Imagine Apps",
+                       "type":  "Project"
+                   },
+        "creator":  {
+                        "id":  42875766,
+                        "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNDI4NzU3NjY_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--3622ae40b7c6d25d65bfe1245183d074341675bb",
+                        "name":  "Mariana Rojas",
+                        "email_address":  "mariana.rojas@imagineapps.co",
+                        "personable_type":  "User",
+                        "title":  "Product Delivery Manager",
+                        "bio":  "",
+                        "location":  "",
+                        "created_at":  "2023-02-08T17:56:55.207Z",
+                        "updated_at":  "2026-03-18T22:07:43.480Z",
+                        "admin":  false,
+                        "owner":  false,
+                        "client":  false,
+                        "employee":  true,
+                        "time_zone":  "America/Bogota",
+                        "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBHY7jgI=--c6dabc3463414e70529ced021605fa5285004f03/avatar",
+                        "company":  {
+                                        "id":  2774543,
+                                        "name":  "Imagine Apps"
+                                    },
+                        "can_ping":  true,
+                        "can_manage_projects":  true,
+                        "can_manage_people":  true,
+                        "can_access_timesheet":  false,
+                        "can_access_hill_charts":  true
+                    },
+        "description":  "",
+        "completed":  false,
+        "content":  "",
+        "due_on":  null,
+        "assignees":  [
+                          {
+                              "id":  48209920,
+                              "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNDgyMDk5MjA_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--82129b28333283aa5681b850c2aeaa35769b7f34",
+                              "name":  "Emmanuel Villada",
+                              "email_address":  "emmanuel.villada@imagineapps.co",
+                              "personable_type":  "User",
+                              "title":  "",
+                              "bio":  "",
+                              "location":  "",
+                              "created_at":  "2025-04-21T15:49:55.647Z",
+                              "updated_at":  "2025-10-16T12:34:30.875Z",
+                              "admin":  false,
+                              "owner":  false,
+                              "client":  false,
+                              "employee":  true,
+                              "time_zone":  "America/New_York",
+                              "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBACg3wI=--1d16b037ab27914d89222b61aec0e6383a95b2e5/avatar",
+                              "company":  {
+                                              "id":  2774543,
+                                              "name":  "Imagine Apps"
+                                          },
+                              "can_ping":  true,
+                              "can_manage_projects":  true,
+                              "can_manage_people":  true,
+                              "can_access_timesheet":  false,
+                              "can_access_hill_charts":  true
+                          }
+                      ],
+        "completion_subscribers":  [
+
+                                   ],
+        "completion_url":  "https://3.basecampapi.com/5172885/buckets/44382327/todos/9482952903/completion.json",
+        "comment_count":  0,
+        "steps":  [
+
+                  ]
+    },
+    {
+        "id":  9364842708,
+        "status":  "active",
+        "visible_to_clients":  true,
+        "created_at":  "2025-12-09T15:28:05.162Z",
+        "updated_at":  "2026-01-13T20:48:27.245Z",
+        "title":  "NonFunctional - 013- SalesForce Long-term Strategy",
+        "inherits_status":  true,
+        "type":  "Kanban::Card",
+        "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/cards/9364842708.json",
+        "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9364842708",
+        "bookmark_url":  "https://3.basecampapi.com/5172885/my/bookmarks/BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9SZWNvcmRpbmcvOTM2NDg0MjcwOD9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg1yZWFkYWJsZQY7AFQ=--5a27874f1cf96edae1afe162f22174b0157e76ed.json",
+        "subscription_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9364842708/subscription.json",
+        "comments_count":  0,
+        "comments_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9364842708/comments.json",
+        "boosts_count":  0,
+        "boosts_url":  "https://3.basecampapi.com/5172885/buckets/44382327/recordings/9364842708/boosts.json",
+        "position":  15,
+        "parent":  {
+                       "id":  9175270358,
+                       "title":  "Figuring it out",
+                       "type":  "Kanban::Triage",
+                       "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/columns/9175270358.json",
+                       "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/columns/9175270358"
+                   },
+        "bucket":  {
+                       "id":  44382327,
+                       "name":  "Finanz Butik // Imagine Apps",
+                       "type":  "Project"
+                   },
+        "creator":  {
+                        "id":  50115686,
+                        "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNTAxMTU2ODY_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--4da9f7622dedaffc3d287f014a3268d4cb839788",
+                        "name":  "Brian Sanchez",
+                        "email_address":  "brian@rokk3r.com",
+                        "personable_type":  "User",
+                        "title":  "",
+                        "bio":  null,
+                        "location":  null,
+                        "created_at":  "2025-10-15T00:53:53.760Z",
+                        "updated_at":  "2025-10-16T12:28:08.334Z",
+                        "admin":  false,
+                        "owner":  false,
+                        "client":  true,
+                        "employee":  false,
+                        "time_zone":  "America/New_York",
+                        "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBGa0%2FAI=--315d2cce88345565b004fb6abde09bb3abbba071/avatar",
+                        "company":  {
+                                        "id":  4041919,
+                                        "name":  "Rokk3r"
+                                    },
+                        "can_ping":  true,
+                        "can_manage_projects":  false,
+                        "can_manage_people":  false,
+                        "can_access_timesheet":  false,
+                        "can_access_hill_charts":  false
+                    },
+        "description":  "\u003cdiv\u003eMigration from SalesForce\u003c/div\u003e",
+        "completed":  false,
+        "content":  "\u003cdiv\u003eMigration from SalesForce\u003c/div\u003e",
+        "due_on":  "2026-01-05",
+        "assignees":  [
+
+                      ],
+        "completion_subscribers":  [
+
+                                   ],
+        "completion_url":  "https://3.basecampapi.com/5172885/buckets/44382327/todos/9364842708/completion.json",
+        "comment_count":  0,
+        "steps":  [
+                      {
+                          "id":  9364844822,
+                          "status":  "active",
+                          "visible_to_clients":  true,
+                          "created_at":  "2025-12-09T15:28:21.970Z",
+                          "updated_at":  "2025-12-09T15:29:37.888Z",
+                          "title":  "Find Open-Source CRM",
+                          "inherits_status":  true,
+                          "type":  "Kanban::Step",
+                          "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/steps/9364844822.json",
+                          "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9364842708#__recording_9364844822",
+                          "bookmark_url":  "https://3.basecampapi.com/5172885/my/bookmarks/BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9SZWNvcmRpbmcvOTM2NDg0NDgyMj9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg1yZWFkYWJsZQY7AFQ=--d2e50228c0e8f5e9da3a881117937c2a318f79e2.json",
+                          "position":  1,
+                          "parent":  {
+                                         "id":  9364842708,
+                                         "title":  "NonFunctional - 013- SalesForce Long-term Strategy",
+                                         "type":  "Kanban::Card",
+                                         "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/cards/9364842708.json",
+                                         "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9364842708"
+                                     },
+                          "bucket":  {
+                                         "id":  44382327,
+                                         "name":  "Finanz Butik // Imagine Apps",
+                                         "type":  "Project"
+                                     },
+                          "creator":  {
+                                          "id":  50115686,
+                                          "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNTAxMTU2ODY_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--4da9f7622dedaffc3d287f014a3268d4cb839788",
+                                          "name":  "Brian Sanchez",
+                                          "email_address":  "brian@rokk3r.com",
+                                          "personable_type":  "User",
+                                          "title":  "",
+                                          "bio":  null,
+                                          "location":  null,
+                                          "created_at":  "2025-10-15T00:53:53.760Z",
+                                          "updated_at":  "2025-10-16T12:28:08.334Z",
+                                          "admin":  false,
+                                          "owner":  false,
+                                          "client":  true,
+                                          "employee":  false,
+                                          "time_zone":  "America/New_York",
+                                          "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBGa0%2FAI=--315d2cce88345565b004fb6abde09bb3abbba071/avatar",
+                                          "company":  {
+                                                          "id":  4041919,
+                                                          "name":  "Rokk3r"
+                                                      },
+                                          "can_ping":  true,
+                                          "can_manage_projects":  false,
+                                          "can_manage_people":  false,
+                                          "can_access_timesheet":  false,
+                                          "can_access_hill_charts":  false
+                                      },
+                          "completed":  false,
+                          "due_on":  null,
+                          "assignees":  [
+
+                                        ],
+                          "completion_url":  "/5172885/buckets/44382327/card_tables/steps/9364844822/completions.json"
+                      },
+                      {
+                          "id":  9364845907,
+                          "status":  "active",
+                          "visible_to_clients":  true,
+                          "created_at":  "2025-12-09T15:28:32.619Z",
+                          "updated_at":  "2025-12-09T15:29:42.259Z",
+                          "title":  "Find Open-Source Journey/Marketing Platform",
+                          "inherits_status":  true,
+                          "type":  "Kanban::Step",
+                          "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/steps/9364845907.json",
+                          "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9364842708#__recording_9364845907",
+                          "bookmark_url":  "https://3.basecampapi.com/5172885/my/bookmarks/BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9SZWNvcmRpbmcvOTM2NDg0NTkwNz9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg1yZWFkYWJsZQY7AFQ=--18d58a5a523ab758fbad23f7389821e6436cdb19.json",
+                          "position":  2,
+                          "parent":  {
+                                         "id":  9364842708,
+                                         "title":  "NonFunctional - 013- SalesForce Long-term Strategy",
+                                         "type":  "Kanban::Card",
+                                         "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/cards/9364842708.json",
+                                         "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9364842708"
+                                     },
+                          "bucket":  {
+                                         "id":  44382327,
+                                         "name":  "Finanz Butik // Imagine Apps",
+                                         "type":  "Project"
+                                     },
+                          "creator":  {
+                                          "id":  50115686,
+                                          "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNTAxMTU2ODY_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--4da9f7622dedaffc3d287f014a3268d4cb839788",
+                                          "name":  "Brian Sanchez",
+                                          "email_address":  "brian@rokk3r.com",
+                                          "personable_type":  "User",
+                                          "title":  "",
+                                          "bio":  null,
+                                          "location":  null,
+                                          "created_at":  "2025-10-15T00:53:53.760Z",
+                                          "updated_at":  "2025-10-16T12:28:08.334Z",
+                                          "admin":  false,
+                                          "owner":  false,
+                                          "client":  true,
+                                          "employee":  false,
+                                          "time_zone":  "America/New_York",
+                                          "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBGa0%2FAI=--315d2cce88345565b004fb6abde09bb3abbba071/avatar",
+                                          "company":  {
+                                                          "id":  4041919,
+                                                          "name":  "Rokk3r"
+                                                      },
+                                          "can_ping":  true,
+                                          "can_manage_projects":  false,
+                                          "can_manage_people":  false,
+                                          "can_access_timesheet":  false,
+                                          "can_access_hill_charts":  false
+                                      },
+                          "completed":  false,
+                          "due_on":  null,
+                          "assignees":  [
+
+                                        ],
+                          "completion_url":  "/5172885/buckets/44382327/card_tables/steps/9364845907/completions.json"
+                      },
+                      {
+                          "id":  9364846978,
+                          "status":  "active",
+                          "visible_to_clients":  true,
+                          "created_at":  "2025-12-09T15:28:42.000Z",
+                          "updated_at":  "2025-12-09T15:28:42.000Z",
+                          "title":  "Integration Points between Open-Source CRM and Marketing Platform",
+                          "inherits_status":  true,
+                          "type":  "Kanban::Step",
+                          "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/steps/9364846978.json",
+                          "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9364842708#__recording_9364846978",
+                          "bookmark_url":  "https://3.basecampapi.com/5172885/my/bookmarks/BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9SZWNvcmRpbmcvOTM2NDg0Njk3OD9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg1yZWFkYWJsZQY7AFQ=--0bce255a0ebf034185a349939053484abcccbba1.json",
+                          "position":  3,
+                          "parent":  {
+                                         "id":  9364842708,
+                                         "title":  "NonFunctional - 013- SalesForce Long-term Strategy",
+                                         "type":  "Kanban::Card",
+                                         "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/cards/9364842708.json",
+                                         "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9364842708"
+                                     },
+                          "bucket":  {
+                                         "id":  44382327,
+                                         "name":  "Finanz Butik // Imagine Apps",
+                                         "type":  "Project"
+                                     },
+                          "creator":  {
+                                          "id":  50115686,
+                                          "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNTAxMTU2ODY_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--4da9f7622dedaffc3d287f014a3268d4cb839788",
+                                          "name":  "Brian Sanchez",
+                                          "email_address":  "brian@rokk3r.com",
+                                          "personable_type":  "User",
+                                          "title":  "",
+                                          "bio":  null,
+                                          "location":  null,
+                                          "created_at":  "2025-10-15T00:53:53.760Z",
+                                          "updated_at":  "2025-10-16T12:28:08.334Z",
+                                          "admin":  false,
+                                          "owner":  false,
+                                          "client":  true,
+                                          "employee":  false,
+                                          "time_zone":  "America/New_York",
+                                          "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBGa0%2FAI=--315d2cce88345565b004fb6abde09bb3abbba071/avatar",
+                                          "company":  {
+                                                          "id":  4041919,
+                                                          "name":  "Rokk3r"
+                                                      },
+                                          "can_ping":  true,
+                                          "can_manage_projects":  false,
+                                          "can_manage_people":  false,
+                                          "can_access_timesheet":  false,
+                                          "can_access_hill_charts":  false
+                                      },
+                          "completed":  false,
+                          "due_on":  null,
+                          "assignees":  [
+
+                                        ],
+                          "completion_url":  "/5172885/buckets/44382327/card_tables/steps/9364846978/completions.json"
+                      },
+                      {
+                          "id":  9364851655,
+                          "status":  "active",
+                          "visible_to_clients":  true,
+                          "created_at":  "2025-12-09T15:29:30.794Z",
+                          "updated_at":  "2025-12-09T15:29:30.794Z",
+                          "title":  "Existing Needs and Wants to have in new Open-Source CRM/Marketing Platform",
+                          "inherits_status":  true,
+                          "type":  "Kanban::Step",
+                          "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/steps/9364851655.json",
+                          "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9364842708#__recording_9364851655",
+                          "bookmark_url":  "https://3.basecampapi.com/5172885/my/bookmarks/BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9SZWNvcmRpbmcvOTM2NDg1MTY1NT9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg1yZWFkYWJsZQY7AFQ=--66bccf8cb2758e40f29d11807a320c9666e781e8.json",
+                          "position":  4,
+                          "parent":  {
+                                         "id":  9364842708,
+                                         "title":  "NonFunctional - 013- SalesForce Long-term Strategy",
+                                         "type":  "Kanban::Card",
+                                         "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/cards/9364842708.json",
+                                         "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9364842708"
+                                     },
+                          "bucket":  {
+                                         "id":  44382327,
+                                         "name":  "Finanz Butik // Imagine Apps",
+                                         "type":  "Project"
+                                     },
+                          "creator":  {
+                                          "id":  50115686,
+                                          "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNTAxMTU2ODY_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--4da9f7622dedaffc3d287f014a3268d4cb839788",
+                                          "name":  "Brian Sanchez",
+                                          "email_address":  "brian@rokk3r.com",
+                                          "personable_type":  "User",
+                                          "title":  "",
+                                          "bio":  null,
+                                          "location":  null,
+                                          "created_at":  "2025-10-15T00:53:53.760Z",
+                                          "updated_at":  "2025-10-16T12:28:08.334Z",
+                                          "admin":  false,
+                                          "owner":  false,
+                                          "client":  true,
+                                          "employee":  false,
+                                          "time_zone":  "America/New_York",
+                                          "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBGa0%2FAI=--315d2cce88345565b004fb6abde09bb3abbba071/avatar",
+                                          "company":  {
+                                                          "id":  4041919,
+                                                          "name":  "Rokk3r"
+                                                      },
+                                          "can_ping":  true,
+                                          "can_manage_projects":  false,
+                                          "can_manage_people":  false,
+                                          "can_access_timesheet":  false,
+                                          "can_access_hill_charts":  false
+                                      },
+                          "completed":  false,
+                          "due_on":  null,
+                          "assignees":  [
+
+                                        ],
+                          "completion_url":  "/5172885/buckets/44382327/card_tables/steps/9364851655/completions.json"
+                      },
+                      {
+                          "id":  9364853814,
+                          "status":  "active",
+                          "visible_to_clients":  true,
+                          "created_at":  "2025-12-09T15:29:55.710Z",
+                          "updated_at":  "2025-12-09T15:29:55.710Z",
+                          "title":  "SalesForce Migration Strategy",
+                          "inherits_status":  true,
+                          "type":  "Kanban::Step",
+                          "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/steps/9364853814.json",
+                          "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9364842708#__recording_9364853814",
+                          "bookmark_url":  "https://3.basecampapi.com/5172885/my/bookmarks/BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9SZWNvcmRpbmcvOTM2NDg1MzgxND9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg1yZWFkYWJsZQY7AFQ=--eac07f581c7c08a9ee21fe894d4b8d80a7a553b5.json",
+                          "position":  5,
+                          "parent":  {
+                                         "id":  9364842708,
+                                         "title":  "NonFunctional - 013- SalesForce Long-term Strategy",
+                                         "type":  "Kanban::Card",
+                                         "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/cards/9364842708.json",
+                                         "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9364842708"
+                                     },
+                          "bucket":  {
+                                         "id":  44382327,
+                                         "name":  "Finanz Butik // Imagine Apps",
+                                         "type":  "Project"
+                                     },
+                          "creator":  {
+                                          "id":  50115686,
+                                          "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNTAxMTU2ODY_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--4da9f7622dedaffc3d287f014a3268d4cb839788",
+                                          "name":  "Brian Sanchez",
+                                          "email_address":  "brian@rokk3r.com",
+                                          "personable_type":  "User",
+                                          "title":  "",
+                                          "bio":  null,
+                                          "location":  null,
+                                          "created_at":  "2025-10-15T00:53:53.760Z",
+                                          "updated_at":  "2025-10-16T12:28:08.334Z",
+                                          "admin":  false,
+                                          "owner":  false,
+                                          "client":  true,
+                                          "employee":  false,
+                                          "time_zone":  "America/New_York",
+                                          "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBGa0%2FAI=--315d2cce88345565b004fb6abde09bb3abbba071/avatar",
+                                          "company":  {
+                                                          "id":  4041919,
+                                                          "name":  "Rokk3r"
+                                                      },
+                                          "can_ping":  true,
+                                          "can_manage_projects":  false,
+                                          "can_manage_people":  false,
+                                          "can_access_timesheet":  false,
+                                          "can_access_hill_charts":  false
+                                      },
+                          "completed":  false,
+                          "due_on":  null,
+                          "assignees":  [
+
+                                        ],
+                          "completion_url":  "/5172885/buckets/44382327/card_tables/steps/9364853814/completions.json"
+                      },
+                      {
+                          "id":  9364857700,
+                          "status":  "active",
+                          "visible_to_clients":  true,
+                          "created_at":  "2025-12-09T15:30:35.665Z",
+                          "updated_at":  "2025-12-09T15:30:44.000Z",
+                          "title":  "Ionic/Capacitor Experience Cloud App Strategy (Android/iOS)",
+                          "inherits_status":  true,
+                          "type":  "Kanban::Step",
+                          "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/steps/9364857700.json",
+                          "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9364842708#__recording_9364857700",
+                          "bookmark_url":  "https://3.basecampapi.com/5172885/my/bookmarks/BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiLmdpZDovL2JjMy9SZWNvcmRpbmcvOTM2NDg1NzcwMD9leHBpcmVzX2luBjsAVEkiCHB1cgY7AFRJIg1yZWFkYWJsZQY7AFQ=--5d1dc90e4b4615fc8413ba0e0cfa15c39b422bf9.json",
+                          "position":  6,
+                          "parent":  {
+                                         "id":  9364842708,
+                                         "title":  "NonFunctional - 013- SalesForce Long-term Strategy",
+                                         "type":  "Kanban::Card",
+                                         "url":  "https://3.basecampapi.com/5172885/buckets/44382327/card_tables/cards/9364842708.json",
+                                         "app_url":  "https://3.basecamp.com/5172885/buckets/44382327/card_tables/cards/9364842708"
+                                     },
+                          "bucket":  {
+                                         "id":  44382327,
+                                         "name":  "Finanz Butik // Imagine Apps",
+                                         "type":  "Project"
+                                     },
+                          "creator":  {
+                                          "id":  50115686,
+                                          "attachable_sgid":  "BAh7BkkiC19yYWlscwY6BkVUewdJIglkYXRhBjsAVEkiKWdpZDovL2JjMy9QZXJzb24vNTAxMTU2ODY_ZXhwaXJlc19pbgY7AFRJIghwdXIGOwBUSSIPYXR0YWNoYWJsZQY7AFQ=--4da9f7622dedaffc3d287f014a3268d4cb839788",
+                                          "name":  "Brian Sanchez",
+                                          "email_address":  "brian@rokk3r.com",
+                                          "personable_type":  "User",
+                                          "title":  "",
+                                          "bio":  null,
+                                          "location":  null,
+                                          "created_at":  "2025-10-15T00:53:53.760Z",
+                                          "updated_at":  "2025-10-16T12:28:08.334Z",
+                                          "admin":  false,
+                                          "owner":  false,
+                                          "client":  true,
+                                          "employee":  false,
+                                          "time_zone":  "America/New_York",
+                                          "avatar_url":  "https://bc3-production-assets-cdn.basecamp-static.com/5172885/people/BAhpBGa0%2FAI=--315d2cce88345565b004fb6abde09bb3abbba071/avatar",
+                                          "company":  {
+                                                          "id":  4041919,
+                                                          "name":  "Rokk3r"
+                                                      },
+                                          "can_ping":  true,
+                                          "can_manage_projects":  false,
+                                          "can_manage_people":  false,
+                                          "can_access_timesheet":  false,
+                                          "can_access_hill_charts":  false
+                                      },
+                          "completed":  false,
+                          "due_on":  null,
+                          "assignees":  [
+
+                                        ],
+                          "completion_url":  "/5172885/buckets/44382327/card_tables/steps/9364857700/completions.json"
+                      }
+                  ]
+    }
+]
