@@ -93,19 +93,29 @@ completo de algo, se abre encima (drill-down), no te saca del Command Center.
 
 ---
 
-## 3. Flujos de trabajo
+## 3. Flujos de trabajo (ajustados al Command Center de §2 — ninguno parte de un menú, todos parten del chat o de un drill-down)
 
 ### Flujo A — Conectar un proyecto multi-repo (setup, una vez por proyecto)
 
-1. Crear proyecto (ya existe).
-2. "Repositorios asociados" → "+ Conectar repo" → GitHub/Bitbucket → OAuth o token → elegir repo(s).
-3. Se registra `{provider, owner, repo, defaultBranch}` en `project.repositories[]`.
-4. Primer digest histórico (7 días) para poblar el Brain sin esperar un día completo.
+1. Crear proyecto — puede pedirse desde el chat ("crea el proyecto X") o desde el drill-down
+   📁 Detalle de Proyecto (ya existe).
+2. Dentro de ese drill-down, en "Repositorios asociados" → "+ Conectar repo" → elegir **Auth
+   Profile** (§6.2, no un login nuevo cada vez) → GitHub/Bitbucket → elegir repo(s).
+3. Se registra `{provider, owner, repo, defaultBranch, authProfileId, environment}` en
+   `project.repositories[]` — `environment` distingue prod/develop (ver §9.3).
+4. Primer digest histórico (7 días) para poblar el Brain sin esperar el primer ciclo.
+5. En cuanto termina, el Panel de Estado del Command Center refleja el proyecto con datos reales
+   — sin necesidad de recargar ni salir del drill-down.
 
 ### Flujo B — Project Brain vivo, con el código como jueza final
 
+**Cadencia (ajustada, §9.3): no es un cron diario fijo** — se sincroniza al iniciar sesión y,
+además, cada 3 horas entre 7am–7pm (horario de trabajo), no en horario nocturno donde no hay
+actividad que traer. Cada corrida distingue el `environment` (prod vs. develop) del repo que
+está leyendo — un gap en develop no es la misma alerta que un gap en prod.
+
 ```
-Cron diario (por proyecto con repos conectados)
+Trigger: inicio de sesión del chat, O cada 3h entre 7am-7pm (por proyecto con repos conectados)
     │
     ▼
 Adapter de repo trae commits/PRs de 24h + estado actual de archivos relevantes
@@ -167,27 +177,83 @@ chat **no es una pantalla a la que navegas** — es el panel izquierdo/central d
 
 ### Flujo E — Trabajar proyectos en paralelo
 
-Consecuencia de A+B+C, no una feature de UI de multitasking: como el Brain se mantiene solo (con
-verdad de código) y el chat responde preguntas puntuales sobre cualquier proyecto sin cambiar de
-pantalla, no hace falta "entrar" a cada proyecto para saber cómo va.
+Consecuencia de A+B+C, no una feature de UI de multitasking: el Panel de Estado del Command
+Center (§2) ya muestra el semáforo de todos los proyectos activos a la vez, y el chat responde
+preguntas puntuales sobre cualquiera de ellos sin cambiar de pantalla — no hace falta "entrar" a
+cada proyecto para saber cómo va.
 
 ---
 
-## 4. Fases de construcción (mismo modelo SDLC de 5 fases de Orquestrador 360)
+## 4. Fases — Gestión de Proyectos 360 (modelo ampliado, reemplaza la vista de "solo 5 fases SDLC")
 
-| Fase | Entregable de Jarvis Mode | Agentes involucrados |
-|---|---|---|
-| **1 — Planeación** | Este spec + HUs + decisiones pendientes (§8, §9) | gimena, milestone-writer, dod-definer |
-| **2 — Backend** | `repositories[]`, adaptadores de repo, `/brain/ingest-event`, `/jarvis/chat` (con sesión), motor de reconciliación (Auditor), Memoria de Mar, capa de métricas | data-engineer, gabi, architect, auditor |
-| **3 — Frontend** | Jarvis Chat, Memoria de Mar, pantalla de Analítica, Repositorios/Integraciones (dentro del rediseño React ya planeado) | fullstack-developer |
-| **4 — Integración y Calidad** | Probar digest + reconciliación con un repo real, probar el chat multi-turno con datos reales, validar que las métricas de Analítica no sean vanidad (que reflejen algo verificable) | qa-integrator, auditor |
-| **5 — Deploy** | Cron en Vercel, variables de OAuth GitHub/Bitbucket, canal móvil | — (sin agente, gap heredado) |
+Corrección importante sobre el borrador anterior: las 5 fases de `phaseContracts.js`
+(Planeación/Backend/Frontend/Integración-Calidad/Deploy) son el **ciclo de ejecución técnica**,
+pero no cubren todo el ciclo de vida real de un proyecto — no dicen nada del kickoff, del
+seguimiento continuo, ni de cómo se cierra/entrega/renueva un proyecto. Mar definió la taxonomía
+completa; esto **extiende** el modelo actual, no lo descarta.
+
+### 4.1 Taxonomía completa
+
+```
+Gestión de Proyectos 360
+├── 1. Iniciación
+│   ├── 1.1 Kick off
+│   └── 1.2 Planning
+├── 2. Ejecución
+│   ├── 2.1 Desarrollo
+│   │   ├── 2.1.1 Backend
+│   │   ├── 2.1.2 Frontend
+│   │   └── 2.1.3 DevOps
+│   ├── 2.2 Calidad
+│   └── 2.3 Seguimiento
+└── 3. Cierre
+    ├── 3.1 Entregas parciales
+    ├── 3.2 Entregas finales
+    ├── 3.3 Renovación
+    └── 3.4 Garantía
+```
+
+### 4.2 Mapeo contra lo que ya existe (para no reinventar lo que ya funciona)
+
+| Fase nueva | Fase/pieza actual | Agentes | Estado |
+|---|---|---|---|
+| 1.1 Kick off | — | — | **Gap nuevo**: no existe hoy ni en `phaseContracts.js` ni en agentes. Candidato natural: extender a `gabriela` (Project Brain Keeper) para que el kickoff sea el primer evento que abre el Brain de un proyecto. |
+| 1.2 Planning | Fase 1 actual (Planeación) | gimena, milestone-writer, dod-definer, gabi, capacity-reconciler, gina-scheduler | Ya existe, sin cambios |
+| 2.1.1 Backend | Fase 2 actual | data-engineer, gabi, architect, auditor, fixed-errors, qa-integrator | Ya existe |
+| 2.1.2 Frontend | Fase 3 actual | fullstack-developer, flutter-developer, auditor, fixed-errors, integration | Ya existe |
+| 2.1.3 DevOps | Fase 5 actual (Deploy) | — | **Gap heredado, ya documentado en `SPEC.md`**: Deploy no tiene agente asignado ni en `ia-hybrid-teams`. Se hereda aquí con el mismo nombre de gap, ahora dentro de Ejecución en vez de al final. |
+| 2.2 Calidad | Fase 4 actual (Integración y Calidad) | sonar-quality-gate, unit-test-standards-reviewer, mcp-integration-tester, test-video-recorder, quality-report-generator | Ya existe |
+| 2.3 Seguimiento | Pilar "Follow Up" de `SPEC_FOLLOWUP.md` | — (spec existe, "sin código, sin agentes todavía" según ese doc) | **Se resuelve en gran parte por este mismo spec** — el Brain vivo + reconciliación + Jarvis Chat de Jarvis Mode ES la pieza de Seguimiento mecánico que `SPEC_FOLLOWUP.md` deja pendiente. La gestión de personas (1:1, planes de mejora) de ese pilar sigue fuera de alcance — no es automatizable. |
+| 3.1–3.4 Cierre (Entregas parciales/finales, Renovación, Garantía) | Pilar "Delivery" de `SPEC_FOLLOWUP.md` §1 ("Delivery — pendiente: QA, Releases, Entregas Parciales/Finales, Garantía") | — | **Gap total, ya señalado como pendiente en `SPEC_FOLLOWUP.md`** — no se resuelve en este spec, pero queda formalmente registrado como la Fase 3 completa del modelo, para no perderlo de vista. Candidato a un `SPEC_CIERRE.md` propio más adelante. |
+
+### 4.3 Cómo se construye Jarvis Mode dentro de este modelo ampliado
+
+Jarvis Mode en sí (este spec) se construye siguiendo el ciclo de **Ejecución** de su propio
+proyecto — es dogfooding: usar el modelo de fases para construirse a sí mismo.
+
+| Fase (del modelo ampliado) | Entregable de Jarvis Mode |
+|---|---|
+| 1.1 Kick off | Este spec, aprobado por Mar |
+| 1.2 Planning | HUs detalladas — **generadas por Gimena**, no escritas a mano (§5, regla de `.claude`) |
+| 2.1.1 Backend | `repositories[]`, adaptadores de repo, `/brain/ingest-event`, `/jarvis/chat`, motor de reconciliación, Memoria de Mar, métricas |
+| 2.1.2 Frontend | Jarvis Chat (Command Center), Memoria de Mar, Analítica, Repositorios/Integraciones — dentro del rediseño React |
+| 2.1.3 DevOps | Cron/scheduler en Vercel, variables de Auth Profiles, monitoreo de costos (§8) |
+| 2.2 Calidad | Tests reales por Acceptance Criteria (para que la reconciliación §6.7 tenga con qué comparar), probar chat multi-turno con datos reales |
+| 2.3 Seguimiento | Una vez desplegado, Jarvis Mode se usa a sí mismo para seguir su propio avance — el primer proyecto en su propio Brain vivo es él mismo |
 
 ---
 
 ## 5. Historias de Usuario (HU)
 
-### F1 — Multi-repo por proyecto
+> **Regla de `.claude` (confirmada por Mar)**: las HUs siempre se generan con el agente
+> **Gimena**, nunca escritas a mano por fuera del sistema. Las que siguen abajo son un
+> **borrador de Claude, no HUs reales** — quedan marcadas `[DRAFT-BY-CLAUDE]` y deben
+> **regenerarse invocando a Gimena** (`POST /agents/gimena/invoke`) apenas haya una
+> `ANTHROPIC_API_KEY` real configurada — hoy el `.env` tiene una key falsa (confirmado en la
+> auditoría de la sesión anterior), así que Gimena no puede invocarse todavía. Ver pregunta
+> abierta en §11.
+
+### F1 — Multi-repo por proyecto [DRAFT-BY-CLAUDE — pendiente de regenerar con Gimena]
 
 **HU-JARVIS-01**: Como usuaria, quiero asociar uno o varios repositorios a un proyecto, para que
 Jarvis lea señales reales de trabajo sin que yo las reporte a mano.
@@ -203,13 +269,16 @@ Jarvis lea señales reales de trabajo sin que yo las reporte a mano.
 
 ---
 
-### F2 — Project Brain vivo con el código como fuente de verdad
+### F2 — Project Brain vivo con el código como fuente de verdad [DRAFT-BY-CLAUDE — pendiente de regenerar con Gimena]
 
-**HU-JARVIS-03**: Como usuaria, quiero un digest diario automático de la actividad de cada repo,
-para que el Brain no dependa de que yo pegue actas a mano.
+**HU-JARVIS-03**: Como usuaria, quiero que la actividad de cada repo se sincronice al iniciar
+sesión y periódicamente durante mi horario de trabajo, distinguiendo prod de develop, para que el
+Brain no dependa de que yo pegue actas a mano ni mezcle ambientes.
 
 **Acceptance Criteria**
-- [ ] Cron diario por proyecto con `repositories.length > 0`.
+- [ ] Trigger: al iniciar sesión del chat, y cada 3 horas entre 7am–7pm — no en horario nocturno.
+- [ ] Cada repo conectado declara su `environment` (`prod` | `develop`); el digest y cualquier
+  alerta de reconciliación quedan etiquetados con ese ambiente.
 - [ ] `POST /brain/ingest-event` generaliza `/brain/ingest-acta` (se mantiene como alias).
 - [ ] Sin actividad → sin entrada (no hay ruido).
 
@@ -230,7 +299,7 @@ declaran como hecho contra lo que el repo realmente tiene, y me alerte cuando no
 
 ---
 
-### F3 — Jarvis Chat (conversacional, no formulario)
+### F3 — Jarvis Chat (conversacional, no formulario) [DRAFT-BY-CLAUDE — pendiente de regenerar con Gimena]
 
 **HU-JARVIS-06**: Como usuaria, quiero hablarle a Jarvis en una conversación de ida y vuelta
 (como este chat), no llenar un formulario de una sola pregunta, para poder profundizar con
@@ -248,7 +317,7 @@ preguntas de seguimiento sin repetir contexto.
 
 ---
 
-### F4 — Memoria de Mar
+### F4 — Memoria de Mar [DRAFT-BY-CLAUDE — pendiente de regenerar con Gimena]
 
 **HU-JARVIS-07**: Como usuaria, quiero que Jarvis recuerde entre conversaciones qué ya entiendo
 del sistema y qué me falta decidir, para no tener que repetirle contexto sobre mí misma cada vez.
@@ -261,7 +330,7 @@ del sistema y qué me falta decidir, para no tener que repetirle contexto sobre 
 
 ---
 
-### F5 — Autoevaluación y mejora
+### F5 — Autoevaluación y mejora [DRAFT-BY-CLAUDE — pendiente de regenerar con Gimena]
 
 **HU-JARVIS-08**: Como usuaria, quiero que cada output de agente se evalúe en varias dimensiones
 concretas (no un solo score genérico), y que el feedback quede disponible de inmediato — no solo
@@ -290,7 +359,7 @@ por qué, y qué cambió en las métricas después), para tener evidencia de que
 
 ---
 
-### F6 — Analítica (evidencia de que esto es real)
+### F6 — Analítica (evidencia de que esto es real) [DRAFT-BY-CLAUDE — pendiente de regenerar con Gimena]
 
 **HU-JARVIS-10**: Como usuaria, quiero un panel de números concretos —no solo un dashboard de
 estado— que demuestre uso real y mejora real del sistema, porque la retroalimentación más dura
@@ -522,44 +591,24 @@ para el detalle de las 4 dimensiones: eficiencia, acertividad, formato, calidad)
 
 La retroalimentación que motivó esto: **no hay número que muestre que el sistema es real y que
 mejoró**. La instrucción explícita de Mar: cuantificar **todos los resultados**, por tipo de
-output y por agente, para poder empezar a generar **inteligencia de negocio** con estos agentes —
-esto está en construcción, la lista de abajo mezcla lo que Mar ya pidió con propuestas mías
-adicionales, marcadas para su aprobación.
+output y por agente, para generar **inteligencia de negocio** — todo lo de abajo está **aprobado**
+(incluidas las propuestas de Claude). Unificado en una sola lista priorizada, nada descartado.
 
-### 7.1 Ya pedido por Mar (confirmado)
+| Prioridad | Métrica | Por qué en ese orden |
+|---|---|---|
+| **P0** | Número de outputs por tipo (HUs, specs, planes, actas, evaluaciones, reconciliaciones) — contador independiente por tipo, no un total mezclado | Es la base de todo lo demás — sin esto no hay con qué cruzar ninguna otra métrica |
+| **P0** | Número de usos — invocaciones totales, por agente, por proyecto, por semana | Responde directo a "¿esto se usa de verdad?" |
+| **P0** | Reconciliación: gaps encontrados vs. cerrados, por proyecto y en el tiempo | La métrica más contundente contra el escepticismo: demuestra que el sistema **encuentra y corrige desalineación real**, no solo que "corre" |
+| **P1** | Tasa de aceptación por tipo de output (usado tal cual vs. descartado/regenerado) | Sin esto, "número de outputs" mide actividad, no valor |
+| **P1** | Calidad en el tiempo — las 4 dimensiones (§6.8) por agente, en serie, no snapshot | Ya viene gratis del feedback inmediato de autoevaluación — solo hay que acumularlo |
+| **P1** | Costo por output (tokens/USD reales de la API) | Da el número de negocio que cruza con "número de outputs" — cuánto cuesta producir cada tipo |
+| **P2** | Comparación "antes vs. después" — mismo tipo de tarea en dos fechas, con score y tiempo | La más persuasiva en una conversación puntual, pero necesita historial acumulado primero (depende de P0/P1) |
+| **P2** | Tendencia semana a semana de cada contador (no solo el acumulado) | Un acumulado siempre sube; esto es lo que distingue crecimiento real de estancamiento |
+| **P2** | Distribución de uso por proyecto/cliente | Útil para decidir dónde vale la pena seguir conectando repos, pero no bloquea nada más |
+| **P3** | Tiempo ahorrado estimado (baseline aproximado vs. tiempo real de invocación) | Marcado siempre como estimado, no medición exacta — es el más "blando" de todos, se construye al final |
 
-- **Número de usos** — invocaciones totales, por agente, por proyecto, por semana.
-- **Número de outputs generados, por tipo** — HUs generadas, specs generados, planes de trabajo
-  (Gabi), actas procesadas (Santi), evaluaciones corridas, reconciliaciones ejecutadas — un
-  contador independiente por tipo de output, no un total genérico mezclado.
-
-### 7.2 Propuesta adicional — **aprobada** (para que los números de negocio sean comparables, no solo contables)
-
-- **Tasa de aceptación por tipo de output**: de las HUs/specs/planes generados, ¿cuántos se
-  usaron tal cual vs. se descartaron o se regeneraron? Sin esto, "número de HUs generadas" mide
-  actividad, no valor — la tasa de aceptación es la que de verdad distingue "el sistema produce
-  cosas" de "el sistema produce cosas que sirven".
-- **Costo por output** (tokens/USD de la API de Anthropic, ya disponible en cada respuesta):
-  cruzar `número de outputs` con `costo` da un número de negocio real — cuánto cuesta producir
-  una HU vía Jarvis vs. el costo estimado de hacerlo manualmente.
-- **Tiempo ahorrado estimado**: un baseline aproximado (cuánto tarda Mar en escribir una HU a
-  mano, por ejemplo) comparado contra el tiempo real de la invocación — se marca explícitamente
-  como estimado/aproximado, no como medición exacta, para no inflar el número.
-- **Distribución por proyecto/cliente**: dónde se concentra el uso — útil para saber si el
-  esfuerzo de conectar repos/Brain vivo está rindiendo en los proyectos correctos.
-- **Tendencia semana a semana** de cada contador (no solo el acumulado histórico) — un acumulado
-  siempre sube; la tendencia es la que muestra si el uso realmente está creciendo o se estancó.
-
-### 7.3 Ya definido antes de esta ronda
-
-- **Calidad en el tiempo**: las 4 dimensiones (§6.8) por agente, en serie — no un snapshot.
-- **Reconciliación**: gaps encontrados vs. cerrados — la métrica que demuestra que el sistema
-  **encuentra y corrige desalineación real**, no solo que "corre".
-- **Antes/después**: mismo tipo de tarea en dos fechas, para señalar una mejora concreta y
-  verificable, no una afirmación.
-
-Ninguna métrica de esta sección se muestra sin poder hacer drill-down al evento crudo que la
-compone — eso ya estaba en HU-JARVIS-10 y sigue siendo la regla para todo lo nuevo de §7.2.
+Ninguna métrica se muestra sin poder hacer drill-down al evento crudo que la compone (ya en
+HU-JARVIS-10) — el orden de prioridad es de construcción, no de qué se le oculta a nadie.
 
 ---
 
@@ -578,35 +627,74 @@ Dashboard instalable, responsive real (con el bug de overlap ya corregido en el 
 sesión persistente. Se construye dentro del mismo esfuerzo de rediseño frontend ya planeado — no
 es una pieza de infraestructura aparte como habría sido un bot.
 
+### 8.2 Infraestructura y monitoreo de costos — decidido
+
+**Decisión**: se despliega en **Vercel + Redis del Marketplace (Upstash)**, no una alternativa
+sin Redis. Razón de Mar: ahorrar costo y evitar AWS mientras esto es un POC — cuando el POC esté
+terminado, se migra a AWS (fuera de alcance de este spec, pero `src/store.js` ya soporta
+filesystem/Redis intercambiable, así que la migración no debería tocar lógica de negocio).
+
+**Nuevo, explícitamente pedido por Mar**: monitoreo de costos de todo lo que está desplegado —
+"me interesa monitorearlo" fue explícito, no es un nice-to-have.
+
+- Fuentes de costo a vigilar: Vercel (funciones + banda ancha), Upstash Redis (comandos/almacenamiento),
+  Anthropic API (ya parcialmente cubierto por "costo por output" en §7, pero aquí es el costo
+  **total** de la cuenta, no por invocación individual).
+- Alertas: si un proveedor empieza a cobrar (se sale del free tier) o el gasto supera un umbral
+  definido, Jarvis debe avisar — mismo canal que las alertas del Brain (chat + Panel de Estado),
+  no un email aparte que se pierde.
+- Esto vive naturalmente junto a la Analítica (§7) — es "costo de infraestructura" en vez de
+  "costo por output de agente", misma filosofía de número auditable, no una estimación.
+
 ---
 
-## 9. Fuera de alcance (por ahora)
+## 9. Fuera de alcance (por ahora) — refinado con el rol real de Mar en el proyecto
 
-- Escribir/modificar código en los repos conectados (solo lectura de señales).
-- Notificaciones proactivas — v1 es reactivo (respondes cuando preguntas), proactivo es v2.
+- **Escribir/modificar código de aplicación en los repos conectados** (solo lectura de señales de
+  código). *Aclaración de Mar*: la documentación (specs, HUs, actas) **sí** vive y se escribe en
+  el repo — eso no es "tocar código", es exactamente lo que ya está pasando hoy con
+  `SPEC_JARVIS.md` en este mismo repo. El límite es el código de la aplicación, no el repo como
+  contenedor de documentación.
+- **Notificaciones proactivas — ajustado, ya no es 100% "fuera de alcance"**: no se construye
+  push/alertas espontáneas de v1, pero sí se agrega un **refresh programado** (no reactivo puro):
+  al iniciar sesión del chat, y cada 3 horas entre 7am–7pm (ver Flujo B, §3, y HU-JARVIS-03
+  actualizada). Además, cada sincronización debe **distinguir el ambiente** (`prod` vs.
+  `develop`/`development`) del repo que está leyendo — Mar suele trabajar en un entorno de
+  pruebas, y un gap de reconciliación en develop no debe tratarse igual que uno en prod.
 - Multi-usuario / permisos por proyecto.
 - Aplicar automáticamente los ajustes de prompt que sugiere la autoevaluación — siempre pasan por
   aprobación de Mar en v1.
-- El bug de overlap CSS y el rediseño React — hallazgo separado, se resuelve en ese esfuerzo.
+- El bug de overlap CSS y el rediseño React — hallazgo separado, se resuelve en ese esfuerzo (Mar
+  ya reconoce que debe ese rediseño/sistema de diseño).
 
 ---
 
-## 10. Decisiones resueltas (ronda de aprobación 2026-08-12)
+## 10. Decisiones resueltas (rondas de aprobación 2026-08-12)
 
-| Pregunta | Decisión |
+| Tema | Decisión |
 |---|---|
 | Canal móvil | **PWA** — dentro del rediseño React (§8.1) |
 | Auth de repos | **Auth Profiles** — múltiples identidades de Mar (`@imagineapps.co` → Bitbucket org + GitHub personal; `@gmail.com` → Bitbucket personal), no una sola OAuth App ni un PAT manual (§6.2) |
-| Autoevaluación | **Multidimensional y continua** (eficiencia, acertividad, formato, calidad) con feedback inmediato por invocación — no un umbral de semanas de degradación (§6.8, HU-JARVIS-08) |
-| Estrictez de reconciliación | **Precisión exacta contra el texto de los Acceptance Criteria**, respaldada por tests reales desarrollados en Fase 4 (Integración y Calidad) — no una heurística difusa del Auditor (§6.7) |
+| Autoevaluación | **Multidimensional y continua** (eficiencia, acertividad, formato, calidad) con feedback inmediato por invocación, umbral de **2 invocaciones seguidas** en baja calidad antes de proponer ajuste (§6.8, HU-JARVIS-08) |
+| Estrictez de reconciliación | **Precisión exacta contra el texto de los Acceptance Criteria**, respaldada por tests reales desarrollados en Fase 4 (§6.7) |
+| Analítica | Taxonomía completa (§7.1 de Mar + propuestas de Claude) **aprobada y priorizada P0–P3**, unificada en una sola lista |
+| Fases del proyecto | Modelo ampliado **Iniciación / Ejecución / Cierre** (§4), extiende (no reemplaza) las 5 fases SDLC actuales |
+| HUs | Se generan **siempre con Gimena**, nunca a mano — las de §5 son borrador temporal de Claude (regla de `.claude`) |
+| Infraestructura | **Vercel + Redis Marketplace (Upstash)** por ahora; migración a AWS es post-POC, fuera de este spec; se agrega monitoreo de costos (§8.2) |
+| Alcance de "tocar código" | Jarvis puede escribir **documentación** en el repo (specs, HUs) — el límite real es el **código de aplicación**, no el repo en sí (§9) |
+| Notificaciones | No son push proactivo v1, pero sí hay **refresh programado** (inicio de sesión + cada 3h de 7am–7pm) distinguiendo prod/develop (§9, HU-JARVIS-03) |
 
-## 11. Open Questions (quedan, no bloquean la aprobación del spec)
+## 11. Pendientes técnicos (no son preguntas para Mar — son tareas de preparación antes/durante la implementación)
 
-- [NEEDS CLARIFICATION] OAuth App real: ¿ya existen credenciales de Imagine Apps para registrar
-  la app en GitHub/Bitbucket, o hay que crearlas desde cero antes de poder implementar Auth Profiles?
-- [NEEDS CLARIFICATION] Número exacto de invocaciones seguidas en baja calidad antes de proponer
-  un ajuste de prompt — se decidió que es una calibración con datos reales, no de diseño (§6.8),
-  pero hay que fijar un valor inicial razonable para no esperar "para siempre" a tener datos.
-- [NEEDS CLARIFICATION] ¿Qué métricas de Analítica son las que de verdad necesitas mostrarle a
-  quien dio la retroalimentación de "no hay números"? (para priorizar cuáles se construyen primero)
-- [NEEDS CLARIFICATION] Retención de conversaciones del chat: ¿para siempre, o con expiración?
+- **Investigar el flujo real de Auth Profiles con SSO de Google**: la cuenta `@imagineapps.co` de
+  Mar entra vía SSO de Google, no usuario/contraseña propio — hay que confirmar en Fase 2
+  (Backend) si eso significa "conectar con Google" en vez de "conectar con GitHub/Bitbucket"
+  directamente para ese perfil, y si la org de Bitbucket de Imagine Apps fuerza SSO (§6.2).
+- **Registrar o localizar las credenciales de OAuth App** (GitHub/Bitbucket) antes de poder
+  implementar Auth Profiles — Mar no tiene esa respuesta today, es tarea de Fase 2.
+- **Retención de conversaciones del chat**: sin definir todavía si el historial de sesiones
+  cerradas (§6.6) se conserva indefinidamente o expira — no bloquea el diseño, se decide al
+  implementar el store de sesiones.
+- **Regenerar todas las HUs de §5 con Gimena** en cuanto haya una `ANTHROPIC_API_KEY` real en
+  `.env` (hoy es una key falsa, confirmado en la auditoría de la sesión anterior) — bloqueante
+  para cerrar Fase 1 (Iniciación → Planning) de este mismo proyecto.
