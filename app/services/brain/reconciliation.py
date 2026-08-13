@@ -7,11 +7,27 @@ reporta 'sin test' cuando no hay evidencia").
 Real matching per HU-004-JarvisMode: Acceptance Criteria individual vs. test
 real que lo verifica.
 
+# CORRECTIONS-PLAN-2026-08-13, P0: Gimena (src/agents/spec-kit-agents/
+# Gimena-userstorywriter.md §5, "5. FORMATOS DE SALIDA") never emits "- [ ]"
+# checkboxes — that unit never existed in real output, so the reconciler used
+# to find zero ACs in every HU and mark it "no_reconciliable" in block. The
+# real reconcilable unit, matching Gimena's actual "2. CRITERIOS DE ACEPTACIÓN
+# (AC)" structure (see outputs/HU_RUN-001_2026-08-12.md), is:
+#   - "2.1 Interfaz y Experiencia" / "2.2 Casos de Uso y Reglas de Negocio":
+#     each top-level "- " bullet line (no checkbox) is one AC unit.
+#   - "2.3 Manejo de Errores": a markdown table `| Escenario | Mensaje... |`;
+#     each data row (excluding the header/separator rows) is one AC unit.
+# AC id format: "{huId}-{subsection}.{index}", e.g.
+# "HU-004-JarvisMode-2.1.3" (3rd bullet of §2.1) or
+# "HU-004-JarvisMode-2.3.1" (1st error-table row of §2.3). Test files link to
+# an AC with a comment matching this exact id: "# @ac:HU-004-JarvisMode-2.1.3"
+# / "// @ac:HU-004-JarvisMode-2.3.1".
+
 Pipeline:
 1. Parse `backlog.md` (HU registry: short id -> full huId + output file) and
-   `outputs/*.md` (per-HU Acceptance Criteria, one unit per "- [ ]" checkbox)
-   from the project's workspace — same file shapes Gimena already produces in
-   this repo (see backlog.md / outputs/HU_RUN-001_2026-08-12.md).
+   `outputs/*.md` (per-HU Acceptance Criteria: bullets under 2.1/2.2, rows
+   under 2.3) from the project's workspace — same file shapes Gimena already
+   produces in this repo (see backlog.md / outputs/HU_RUN-001_2026-08-12.md).
 2. For each connected repo (`project.repositories[]`), walk the file tree via
    RepoAdapter.get_file_tree, read every file under a "test"-ish path via
    get_file_content, and look for a `@ac:<acId>` link comment (Python `#` or
@@ -49,12 +65,26 @@ from app.services.repositories import get_adapter
 
 # Convention chosen for linking a test to the AC it verifies: a comment
 # anywhere in a file whose path contains "test", in either Python (`#`) or
-# JS/TS (`//`) comment style: "# @ac:HU-004-JarvisMode-2" / "// @ac:...".
+# JS/TS (`//`) comment style: "# @ac:HU-004-JarvisMode-2.1.3" / "// @ac:...".
+# The id after "@ac:" must match the "{huId}-{subsection}.{index}" format
+# produced by `_parse_acceptance_criteria` below — see module docstring.
 _AC_LINK_RE = re.compile(r"(?:#|//)\s*@ac:([A-Za-z0-9_.\-]+)")
 
-# One Acceptance Criterion unit per unchecked/checked markdown checkbox line,
-# e.g. "- [ ] Some criterion text." / "- [x] Some criterion text.".
-_AC_CHECKBOX_RE = re.compile(r"^\s*-\s*\[([ xX])\]\s+(.+)$", re.MULTILINE)
+# Matches Gimena's subsection headings within "2. CRITERIOS DE ACEPTACIÓN",
+# e.g. "### 2.1. Interfaz y Experiencia (Happy Path)" or
+# "### 2.2 Casos de Uso y Reglas de Negocio" or "### 2.3. Manejo de Errores".
+# Group 1 is the subsection number ("1", "2", or "3").
+_AC_SUBSECTION_RE = re.compile(r"^###\s*2\.(\d+)\.?\s+\S.*$", re.MULTILINE)
+
+# One AC unit per top-level bullet line under 2.1/2.2, e.g.
+# "1. Some criterion text." or "- Some criterion text." — Gimena numbers
+# 2.1/2.2 items with "1." / "2." / ... or "-", never a checkbox.
+_AC_BULLET_RE = re.compile(r"^\s*(?:\d+\.|-)\s+(.+)$", re.MULTILINE)
+
+# One AC unit per data row of the 2.3 "Manejo de Errores" markdown table,
+# e.g. "| Escenario X | Mensaje Y |". Skips header/separator rows (the
+# separator row is all "-"/":"/"|" characters, filtered in code below).
+_AC_TABLE_ROW_RE = re.compile(r"^\s*\|(.+)\|\s*$", re.MULTILINE)
 
 # Matches Gimena's per-HU section headings, e.g. "# [HU-004]: ...".
 _HU_SECTION_RE = re.compile(r"^#\s*\[(HU-\d+)\][^\n]*$", re.MULTILINE)
@@ -90,16 +120,73 @@ def _parse_backlog_registry(workspace: Path) -> dict[str, dict[str, str]]:
     return registry
 
 
+def _extract_bullets(section_text: str) -> list[str]:
+    """Extracts top-level bullet items ("1. text" / "- text") from a 2.1/2.2
+    subsection body, folding indented continuation lines (Gimena wraps long
+    bullets across multiple lines) into the same item."""
+    top_level_re = re.compile(r"^(?:\d+\.|-)\s+(.*)$")
+    bullets: list[str] = []
+    current: list[str] = []
+
+    for line in section_text.split("\n"):
+        top_match = top_level_re.match(line)
+        if top_match:
+            if current:
+                bullets.append(" ".join(current).strip())
+            current = [top_match.group(1).strip()]
+        elif line.strip() and line[:1].isspace() and current:
+            current.append(line.strip())
+        elif not line.strip():
+            continue
+        else:
+            if current:
+                bullets.append(" ".join(current).strip())
+                current = []
+
+    if current:
+        bullets.append(" ".join(current).strip())
+    return bullets
+
+
+def _extract_table_rows(section_text: str) -> list[str]:
+    """Extracts data rows from the 2.3 "Manejo de Errores" markdown table
+    (`| Escenario | Mensaje... |`), skipping the header row and the
+    `| :--- | :--- |` separator row."""
+    rows: list[str] = []
+    header_seen = False
+
+    for line in section_text.split("\n"):
+        stripped = line.strip()
+        if not (stripped.startswith("|") and stripped.endswith("|")):
+            continue
+        cells = [cell.strip() for cell in stripped.strip("|").split("|")]
+        if all(re.fullmatch(r"[-: ]*", cell) for cell in cells):
+            continue  # separator row, e.g. "| :--- | :--- |"
+        if not header_seen:
+            header_seen = True
+            continue  # header row, e.g. "| Escenario | Mensaje... |"
+        rows.append(" | ".join(cells))
+
+    return rows
+
+
 def _parse_acceptance_criteria(
     workspace: Path, registry: dict[str, dict[str, str]]
 ) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
     """Parses every HU section across the output files referenced by
     `registry`, returning (ac_units, unreconcilable_hus).
 
-    ac_units: [{"huId", "acId", "text"}] — one per "- [ ]" checkbox found
-    inside that HU's section.
+    Real reconcilable unit per Gimena's actual output format (see module
+    docstring / Gimena-userstorywriter.md §5): each top-level bullet under
+    "2.1 Interfaz y Experiencia" / "2.2 Casos de Uso y Reglas de Negocio", and
+    each data row of the "2.3 Manejo de Errores" table. Gimena never emits
+    "- [ ]" checkboxes, so that unit is not what this parses.
+
+    ac_units: [{"huId", "acId", "text"}] — acId format
+    "{huId}-2.{subsection}.{index}", e.g. "HU-004-JarvisMode-2.1.3".
     unreconcilable_hus: [{"huId", "reason"}] — HUs whose section had no
-    parseable checkbox at all (HU-004-JarvisMode §2.3: "no reconciliable").
+    parseable AC subsection/bullet/row at all (HU-004-JarvisMode §2.3: "no
+    reconciliable").
     """
     ac_units: list[dict[str, str]] = []
     unreconcilable: list[dict[str, str]] = []
@@ -123,19 +210,34 @@ def _parse_acceptance_criteria(
             section_end = headings[i + 1].start() if i + 1 < len(headings) else len(text)
             section_text = text[section_start:section_end]
 
-            checkboxes = _AC_CHECKBOX_RE.findall(section_text)
-            if not checkboxes:
-                unreconcilable.append(
-                    {"huId": hu_id, "reason": "No se encontraron Acceptance Criteria en formato checkbox."}
-                )
-                continue
+            subsections = list(_AC_SUBSECTION_RE.finditer(section_text))
+            hu_ac_count_before = len(ac_units)
 
-            for idx, (_checked, criterion_text) in enumerate(checkboxes, start=1):
-                ac_units.append(
+            for j, sub_match in enumerate(subsections):
+                sub_num = sub_match.group(1)
+                sub_start = sub_match.end()
+                sub_end = subsections[j + 1].start() if j + 1 < len(subsections) else len(section_text)
+                sub_text = section_text[sub_start:sub_end]
+
+                if sub_num == "3":
+                    items = _extract_table_rows(sub_text)
+                else:
+                    items = _extract_bullets(sub_text)
+
+                for idx, item_text in enumerate(items, start=1):
+                    ac_units.append(
+                        {
+                            "huId": hu_id,
+                            "acId": f"{hu_id}-2.{sub_num}.{idx}",
+                            "text": item_text,
+                        }
+                    )
+
+            if len(ac_units) == hu_ac_count_before:
+                unreconcilable.append(
                     {
                         "huId": hu_id,
-                        "acId": f"{hu_id}-{idx}",
-                        "text": criterion_text.strip(),
+                        "reason": "No se encontraron Acceptance Criteria parseables (subsecciones 2.1/2.2/2.3 ausentes o vacías).",
                     }
                 )
 

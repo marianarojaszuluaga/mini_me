@@ -123,7 +123,7 @@
   --cat-teal: #0D8C7D;
 
   /* ---- typography ---- */
-  --font-sans: GeistSans, "GeistSans Fallback", -apple-system, sans-serif;
+  --font-sans: "Inter", GeistSans, "GeistSans Fallback", -apple-system, sans-serif;
   --font-mono: "Geist Mono", Menlo, Monaco, monospace;
 
   /* ---- spacing (base 4px) ---- */

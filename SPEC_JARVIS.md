@@ -86,10 +86,13 @@ Jarvis Mode es la capa conversacional + de verdad + de memoria + de mejora, cons
     │   Repositorios asociados, Timeline de actividad
     ├── 📈 Analítica completa — todas las series de tiempo con drill-down a eventos crudos
     ├── 🧠 Memoria de Mar — glosario vivo, preguntas abiertas, editable manualmente
-    ├── ⚙️ Invocar Agente (uso directo/manual, para cuando no quieres pasar por el chat —
-    │   se corrige el bug de overlap en este rediseño)
     └── 🔌 Integraciones — Auth Profiles (§6.2), repos conectados, Basecamp
 ```
+
+**Decisión explícita (2026-08-13)**: se elimina el drill-down "Invocar Agente" (uso directo/manual
+de agentes). El chat de Jarvis es ahora el **único punto de entrada** para invocar agentes — no
+una alternativa más. El panel correspondiente (`AgentInvokePanel` en `App.jsx`) era código muerto
+sin renderizar (QA T-DS-07) y fue borrado junto con esta referencia del sitemap.
 
 **Principio de UX**: nunca tienes que "ir a otro lado" para tomar una decisión — preguntas en el
 chat, ves la consecuencia en el Panel de Estado de la misma pantalla, y si necesitas el detalle
@@ -654,3 +657,33 @@ status code real que sí devolvía el Express original. Verificado con una invoc
 la key falsa del `.env`: antes del fix, `500` sin detalle; después del fix, `401` con el mensaje
 exacto de Anthropic. Corregido envolviendo la llamada en `try/except` sobre
 `anthropic.APIStatusError`/`anthropic.APIError`.
+
+**Verificación final end-to-end post-QA Round 1 (2026-08-13, misma sesión — CORRECTIONS-PLAN P0 y
+design system)**, ejecutada leyendo el código en disco y corriendo el sistema real, no solo
+confiando en los resúmenes de los 3 trabajos paralelos:
+
+- **P0 reconciliación — RESUELTO y confirmado en vivo.** Leí `app/services/brain/reconciliation.py`
+  completo: ya no existe `_AC_CHECKBOX_RE`; el parser real recorre las subsecciones `### 2.1`/`2.2`/`2.3`
+  de Gimena (`_extract_bullets` para 2.1/2.2, `_extract_table_rows` para la tabla de 2.3) y genera
+  `acId = "{huId}-2.{subsección}.{índice}"`. Arranqué `uvicorn app.main:app --port 8099` y corrí
+  `POST /projects/Proyecto_1786462085119/reconciliation/run` con curl real (`HTTP 200`): **98 gaps**
+  cubriendo las 10 HUs (16, 7, 12, 11, 6, 13, 9, 8, 5, 11 ACs por HU-001..010), **0 `no_reconciliable`**,
+  los 98 en `sin_test` (correcto: aún no hay tests con `# @ac:`/`// @ac:` en los repos conectados). Antes
+  del fix esto habría sido 10 gaps `no_reconciliable` en bloque — confirmado que el P0 del
+  `CORRECTIONS-PLAN-2026-08-13.md` está cerrado, no solo "reportado como cerrado".
+- **Design system unificado — RESUELTO y confirmado en vivo.** `design-tokens.css:126` define
+  `--font-sans: "Inter", GeistSans, ...`; `dashboard/index.html` trae el `<link>` real a Google Fonts
+  para Inter 400/500/600/700. `npm run build` compiló limpio (`45 modules transformed`). Levanté
+  `npm run dev` (puerto 5173) y con el navegador real: `document.fonts.check('16px Inter')` → `true`,
+  y `getComputedStyle(h1).fontFamily` → `"Inter, GeistSans, \"GeistSans Fallback\", -apple-system, sans-serif"`
+  (Inter cargada y de hecho aplicada, no solo referenciada). El "Failed to fetch" visible en pantalla es
+  solo porque el backend de esta verificación corría en el puerto 8099 y no en el puerto que el dashboard
+  llama por defecto — no relacionado con el fix.
+- **"Solo chat" como punto de entrada — RESUELTO.** Grep de `AgentInvokePanel` en todo el repo: cero
+  referencias en código (`App.jsx`, `dashboard/src`); solo aparece en la nota de decisión de este mismo
+  archivo (línea ~94) y en los documentos históricos de QA. Confirmado también en el DOM real renderizado
+  (`document.body.innerHTML` sin match de `AgentInvokePanel`/"Invocar Agente").
+- **No verificado en esta ronda (limitación de ambiente, no fabricado)**: `ANTHROPIC_API_KEY` sigue
+  siendo el placeholder del `.env`, así que no pude re-ejercitar HU-008 (auto-evaluación en vivo) ni
+  GAP-005 (detector de 2 invocaciones bajas) — siguen en el estado descrito en
+  `qa/CORRECTIONS-PLAN-2026-08-13.md` P1, sin cambios de esta verificación.

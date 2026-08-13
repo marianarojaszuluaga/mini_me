@@ -1,8 +1,5 @@
 {
   "rewrites": [
-    { "source": "/map", "destination": "/api/map" },
-    { "source": "/map/(.*)", "destination": "/api/map" },
-    { "source": "/orchestrator", "destination": "/api/orchestrator" },
-    { "source": "/orchestrator/(.*)", "destination": "/api/orchestrator" }
+    { "source": "/(.*)", "destination": "/api/index" }
   ]
 }

@@ -2,17 +2,8 @@
    MAP React Application Styles
    ============================================================================ */
 
-:root {
-  --primary: #667eea;
-  --secondary: #764ba2;
-  --success: #27AE60;
-  --warning: #F39C12;
-  --danger: #E74C3C;
-  --light: #f8f9fa;
-  --dark: #333;
-  --border: #e0e0e0;
-  --text: #555;
-}
+/* Design tokens (--ds-*, --font-sans, --radius-*, --shadow-*, --space-*) live in
+   design-tokens.css, imported globally via main.jsx. No competing :root here. */
 
 * {
   margin: 0;
@@ -21,9 +12,9 @@
 }
 
 html, body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-  color: var(--dark);
+  font-family: var(--font-sans);
+  background: hsl(var(--ds-background-200));
+  color: hsl(var(--ds-gray-1000));
 }
 
 /* ============================================================================
@@ -50,7 +41,7 @@ html, body {
 .login-card h1 {
   font-size: 2em;
   margin-bottom: 10px;
-  color: var(--primary);
+  color: hsl(var(--ds-blue-700));
 }
 
 .login-card p {
@@ -66,20 +57,20 @@ html, body {
 
 .login-card input {
   padding: 12px;
-  border: 1px solid var(--border);
+  border: 1px solid hsl(var(--ds-gray-300));
   border-radius: 6px;
   font-size: 1em;
 }
 
 .login-card input:focus {
   outline: none;
-  border-color: var(--primary);
+  border-color: hsl(var(--ds-blue-700));
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .login-card button {
   padding: 12px;
-  background: var(--primary);
+  background: hsl(var(--ds-blue-700));
   color: white;
   border: none;
   border-radius: 6px;
@@ -89,7 +80,7 @@ html, body {
 }
 
 .login-card button:hover {
-  background: var(--secondary);
+  background: hsl(var(--ds-purple-700));
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
@@ -102,11 +93,11 @@ html, body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--light);
+  background: hsl(var(--ds-gray-100));
 }
 
 .header {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  background: linear-gradient(135deg, hsl(var(--ds-blue-700)) 0%, hsl(var(--ds-purple-700)) 100%);
   color: white;
   padding: 25px;
   display: flex;
@@ -146,7 +137,7 @@ html, body {
 .sidebar {
   width: 280px;
   background: white;
-  border-right: 1px solid var(--border);
+  border-right: 1px solid hsl(var(--ds-gray-300));
   padding: 20px;
   overflow-y: auto;
   box-shadow: 2px 0 4px rgba(0,0,0,0.05);
@@ -156,7 +147,7 @@ html, body {
   font-weight: 700;
   font-size: 1.1em;
   margin-bottom: 15px;
-  color: var(--dark);
+  color: hsl(var(--ds-gray-1000));
 }
 
 .phases-list {
@@ -179,12 +170,12 @@ html, body {
 
 .phase-nav-item:hover {
   background: white;
-  border-color: var(--primary);
+  border-color: hsl(var(--ds-blue-700));
 }
 
 .phase-nav-item.active {
   background: white;
-  border-color: var(--primary);
+  border-color: hsl(var(--ds-blue-700));
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
 }
 
@@ -195,7 +186,7 @@ html, body {
   width: 35px;
   height: 35px;
   border-radius: 50%;
-  background: var(--primary);
+  background: hsl(var(--ds-blue-700));
   color: white;
   font-weight: bold;
   flex-shrink: 0;
@@ -207,7 +198,7 @@ html, body {
 
 .phase-nav-title {
   font-weight: 600;
-  color: var(--dark);
+  color: hsl(var(--ds-gray-1000));
   margin-bottom: 2px;
 }
 
@@ -226,7 +217,7 @@ html, body {
   display: inline-block;
   padding: 3px 8px;
   background: white;
-  border: 1px solid var(--border);
+  border: 1px solid hsl(var(--ds-gray-300));
   border-radius: 12px;
   font-size: 0.7em;
   font-weight: 600;
@@ -277,7 +268,7 @@ html, body {
 
 .panel-header h2 {
   font-size: 1.3em;
-  color: var(--dark);
+  color: hsl(var(--ds-gray-1000));
 }
 
 .btn-primary {
@@ -314,7 +305,7 @@ html, body {
 
 .project-card {
   background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-  border: 2px solid var(--border);
+  border: 2px solid hsl(var(--ds-gray-300));
   border-radius: 12px;
   padding: 15px;
   cursor: pointer;
@@ -322,7 +313,7 @@ html, body {
 }
 
 .project-card:hover {
-  border-color: var(--primary);
+  border-color: hsl(var(--ds-blue-700));
   box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
   transform: translateY(-4px);
 }
@@ -335,7 +326,7 @@ html, body {
 }
 
 .project-header h3 {
-  color: var(--dark);
+  color: hsl(var(--ds-gray-1000));
   margin: 0;
 }
 
@@ -363,7 +354,7 @@ html, body {
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  background: linear-gradient(90deg, hsl(var(--ds-blue-700)), hsl(var(--ds-purple-700)));
   transition: width 0.3s ease;
 }
 
@@ -401,7 +392,7 @@ html, body {
 
 .modal-content h2 {
   margin-bottom: 20px;
-  color: var(--dark);
+  color: hsl(var(--ds-gray-1000));
 }
 
 .modal-content form {
@@ -413,7 +404,7 @@ html, body {
 .modal-content input,
 .modal-content select {
   padding: 10px;
-  border: 1px solid var(--border);
+  border: 1px solid hsl(var(--ds-gray-300));
   border-radius: 6px;
   font-size: 0.95em;
 }
@@ -421,7 +412,7 @@ html, body {
 .modal-content input:focus,
 .modal-content select:focus {
   outline: none;
-  border-color: var(--primary);
+  border-color: hsl(var(--ds-blue-700));
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
@@ -457,7 +448,7 @@ html, body {
 }
 
 .btn-success {
-  background: var(--success);
+  background: hsl(var(--ds-green-800));
   color: white;
   padding: 10px 20px;
   border: none;
@@ -480,7 +471,7 @@ html, body {
 .agents-panel h2 {
   font-size: 1.2em;
   margin-bottom: 15px;
-  color: var(--dark);
+  color: hsl(var(--ds-gray-1000));
 }
 
 .agents-grid {
@@ -493,7 +484,7 @@ html, body {
   padding: 15px;
   border-radius: 8px;
   text-align: center;
-  border: 2px solid var(--border);
+  border: 2px solid hsl(var(--ds-gray-300));
   transition: all 0.3s ease;
 }
 
@@ -505,7 +496,7 @@ html, body {
 
 .agent-card.status-good {
   background: #cfe2ff;
-  border-color: var(--primary);
+  border-color: hsl(var(--ds-blue-700));
   color: #084298;
 }
 
@@ -547,7 +538,7 @@ html, body {
 .quality-panel h2 {
   font-size: 1.2em;
   margin-bottom: 15px;
-  color: var(--dark);
+  color: hsl(var(--ds-gray-1000));
 }
 
 .metrics-grid {
@@ -562,13 +553,13 @@ html, body {
   padding: 15px;
   border-radius: 8px;
   text-align: center;
-  border-left: 4px solid var(--primary);
+  border-left: 4px solid hsl(var(--ds-blue-700));
 }
 
 .metric-value {
   font-size: 1.8em;
   font-weight: bold;
-  color: var(--primary);
+  color: hsl(var(--ds-blue-700));
   margin-bottom: 4px;
 }
 
@@ -593,17 +584,17 @@ html, body {
 
 .evaluation-item.status-excellent {
   background: #d4edda;
-  border-color: var(--success);
+  border-color: hsl(var(--ds-green-800));
 }
 
 .evaluation-item.status-good {
   background: #cfe2ff;
-  border-color: var(--primary);
+  border-color: hsl(var(--ds-blue-700));
 }
 
 .evaluation-item.status-warning {
   background: #fff3cd;
-  border-color: var(--warning);
+  border-color: hsl(var(--ds-amber-800));
 }
 
 .eval-header {
@@ -654,7 +645,7 @@ html, body {
   .sidebar {
     width: 100%;
     border-right: none;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid hsl(var(--ds-gray-300));
     max-height: 200px;
   }
 

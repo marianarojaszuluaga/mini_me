@@ -138,16 +138,31 @@ en ese repo, no introducida aquí.
 
 ## Despliegue
 
-Todo corre en Vercel — dos proyectos separados:
+> **Actualizado 2026-08-13**: el backend se reescribió en Python/FastAPI (`SPEC_JARVIS.md` §8.0).
+> Lo de abajo describe el setup **actual**. `src/*.js` (Node/Express) sigue en el repo como
+> referencia histórica del MVP original, pero ya no es lo que se despliega.
+
+Todo corre en Vercel — dos proyectos separados, mismo repo:
 
 - **Dashboard** (`dashboard/`): build estático (Vite). `dashboard/vercel.json` ya define
-  build/output. Necesita `VITE_API_URL` apuntando a `https://<backend>.vercel.app/map` (con
-  rebuild después de setearla — Vite la hornea en build time, no es una env var runtime).
-- **Backend** (raíz del repo, `api/map.js` + `api/orchestrator.js`): **un solo** proyecto Vercel
-  sirve MAP bajo `/map/*` y el Orchestrator bajo `/orchestrator/*` (ver `vercel.json` — rewrites +
-  el middleware de strip de prefijo en cada Express app). `MAP_URL` en las env vars del proyecto
-  debe ser `https://<este-mismo-deployment>.vercel.app/map` para que el Orchestrator le hable al
-  MAP real en vez de `localhost`.
+  build/output. Necesita `VITE_API_URL` apuntando a `https://<backend>.vercel.app` (sin sufijo
+  `/map` — el backend Python ya no separa MAP/Orchestrator en prefijos de proceso distintos, todo
+  vive en una sola app FastAPI). Rebuild después de setearla — Vite la hornea en build time.
+- **Backend** (raíz del repo): `requirements.txt` (Vercel's `@vercel/python` lo lee, no
+  `pyproject.toml`) + `api/index.py` (re-exporta `app` de `app/main.py` — Vercel detecta el ASGI
+  app automáticamente, sin adaptador). `vercel.json` reescribe **todo** a esa única función
+  serverless (ya no hay prefijos `/map`/`/orchestrator` como rutas separadas — el Orchestrator
+  sigue montado bajo `/orchestrator/*` pero dentro del mismo proceso).
+
+**Variables de entorno requeridas en el proyecto Vercel del backend:**
+
+| Variable | Valor |
+|---|---|
+| `ANTHROPIC_API_KEY` | key real (hoy en `.env` local es un placeholder a propósito) |
+| `APP_API_KEYS` | al menos una key propia, separadas por coma si hay más de un cliente |
+| `MAP_URL` | la URL pública de este mismo deployment (ej. `https://backmar-in-theinternet.vercel.app`) — el Orchestrator se llama a sí mismo para invocar agentes, y en serverless no existe `localhost` |
+| `FRONTEND_URL` | la URL pública del dashboard (ej. `https://mar-in-theinternet.vercel.app`) — usada por CORS, ver instrucciones de la corrección de CORS |
+| `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | ver Redis abajo |
 
 **Requiere Redis para persistir datos entre invocaciones.** Sin esto, la app funciona
 dentro de un mismo request pero cada proyecto/decisión/alerta se pierde al siguiente cold start —
@@ -158,17 +173,14 @@ no es un despliegue real, es una demo de un solo request. Pasos:
    pricing antes de confirmar la integración).
 2. Eso inyecta las env vars de Redis automáticamente (`UPSTASH_REDIS_REST_URL` /
    `UPSTASH_REDIS_REST_TOKEN`, o el prefijo `KV_REST_API_*` si es una integración más antigua —
-   `src/store.js` acepta ambos).
+   `app/core/storage.py` acepta ambos, mismo matching de sufijo dinámico que ya tenía `store.js`).
 3. Redeploy para que tome las nuevas env vars.
 
-`@vercel/kv` (el paquete nativo) está deprecado — este repo usa `@upstash/redis` directamente,
-que es lo que la integración de Redis del Marketplace realmente expone.
-
 Si en algún momento el volumen de trabajo justifica un servidor con estado real en vez de
-funciones serverless (ejecuciones largas, más control), la alternativa sigue siendo un host
-persistente (Railway, Render, EC2) corriendo `npm start` — el código de `src/` funciona igual ahí,
-solo usa `STORAGE_DIR` (archivos) en vez de Redis y no necesita `api/`, `vercel.json` ni los
-prefijos `/map`/`/orchestrator`.
+funciones serverless (ejecuciones largas, más control — ej. el scheduler de sincronización de
+HU-003-JarvisMode se beneficiaría de esto), la alternativa sigue siendo un host persistente
+(Railway, Render, EC2) corriendo `uvicorn app.main:app` — el código de `app/` funciona igual ahí,
+solo usa `STORAGE_DIR` (archivos) en vez de Redis y no necesita `api/index.py` ni `vercel.json`.
 
 ---
 
