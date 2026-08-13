@@ -47,14 +47,17 @@ quedó documentada en `qa/QA-EXECUTION-TEMPLATE.md`.
 
 ## Sin categoría de severidad, pero vale resolver pronto
 
-- [ ] **CORS bloqueó la verificación E2E completa de BUG-004/BUG-011 en navegador** — hoy
-  `allow_origins=["*"]` + `allow_credentials=True` es una combinación que Chrome rechaza. Arreglar
-  esto no es solo higiene: sin arreglarlo, **ninguna ronda de QA futura puede verificar nada end-to-end
-  en navegador real**, solo por contrato via curl.
-- [ ] **`AgentInvokePanel` es código muerto** (T-DS-07) — el sitemap (`SPEC_JARVIS.md` §2) todavía
-  lista "⚙️ Invocar Agente" como un drill-down válido para cuando no se quiere pasar por el chat.
-  Decisión pendiente: ¿se recupera como drill-down real, o se borra del sitemap porque el chat ya
-  cubre ese caso de uso? Necesito tu decisión antes de tocarlo — no es solo un fix de código.
+- [x] **CORS — no era un bug, verificado 2026-08-13.** El hallazgo original (BUG-004/BUG-011)
+  asumía que `allow_origins=["*"]` + `allow_credentials=True` bloquearía el navegador — Mariana
+  señaló correctamente que no hacía falta ningún cambio de código. Verificado en vivo: Starlette
+  (debajo de FastAPI) refleja el `Origin` real de la petición en `Access-Control-Allow-Origin` en
+  vez del `*` literal cuando `allow_credentials=True` está activo — spec-compliant, el navegador lo
+  acepta. Confirmado con un `fetch(credentials:'include')` real desde `localhost:5173` hacia el
+  backend, y con el header real de un preflight `OPTIONS` (`access-control-allow-origin:
+  http://localhost:5173`, no `*`). El bloqueo de E2E de BUG-004/BUG-011 en su momento fue otra
+  causa (probablemente los puertos/backend no coincidían durante esa verificación puntual), no CORS.
+- [x] **`AgentInvokePanel`** — resuelto, ver §2 de `SPEC_JARVIS.md` y el commit de unificación del
+  design system (2026-08-13): se eliminó por completo, decisión "solo chat" ya aplicada.
 
 ## Orden de ejecución sugerido
 P0 (reconciliación real) → P1 (GAP-005) → P2 (sync status + auth profile label) → P3 (limpieza) →
