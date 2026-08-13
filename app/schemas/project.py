@@ -148,6 +148,11 @@ class Repository(BaseModel):
     # Never the token in clear text — a reference to where it's actually
     # stored (e.g. "env:GITHUB_TOKEN_PROJ_X" or an Auth Profile id).
     accessTokenRef: str | None = None
+    # BUG-009 (qa/CORRECTIONS-PLAN-2026-08-13.md P2): real sync state, driven
+    # by app/cron/sync_scheduler.py — "never" until the first sync attempt
+    # runs (connect, retry, or the cron), never a UI-fabricated state.
+    syncStatus: Literal["never", "synced", "error"] = "never"
+    lastError: str | None = None
 
 
 # ---------------------------------------------------------------------------

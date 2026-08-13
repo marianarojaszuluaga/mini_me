@@ -83,6 +83,14 @@ export default class ApiClient {
     });
   }
 
+  // BUG-009: real retry — same sync the connect-time digest and the 3h
+  // cron use, not a UI-only "looks retried" state.
+  retryRepositorySync(projectId, repoId) {
+    return this.request(`/projects/${projectId}/repositories/${repoId}/sync`, {
+      method: "POST"
+    });
+  }
+
   // ---- new: auth profiles ----
 
   listAuthProfiles() {

@@ -696,3 +696,14 @@ confiando en los resúmenes de los 3 trabajos paralelos:
   vivo: sembradas 2 evaluaciones bajas reales, devolvió `True`; una tercera evaluación (buena)
   reseteó la racha correctamente — la conexión a `changelog.create_proposal()` ya estaba en el
   código de una ronda anterior, solo faltaba probarla con datos reales.
+
+**BUG-009 — RESUELTO (2026-08-13).** `Repository` (app/schemas/project.py) ahora tiene
+`syncStatus: "never"|"synced"|"error"` y `lastError`, actualizados por
+`app/cron/sync_scheduler.py` (nueva función reusable `sync_one_repository`, compartida entre
+conectar-repo, "Reintentar" y el cron de 3h). Conectar un repo dispara el digest histórico real de
+inmediato (ya no un TODO) y el resultado real queda en la respuesta. Verificado en vivo con la API
+de GitHub real (sin mocks): un repo público sincronizó de verdad (`syncStatus:"synced"`); un repo
+inexistente devolvió `syncStatus:"error"` con el mensaje real de GitHub (`404 Not Found`), y
+"Reintentar" repitió la misma llamada real. Confirmado también visualmente en el navegador: pill
+"⚠️ Error de sincronización" con el mensaje real + botón "Reintentar", y "Sin sincronizar todavía"
+para repos conectados antes de este fix (default `syncStatus="never"`, no fabricado).

@@ -313,10 +313,26 @@ function RepositoriosSection({ api, project, onProjectUpdated }) {
   const [authProfiles, setAuthProfiles] = useState(null); // null = not loaded yet
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState("");
+  const [retryingId, setRetryingId] = useState(null);
 
   useEffect(() => {
     setRepositories(project.repositories || []);
   }, [project]);
+
+  const handleRetry = async (repoId) => {
+    setRetryingId(repoId);
+    setError("");
+    try {
+      await api.retryRepositorySync(project.id, repoId);
+      const repos = await api.listProjectRepositories(project.id);
+      setRepositories(repos);
+      const fresh = await api.getProject(project.id);
+      onProjectUpdated?.(fresh);
+    } catch (err) {
+      setError(err.message);
+    }
+    setRetryingId(null);
+  };
 
   const loadAuthProfiles = async () => {
     try {
@@ -376,6 +392,28 @@ function RepositoriosSection({ api, project, onProjectUpdated }) {
               </div>
               <div className="pd-meta">
                 Última sincronización: {repo.lastSyncAt ? new Date(repo.lastSyncAt).toLocaleString() : "nunca"}
+              </div>
+              <div className="pd-meta pd-sync-status">
+                {/* BUG-009: estado real (syncStatus/lastError vienen del backend,
+                    nunca fabricados en el front) */}
+                {repo.syncStatus === "error" ? (
+                  <span className="pd-sync-status-row">
+                    <span className="recon-status-pill recon-status-red">⚠️ Error de sincronización</span>
+                    {repo.lastError && <span className="pd-sync-error-detail">{repo.lastError}</span>}
+                    <button
+                      type="button"
+                      className="btn-primary pd-retry-btn"
+                      onClick={() => handleRetry(repo.id)}
+                      disabled={retryingId === repo.id}
+                    >
+                      {retryingId === repo.id ? "Reintentando…" : "Reintentar"}
+                    </button>
+                  </span>
+                ) : repo.syncStatus === "synced" ? (
+                  <span className="recon-status-pill recon-status-green">✓ Sincronizado</span>
+                ) : (
+                  <span className="recon-status-pill recon-status-amber">Sin sincronizar todavía</span>
+                )}
               </div>
             </div>
           ))}

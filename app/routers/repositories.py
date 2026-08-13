@@ -18,6 +18,7 @@ from fastapi import APIRouter, Body, Depends, HTTPException
 
 from app.core.security import authenticate_token
 from app.core.storage import get_storage
+from app.cron.sync_scheduler import sync_one_repository
 from app.schemas.auth_profile import AuthProfile, AuthProfileCreateRequest
 from app.schemas.project import Repository
 from app.services import auth_profiles
@@ -135,7 +136,28 @@ async def connect_repository(
     project.setdefault("repositories", []).append(new_repo.model_dump())
     storage.write_projects(projects)
 
-    return new_repo.model_dump()
+    # HU-001-JarvisMode §2.1: "Confirmar → ... arranca el digest histórico de
+    # 7 días." Real, synchronous (no background-job infra yet) — the response
+    # already reflects syncStatus="synced"/"error" instead of leaving it at
+    # the fabricated "Sincronizando…" the old placeholder UI showed forever.
+    # A failure here must not undo the connection: the repo stays connected,
+    # just marked syncStatus="error" so "Reintentar" (below) can retry it.
+    try:
+        updated = await sync_one_repository(project_id, new_repo.id)
+        return updated
+    except Exception:  # noqa: BLE001 - connection itself already succeeded
+        return new_repo.model_dump()
+
+
+@router.post("/projects/{project_id}/repositories/{repo_id}/sync")
+async def retry_repository_sync(project_id: str, repo_id: str) -> dict[str, Any]:
+    """BUG-009 'Reintentar': re-runs the same digest sync for one repo
+    on-demand — same function the connect-time trigger and the 3h cron use,
+    so the retry behaves identically to any other sync, not a special path."""
+    try:
+        return await sync_one_repository(project_id, repo_id)
+    except ValueError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
 
 
 @router.delete("/projects/{project_id}/repositories/{repo_id}")

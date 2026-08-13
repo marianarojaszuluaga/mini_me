@@ -121,22 +121,30 @@ def _record_sync_run(project_id: str, repo_id: str, environment: str | None, had
 async def _sync_repository(project_id: str, repo: Repository) -> dict[str, Any]:
     """Syncs one connected repo: fetches commits/PRs since its last sync (or
     the 24h default window), ingests a digest if there was activity, and
-    always records that the run happened for metrics."""
+    always records that the run happened for metrics.
+
+    BUG-009: a per-call failure no longer just gets swallowed into an empty
+    list — it's collected in `errors` so the caller can set a real
+    `syncStatus`/`lastError` on the Repository instead of silently reporting
+    "synced, 0 commits" when the remote API actually failed."""
     adapter = get_adapter(repo.provider)
     auth_profile = _auth_profile_for(repo)
     since = _parse_since(repo)
+    errors: list[str] = []
 
     try:
         commits = await adapter.list_commits_since(auth_profile, repo.owner, repo.repo, since)
-    except Exception:  # noqa: BLE001 - a flaky remote API must not abort the whole project sync
+    except Exception as error:  # noqa: BLE001 - a flaky remote API must not abort the whole project sync
         logger.exception("sync_scheduler: list_commits_since failed for repo %s", repo.id)
         commits = []
+        errors.append(f"commits: {error}")
 
     try:
         pull_requests = await adapter.list_pull_requests(auth_profile, repo.owner, repo.repo, "all")
-    except Exception:  # noqa: BLE001
+    except Exception as error:  # noqa: BLE001
         logger.exception("sync_scheduler: list_pull_requests failed for repo %s", repo.id)
         pull_requests = []
+        errors.append(f"pull_requests: {error}")
 
     had_activity = bool(commits or pull_requests)
 
@@ -158,7 +166,41 @@ async def _sync_repository(project_id: str, repo: Repository) -> dict[str, Any]:
         "commits": len(commits),
         "pull_requests": len(pull_requests),
         "had_activity": had_activity,
+        "errors": errors,
     }
+
+
+async def sync_one_repository(project_id: str, repo_id: str) -> dict[str, Any]:
+    """BUG-009: syncs exactly one repo (used by the connect-time initial
+    digest and by the manual "Reintentar" endpoint) and persists its real
+    syncStatus/lastError/lastSyncAt on that repo — never a UI-fabricated
+    state. Raises HTTPException-free lookup errors as plain exceptions;
+    callers (routers) are expected to translate project/repo-not-found into
+    404s themselves."""
+    storage = get_storage()
+    projects = storage.read_projects()
+    project = next((p for p in projects if p.get("id") == project_id), None)
+    if project is None:
+        raise ValueError(f"Unknown project_id: {project_id}")
+
+    repo_dicts = project.get("repositories", [])
+    repo_dict = next((r for r in repo_dicts if r.get("id") == repo_id), None)
+    if repo_dict is None:
+        raise ValueError(f"Unknown repo_id: {repo_id} for project {project_id}")
+
+    repo = Repository(**repo_dict)
+    result = await _sync_repository(project_id, repo)
+
+    repo_dict["lastSyncAt"] = _now_iso()
+    if result["errors"]:
+        repo_dict["syncStatus"] = "error"
+        repo_dict["lastError"] = "; ".join(result["errors"])
+    else:
+        repo_dict["syncStatus"] = "synced"
+        repo_dict["lastError"] = None
+
+    storage.write_projects(projects)
+    return repo_dict
 
 
 async def sync_now(project_id: str) -> dict[str, Any]:
@@ -193,6 +235,14 @@ async def sync_now(project_id: str) -> dict[str, Any]:
         repo = Repository(**repo_dict)
         result = await _sync_repository(project_id, repo)
         repo_dict["lastSyncAt"] = _now_iso()
+        # BUG-009: real status, not fabricated — "error" only when a call
+        # actually raised, mirrored on the repo so the UI can show it.
+        if result["errors"]:
+            repo_dict["syncStatus"] = "error"
+            repo_dict["lastError"] = "; ".join(result["errors"])
+        else:
+            repo_dict["syncStatus"] = "synced"
+            repo_dict["lastError"] = None
         results.append(result)
 
     storage.write_projects(projects)

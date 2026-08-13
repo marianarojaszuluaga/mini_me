@@ -363,3 +363,21 @@
   background: hsl(var(--ds-gray-200));
   color: hsl(var(--ds-gray-900));
 }
+
+/* BUG-009: real repo sync status row (pill + optional error detail + retry) */
+.pd-sync-status-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2x);
+  flex-wrap: wrap;
+}
+
+.pd-sync-error-detail {
+  font-size: 12px;
+  color: hsl(var(--ds-red-900));
+}
+
+.pd-retry-btn {
+  font-size: 12px;
+  padding: 2px var(--space-2x);
+}

@@ -26,23 +26,24 @@ quedó documentada en `qa/QA-EXECUTION-TEMPLATE.md`.
 
 ## P2 — Backend feature real faltante (no un parche de UI)
 
-- [ ] **BUG-009**: agregar `syncStatus`/`retryable`/`lastError` al schema `Repository`
-  (`app/schemas/project.py`) y que `sync_scheduler.py` los actualice de verdad. Sin esto, el
-  frontend no tiene datos reales que mostrar — construir la UI antes sería fabricar estados falsos.
-- [ ] **BUG-017**: guardar `scope` real al crear un Auth Profile (`account + org/alcance legible`,
-  no solo el id crudo) para que el selector de "+ Conectar repo" muestre algo humano.
+- [x] **BUG-009 — Resuelto (2026-08-13).** `syncStatus`/`lastError` reales en `Repository`,
+  actualizados por `sync_one_repository()` (compartida entre conectar-repo, "Reintentar" y el cron
+  de 3h). Verificado en vivo con la API real de GitHub: repo público → `synced`; repo inexistente
+  → `error` con el 404 real de GitHub; "Reintentar" repite la misma llamada real. Confirmado
+  también visualmente en el navegador.
+- [x] **BUG-017 — Resuelto** (misma ronda que BUG-016/018, ver más abajo).
 
-## P3 — Limpieza (S4, no bloquean nada, pero acumulan deuda visible en QA)
+## P3 — ✅ Resuelto — Limpieza (S4)
 
-- [ ] **BUG-014**: agregar `@font-face` real para GeistSans (o servirla desde Google
-  Fonts/self-host) — hoy el token existe pero cae en silencio al sans del SO.
-- [ ] **BUG-015**: eliminar el `:root` competidor de `styles.css` (`--primary`, `--success`, etc.)
-  y migrar las clases legadas (`.btn-primary`, `.login-card`, `.header`) a `design-tokens.css` —
-  hoy coexisten dos sistemas de tokens.
-- [ ] **BUG-016**: conectar el tile "Gaps totales" del home a un run real de reconciliación (hoy
-  se queda en 0 aunque haya gaps).
-- [ ] **BUG-018**: borrar `mar_memory.update_entry()` (código muerto, nadie lo llama — el front
-  edita vía POST-con-id, que sí funciona).
+- [x] **BUG-014**: Inter cargada real vía Google Fonts (no GeistSans — no existe en Google Fonts,
+  decisión confirmada con Mariana).
+- [x] **BUG-015**: `:root` competidor de `styles.css` eliminado, clases legadas migradas a
+  `design-tokens.css`.
+- [x] **BUG-016**: KPI "Gaps totales" corregido — leía `reconciliation?.items` (clave que nunca
+  existió; el backend manda `.gaps`). Verificado en vivo: 108 real (antes 0).
+- [x] **BUG-017**: selector de Auth Profile ahora muestra `{account} — {scope|provider}`, no el id
+  crudo. Verificado en vivo.
+- [x] **BUG-018**: `mar_memory.update_entry()` borrado (código muerto confirmado).
 
 ## Sin categoría de severidad, pero vale resolver pronto
 
