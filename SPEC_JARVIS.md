@@ -644,6 +644,24 @@ filesystem/Redis intercambiable, así que la migración no debería tocar lógic
   el panel vuelve a exigir un propósito nuevo antes de aceptar más texto. La retención en sí
   (cuánto tiempo se guardan sesiones `closed`) sigue sin definirse — no bloquea nada, es limpieza
   de storage a futuro, no parte de esta HU.
+- ~~Sincronizar memorias de forma permanente en Obsidian, en un nuevo espacio~~ — **Resuelto
+  (2026-08-14).** Aclarado con Mariana: "ambos y las de los proyectos" — cubre tanto la memoria
+  del asistente Claude (ya vivía en `Obsidian Vault/Claude Memory/`, sin tocar) como la memoria
+  PROPIA de la app (Memoria de Mar + Project Brain por proyecto), que hasta ahora solo existía
+  dentro de `storage/*.json`, sin ningún reflejo durable fuera del repo. Nuevo
+  `scripts/sync_memories_to_obsidian.py`: lee `storage/mar-memory.json` y `storage/projects.json`
+  directamente (sin necesidad de levantar el servidor) y regenera markdown en un espacio nuevo y
+  separado, `Obsidian Vault/Orquestrador 360 - Memoria de la App/` (`mar-memory.md` + un archivo
+  por proyecto bajo `projects/` con decision log, alertas, meeting log y el desglose real de gaps
+  de reconciliación por status). Es un exportador de snapshot, idempotente — cada corrida
+  regenera los archivos desde el estado actual, no algo para editar a mano. **Verificado en
+  vivo**: corrido contra el `storage/` real de este repo, generó 6 archivos de proyecto reales
+  (con datos reales, ej. 98 gaps reales de "Proyecto Demo UI") + `mar-memory.md` (0 entradas hoy,
+  correcto — Mar Memory está vacía en este momento) — confirmado leyendo los archivos ya escritos
+  en el vault, no solo el mensaje de éxito del script. **Pendiente, no bloqueante**: no está
+  conectado a un scheduler todavía — se corre a mano por ahora; conectarlo al cron de 3h de
+  `app/cron/sync_scheduler.py` es un paso razonable una vez que se confirme que este formato de
+  snapshot es el que Mariana quiere usar, no algo que asumí que hacía falta ya.
 - ~~Regenerar las HUs de §5 con Gimena~~ — **Resuelto** (RUN-001, 2026-08-12): generadas
   invocando el perfil canónico de Gimena dentro de la conversación, sin depender de la
   `ANTHROPIC_API_KEY` del `.env` (sigue falsa a propósito, no es un bloqueo real). Ver
