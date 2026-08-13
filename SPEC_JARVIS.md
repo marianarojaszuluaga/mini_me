@@ -245,140 +245,28 @@ proyecto — es dogfooding: usar el modelo de fases para construirse a sí mismo
 
 ## 5. Historias de Usuario (HU)
 
-> **Regla de `.claude` (confirmada por Mar)**: las HUs siempre se generan con el agente
-> **Gimena**, nunca escritas a mano por fuera del sistema. Las que siguen abajo son un
-> **borrador de Claude, no HUs reales** — quedan marcadas `[DRAFT-BY-CLAUDE]` y deben
-> **regenerarse invocando a Gimena** (`POST /agents/gimena/invoke`) apenas haya una
-> `ANTHROPIC_API_KEY` real configurada — hoy el `.env` tiene una key falsa (confirmado en la
-> auditoría de la sesión anterior), así que Gimena no puede invocarse todavía. Ver pregunta
-> abierta en §11.
+> **Regla de `.claude` (confirmada por Mar)**: las HUs siempre se generan invocando al agente
+> **Gimena** (perfil canónico en `src/agents/spec-kit-agents/Gimena-userstorywriter.md`), nunca
+> escritas a mano por fuera del sistema. **Generadas** en esta ronda (RUN-001, 2026-08-12) —
+> Mar confirmó que usar a Gimena dentro de esta conversación cuenta como invocación real, sin
+> necesidad de esperar una `ANTHROPIC_API_KEY` en `.env` (que sigue siendo falsa a propósito).
 
-### F1 — Multi-repo por proyecto [DRAFT-BY-CLAUDE — pendiente de regenerar con Gimena]
+**Backlog maestro**: [`backlog.md`](backlog.md) — HU-001-JarvisMode a HU-010-JarvisMode.
+**HUs completas** (formato Gimena: Contexto, Criterios de Aceptación con Interfaz/Casos de
+Uso/Manejo de Errores, Referencia Visual): [`outputs/HU_RUN-001_2026-08-12.md`](outputs/HU_RUN-001_2026-08-12.md).
 
-**HU-JARVIS-01**: Como usuaria, quiero asociar uno o varios repositorios a un proyecto, para que
-Jarvis lea señales reales de trabajo sin que yo las reporte a mano.
-
-**Acceptance Criteria**
-- [ ] `POST /projects/:id/repositories` agrega `{provider, owner, repo}`.
-- [ ] Un proyecto admite N repos de distintos providers.
-- [ ] Valida acceso de lectura antes de guardar.
-- [ ] `DELETE /projects/:id/repositories/:repoId` desconecta sin borrar historial ya ingerido.
-
-**HU-JARVIS-02**: Como usuaria, quiero ver qué repos están conectados y cuándo sincronizaron por
-última vez.
-
----
-
-### F2 — Project Brain vivo con el código como fuente de verdad [DRAFT-BY-CLAUDE — pendiente de regenerar con Gimena]
-
-**HU-JARVIS-03**: Como usuaria, quiero que la actividad de cada repo se sincronice al iniciar
-sesión y periódicamente durante mi horario de trabajo, distinguiendo prod de develop, para que el
-Brain no dependa de que yo pegue actas a mano ni mezcle ambientes.
-
-**Acceptance Criteria**
-- [ ] Trigger: al iniciar sesión del chat, y cada 3 horas entre 7am–7pm — no en horario nocturno.
-- [ ] Cada repo conectado declara su `environment` (`prod` | `develop`); el digest y cualquier
-  alerta de reconciliación quedan etiquetados con ese ambiente.
-- [ ] `POST /brain/ingest-event` generaliza `/brain/ingest-acta` (se mantiene como alias).
-- [ ] Sin actividad → sin entrada (no hay ruido).
-
-**HU-JARVIS-04**: Como usuaria, quiero que el sistema **reconcilie** lo que el backlog/actas
-declaran como hecho contra lo que el repo realmente tiene, y me alerte cuando no coincida.
-
-**Acceptance Criteria**
-- [ ] El Auditor corre la reconciliación como parte del ciclo diario (o on-demand desde el chat).
-- [ ] Un gap detectado genera **siempre** una alerta explícita en el Brain — nunca se diluye en
-  el resumen general.
-- [ ] La alerta identifica qué HU/backlog item y qué evidencia (o ausencia de ella) en el repo.
-- [ ] Falso positivo conocido y aceptado inicialmente: trabajo hecho fuera del repo rastreado
-  (ej. configuración manual) se marcará como gap aunque esté bien — se documenta como limitación,
-  no se intenta resolver en v1.
-
-**HU-JARVIS-05**: Como usuaria, quiero un timeline unificado por proyecto (actas + commits + PRs
-+ reconciliación) para auditar de dónde salió cada decisión del Brain.
-
----
-
-### F3 — Jarvis Chat (conversacional, no formulario) [DRAFT-BY-CLAUDE — pendiente de regenerar con Gimena]
-
-**HU-JARVIS-06**: Como usuaria, quiero hablarle a Jarvis en una conversación de ida y vuelta
-(como este chat), no llenar un formulario de una sola pregunta, para poder profundizar con
-preguntas de seguimiento sin repetir contexto.
-
-**Acceptance Criteria**
-- [ ] `POST /jarvis/chat` acepta `{conversationId?, message}` — si no hay `conversationId`, crea
-  una sesión nueva.
-- [ ] El historial de la conversación se persiste y se reinyecta en cada turno (no es stateless).
-- [ ] Dentro de un turno, Jarvis puede invocar herramientas (leer Brain, leer timeline, invocar
-  un agente) antes de responder — es un loop agéntico, no una sola llamada a Claude.
-- [ ] Cada afirmación cita su fuente; si falta información, lo dice explícitamente.
-- [ ] Una pregunta sin proyecto explícito ("¿qué está bloqueado esta semana?") se resuelve
-  cruzando todos los proyectos activos.
-
----
-
-### F4 — Memoria de Mar [DRAFT-BY-CLAUDE — pendiente de regenerar con Gimena]
-
-**HU-JARVIS-07**: Como usuaria, quiero que Jarvis recuerde entre conversaciones qué ya entiendo
-del sistema y qué me falta decidir, para no tener que repetirle contexto sobre mí misma cada vez.
-
-**Acceptance Criteria**
-- [ ] Existe un store de Memoria de Mar separado de cada Project Brain (no por proyecto).
-- [ ] El chat puede escribir ahí cuando la usuaria confirma/corrige algo sobre el sistema mismo.
-- [ ] Se carga como contexto en cada conversación nueva.
-- [ ] Es visible y editable manualmente en su propia pantalla — Mar puede corregir una entrada.
-
----
-
-### F5 — Autoevaluación y mejora [DRAFT-BY-CLAUDE — pendiente de regenerar con Gimena]
-
-**HU-JARVIS-08**: Como usuaria, quiero que cada output de agente se evalúe en varias dimensiones
-concretas (no un solo score genérico), y que el feedback quede disponible de inmediato — no solo
-como una tendencia que se nota semanas después.
-
-**Decisión (reemplaza el modelo de "umbral de N semanas" del borrador anterior)**: la evaluación
-es **multidimensional y continua**, no un disparador por tiempo transcurrido:
-- **Eficiencia**: ¿el output resuelve lo pedido sin pasos/contexto de más?
-- **Acertividad**: ¿la respuesta es correcta/relevante respecto a lo que se preguntó?
-- **Formato**: ¿respeta el contrato esperado (JSON estricto donde aplica, estructura de HU, etc.)?
-- **Calidad general**: la rúbrica ya existente de `AgentEvaluator` (completeness, clarity,
-  adherence, actionability, alignment) se mantiene como quinta dimensión, no se reemplaza.
-
-**Acceptance Criteria**
-- [ ] Cada invocación de agente se evalúa en las 4 dimensiones (eficiencia, acertividad, formato,
-  calidad) inmediatamente después de producirse el output — no en un job separado y posterior.
-- [ ] El resultado por dimensión queda visible de inmediato en el dashboard/chat (feedback
-  inmediato), además de acumularse en la serie de tiempo para Analítica (§7).
-- [ ] Cuando una dimensión cae por debajo de un umbral definido en una sola invocación, se marca
-  esa invocación puntual — no se espera a un patrón sostenido para que sea visible.
-- [ ] El sistema puede sugerir (no aplicar solo) un ajuste de prompt cuando una dimensión se
-  mantiene baja en invocaciones sucesivas — queda como propuesta para que Mar la apruebe.
-
-**HU-JARVIS-09**: Como usuaria, quiero un changelog de mejoras del sistema mismo (qué se ajustó,
-por qué, y qué cambió en las métricas después), para tener evidencia de que mejora con el tiempo.
-
----
-
-### F6 — Analítica (evidencia de que esto es real) [DRAFT-BY-CLAUDE — pendiente de regenerar con Gimena]
-
-**HU-JARVIS-10**: Como usuaria, quiero un panel de números concretos —no solo un dashboard de
-estado— que demuestre uso real y mejora real del sistema, porque la retroalimentación más dura
-que recibí fue que no hay evidencia de eso.
-
-**Acceptance Criteria** — taxonomía completa aprobada en §7 (§7.1 pedido por Mar + §7.2 propuesta
-aprobada + §7.3 ya definido):
-- [ ] Número de usos: invocaciones totales, por agente, por proyecto, por semana.
-- [ ] Número de outputs por tipo: HUs generadas, specs generados, planes de trabajo, actas
-  procesadas, evaluaciones corridas, reconciliaciones ejecutadas — contador independiente por tipo.
-- [ ] Tasa de aceptación por tipo de output (usado tal cual vs. descartado/regenerado).
-- [ ] Costo por output (tokens/USD reales de la API de Anthropic).
-- [ ] Tiempo ahorrado estimado — marcado explícitamente como aproximado, nunca como medición exacta.
-- [ ] Distribución de uso por proyecto/cliente.
-- [ ] Tendencia semana a semana de cada contador (no solo el acumulado).
-- [ ] Calidad en el tiempo por agente, en las 4 dimensiones (§6.8), en serie.
-- [ ] Reconciliación: gaps código↔spec detectados vs. cerrados, por proyecto y en el tiempo.
-- [ ] Comparación "antes vs. después": mismo tipo de tarea en dos fechas, con score y tiempo.
-- [ ] Ninguna métrica se muestra sin poder hacer drill-down a los eventos crudos que la componen.
+| HU | Título | Feature |
+|---|---|---|
+| HU-001-JarvisMode | Conectar repositorios a un proyecto | F1 — Multi-repo |
+| HU-002-JarvisMode | Ver estado de sincronización de repositorios | F1 — Multi-repo |
+| HU-003-JarvisMode | Sincronización programada del Project Brain (sesión + cada 3h, prod/develop) | F2 — Brain vivo |
+| HU-004-JarvisMode | Reconciliación código↔spec contra Acceptance Criteria | F2 — Brain vivo |
+| HU-005-JarvisMode | Timeline unificado por proyecto | F2 — Brain vivo |
+| HU-006-JarvisMode | Jarvis Chat conversacional multi-turno | F3 — Chat |
+| HU-007-JarvisMode | Memoria de Mar (glosario vivo del sistema) | F4 — Memoria de Mar |
+| HU-008-JarvisMode | Autoevaluación multidimensional y continua | F5 — Autoevaluación |
+| HU-009-JarvisMode | Changelog de mejoras del sistema | F5 — Autoevaluación |
+| HU-010-JarvisMode | Panel de Analítica de negocio | F6 — Analítica |
 
 ---
 
@@ -571,7 +459,7 @@ Criteria (`- [ ]`) de cada HU es la unidad que se reconcilia, no una impresión 
 
 ### 6.8 Autoevaluación y mejora — decidido: multidimensional y continua, no por umbral de tiempo
 
-Reemplaza el modelo de "N semanas de degradación sostenida" del borrador anterior (ver HU-JARVIS-08
+Reemplaza el modelo de "N semanas de degradación sostenida" del borrador anterior (ver HU-008-JarvisMode
 para el detalle de las 4 dimensiones: eficiencia, acertividad, formato, calidad):
 
 - Cada invocación de agente corre las 4 evaluaciones **inmediatamente**, no en un job semanal
@@ -582,7 +470,7 @@ para el detalle de las 4 dimensiones: eficiencia, acertividad, formato, calidad)
   esa invocación — no espera un patrón de varias semanas para ser visible.
 - **Decidido**: **2 invocaciones seguidas** por debajo del umbral en una misma dimensión disparan
   la propuesta de ajuste de prompt — siempre pendiente de aprobación de Mar, nunca autoaplicada.
-- El changelog (`HU-JARVIS-09`) registra qué se cambió y qué pasó con cada una de las 4
+- El changelog (`HU-009-JarvisMode`) registra qué se cambió y qué pasó con cada una de las 4
   dimensiones después — no solo un score general.
 
 ---
@@ -608,7 +496,7 @@ output y por agente, para generar **inteligencia de negocio** — todo lo de aba
 | **P3** | Tiempo ahorrado estimado (baseline aproximado vs. tiempo real de invocación) | Marcado siempre como estimado, no medición exacta — es el más "blando" de todos, se construye al final |
 
 Ninguna métrica se muestra sin poder hacer drill-down al evento crudo que la compone (ya en
-HU-JARVIS-10) — el orden de prioridad es de construcción, no de qué se le oculta a nadie.
+HU-010-JarvisMode) — el orden de prioridad es de construcción, no de qué se le oculta a nadie.
 
 ---
 
@@ -657,7 +545,7 @@ filesystem/Redis intercambiable, así que la migración no debería tocar lógic
   contenedor de documentación.
 - **Notificaciones proactivas — ajustado, ya no es 100% "fuera de alcance"**: no se construye
   push/alertas espontáneas de v1, pero sí se agrega un **refresh programado** (no reactivo puro):
-  al iniciar sesión del chat, y cada 3 horas entre 7am–7pm (ver Flujo B, §3, y HU-JARVIS-03
+  al iniciar sesión del chat, y cada 3 horas entre 7am–7pm (ver Flujo B, §3, y HU-003-JarvisMode
   actualizada). Además, cada sincronización debe **distinguir el ambiente** (`prod` vs.
   `develop`/`development`) del repo que está leyendo — Mar suele trabajar en un entorno de
   pruebas, y un gap de reconciliación en develop no debe tratarse igual que uno en prod.
@@ -675,14 +563,14 @@ filesystem/Redis intercambiable, así que la migración no debería tocar lógic
 |---|---|
 | Canal móvil | **PWA** — dentro del rediseño React (§8.1) |
 | Auth de repos | **Auth Profiles** — múltiples identidades de Mar (`@imagineapps.co` → Bitbucket org + GitHub personal; `@gmail.com` → Bitbucket personal), no una sola OAuth App ni un PAT manual (§6.2) |
-| Autoevaluación | **Multidimensional y continua** (eficiencia, acertividad, formato, calidad) con feedback inmediato por invocación, umbral de **2 invocaciones seguidas** en baja calidad antes de proponer ajuste (§6.8, HU-JARVIS-08) |
+| Autoevaluación | **Multidimensional y continua** (eficiencia, acertividad, formato, calidad) con feedback inmediato por invocación, umbral de **2 invocaciones seguidas** en baja calidad antes de proponer ajuste (§6.8, HU-008-JarvisMode) |
 | Estrictez de reconciliación | **Precisión exacta contra el texto de los Acceptance Criteria**, respaldada por tests reales desarrollados en Fase 4 (§6.7) |
 | Analítica | Taxonomía completa (§7.1 de Mar + propuestas de Claude) **aprobada y priorizada P0–P3**, unificada en una sola lista |
 | Fases del proyecto | Modelo ampliado **Iniciación / Ejecución / Cierre** (§4), extiende (no reemplaza) las 5 fases SDLC actuales |
 | HUs | Se generan **siempre con Gimena**, nunca a mano — las de §5 son borrador temporal de Claude (regla de `.claude`) |
 | Infraestructura | **Vercel + Redis Marketplace (Upstash)** por ahora; migración a AWS es post-POC, fuera de este spec; se agrega monitoreo de costos (§8.2) |
 | Alcance de "tocar código" | Jarvis puede escribir **documentación** en el repo (specs, HUs) — el límite real es el **código de aplicación**, no el repo en sí (§9) |
-| Notificaciones | No son push proactivo v1, pero sí hay **refresh programado** (inicio de sesión + cada 3h de 7am–7pm) distinguiendo prod/develop (§9, HU-JARVIS-03) |
+| Notificaciones | No son push proactivo v1, pero sí hay **refresh programado** (inicio de sesión + cada 3h de 7am–7pm) distinguiendo prod/develop (§9, HU-003-JarvisMode) |
 
 ## 11. Pendientes técnicos (no son preguntas para Mar — son tareas de preparación antes/durante la implementación)
 
@@ -695,6 +583,7 @@ filesystem/Redis intercambiable, así que la migración no debería tocar lógic
 - **Retención de conversaciones del chat**: sin definir todavía si el historial de sesiones
   cerradas (§6.6) se conserva indefinidamente o expira — no bloquea el diseño, se decide al
   implementar el store de sesiones.
-- **Regenerar todas las HUs de §5 con Gimena** en cuanto haya una `ANTHROPIC_API_KEY` real en
-  `.env` (hoy es una key falsa, confirmado en la auditoría de la sesión anterior) — bloqueante
-  para cerrar Fase 1 (Iniciación → Planning) de este mismo proyecto.
+- ~~Regenerar las HUs de §5 con Gimena~~ — **Resuelto** (RUN-001, 2026-08-12): generadas
+  invocando el perfil canónico de Gimena dentro de la conversación, sin depender de la
+  `ANTHROPIC_API_KEY` del `.env` (sigue falsa a propósito, no es un bloqueo real). Ver
+  [`backlog.md`](backlog.md) y [`outputs/HU_RUN-001_2026-08-12.md`](outputs/HU_RUN-001_2026-08-12.md).
