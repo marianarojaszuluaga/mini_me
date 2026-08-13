@@ -613,16 +613,19 @@ filesystem/Redis intercambiable, así que la migración no debería tocar lógic
   invocando el perfil canónico de Gimena dentro de la conversación, sin depender de la
   `ANTHROPIC_API_KEY` del `.env` (sigue falsa a propósito, no es un bloqueo real). Ver
   [`backlog.md`](backlog.md) y [`outputs/HU_RUN-001_2026-08-12.md`](outputs/HU_RUN-001_2026-08-12.md).
-- **Conectar DeepSeek para el tier barato de modelos** (pendiente, 2026-08-13): hoy todos los
-  agentes usan `claude-sonnet-4-6` (único modelo que la key de Mariana tiene habilitado en
-  `admin-llm.imagineapps.co`), así que la distinción de costo barato/caro de
-  `agent_registry.py`'s `MODEL_CONFIGS` (antes Haiku/Sonnet) quedó colapsada. Se probó una key de
-  DeepSeek (`deepseek-chat`) dos veces — ambas rechazadas por el proxy con
-  `token_not_found_in_db` (la key no existe en esa instancia de LiteLLM; probablemente pertenece
-  a `litellm.imagineapps.co`, que está caído — `502 Bad Gateway` confirmado). **Acción pendiente
-  de Mariana**: en el panel de `admin-llm.imagineapps.co` (no el YAML legacy), agregar
-  `deepseek-chat` a los modelos permitidos de la key existente, o generar una virtual key nueva
-  con ese acceso. Cuando la tenga, se conecta y se prueba en vivo igual que se hizo con Sonnet.
+- ~~Conectar DeepSeek para el tier barato de modelos~~ — **Resuelto (2026-08-14).** Mariana pasó
+  la key correcta (`sk-jw0yWgYF4FONeY73NOWDbw`), válida en `admin-llm.imagineapps.co` para el
+  modelo `deepseek-chat`. `agent_registry.py`'s `MODEL_IDS` vuelve a separar tiers
+  (`"haiku": "deepseek-chat"`, `"sonnet": "claude-sonnet-4-6"`). **Hallazgo técnico real**: cada
+  virtual key de Mariana en ese proxy solo autoriza un modelo (confirmado por el propio `403` del
+  proxy) — el primer intento de resolverlo pasando `extra_headers={"x-api-key": ...}` en la
+  llamada a `client.messages.create()` **no funciona**, verificado en vivo (403 persistente) y
+  reproducido con un script standalone fuera de FastAPI. La solución real es instanciar un
+  `AsyncAnthropic` **separado** por key/modelo (`Settings.api_key_for_model()` en
+  `app/core/config.py`, usado en `invoke_agent_core` de `app/routers/agents.py`). Verificado en
+  vivo end-to-end contra el servidor real: `POST /agents/test-video-recorder/invoke` (tier haiku)
+  respondió con `"model":"deepseek-chat"` y salida real; `POST /agents/gimena/invoke` (tier
+  sonnet) respondió con `"model":"claude-sonnet-4-6"` real, ambos en la misma sesión de prueba.
 
 ---
 

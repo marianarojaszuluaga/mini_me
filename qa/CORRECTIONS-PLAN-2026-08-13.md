@@ -59,6 +59,13 @@ quedó documentada en `qa/QA-EXECUTION-TEMPLATE.md`.
 - [x] **`AgentInvokePanel`** — resuelto, ver §2 de `SPEC_JARVIS.md` y el commit de unificación del
   design system (2026-08-13): se eliminó por completo, decisión "solo chat" ya aplicada.
 
+## Post-plan — resuelto en ronda posterior (2026-08-14)
+
+- [x] **Tier barato de modelos (DeepSeek)**: key correcta conectada y verificada en vivo contra
+  `admin-llm.imagineapps.co` (`deepseek-chat`). Ver `SPEC_JARVIS.md` §11 para el detalle técnico
+  (cada virtual key solo autoriza un modelo; `extra_headers` no sirve para override, se necesita
+  un `AsyncAnthropic` separado por key).
+
 ## Orden de ejecución sugerido
 P0 (reconciliación real) → P1 (GAP-005) → P2 (sync status + auth profile label) → P3 (limpieza) →
 CORS + decisión de `AgentInvokePanel`.

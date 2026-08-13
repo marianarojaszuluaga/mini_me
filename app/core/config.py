@@ -31,6 +31,14 @@ class Settings(BaseSettings):
     ANTHROPIC_API_KEY: str = ""
     ANTHROPIC_BASE_URL: str | None = None
 
+    # DeepSeek, routed through the SAME LiteLLM proxy (ANTHROPIC_BASE_URL) but
+    # with its OWN virtual key — Mariana's LiteLLM keys are each restricted to
+    # one model (confirmed 2026-08-13/14 by the proxy's own error messages),
+    # so this can't share ANTHROPIC_API_KEY. Used for the "haiku" (cheap) tier
+    # in app/services/agent_registry.py's MODEL_IDS. Verified live 2026-08-14
+    # against https://admin-llm.imagineapps.co with model "deepseek-chat".
+    DEEPSEEK_API_KEY: str | None = None
+
     # Comma-separated allowlist of API keys this service accepts from its own
     # clients (dashboard, CLI, CI, Apps Script). Parsed into a list by
     # `allowed_api_keys` below — kept as a raw string here so pydantic-settings
@@ -91,6 +99,18 @@ class Settings(BaseSettings):
         if self.ANTHROPIC_BASE_URL:
             kwargs["base_url"] = self.ANTHROPIC_BASE_URL
         return kwargs
+
+    def api_key_for_model(self, model: str) -> str:
+        """Which virtual key to use for a given model — each of Mariana's
+        LiteLLM keys only authorizes one specific model (see
+        anthropic_client_kwargs' docstring history / SPEC_JARVIS.md §11).
+        Callers that vary model per-agent (app/routers/agents.py's
+        invoke_agent_core, via agent_registry.get_model_config) should send
+        this as the `x-api-key` header per-request instead of assuming the
+        client's default key covers every model."""
+        if model == "deepseek-chat" and self.DEEPSEEK_API_KEY:
+            return self.DEEPSEEK_API_KEY
+        return self.ANTHROPIC_API_KEY
 
     @property
     def allowed_api_keys(self) -> list[str]:

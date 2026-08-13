@@ -134,7 +134,13 @@ PM_AGENT_PROMPTS: dict[str, Callable[[str, dict | None], str]] = {
 # ---------------------------------------------------------------------------
 
 MODEL_IDS: dict[str, str] = {
-    "haiku": "claude-sonnet-4-6",
+    # "haiku" tier -> DeepSeek (cheap), via a separate LiteLLM virtual key
+    # (Mariana's Sonnet key is restricted to claude-sonnet-4-6 only, and the
+    # deepseek-chat key is restricted to that model only — see
+    # app.core.config.Settings.model_api_key_for). Reconnected 2026-08-14
+    # after being collapsed to a single model for lack of a working
+    # DeepSeek key.
+    "haiku": "deepseek-chat",
     "sonnet": "claude-sonnet-4-6",
 }
 

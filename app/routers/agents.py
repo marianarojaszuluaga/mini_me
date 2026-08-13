@@ -84,12 +84,28 @@ async def invoke_agent_core(
     if prompt.system:
         kwargs["system"] = prompt.system
 
+    # 2026-08-14: each of Mariana's LiteLLM virtual keys only authorizes one
+    # model (confirmed by the proxy's own 403 error) — the "haiku" tier
+    # (deepseek-chat) needs a different key than the client's default
+    # ("sonnet" tier, claude-sonnet-4-6). Tried overriding just the
+    # `x-api-key` header per-request first (extra_headers) — verified live
+    # that this SDK version does NOT let a per-request header win over the
+    # client's own auth, so a separate client instance is required instead.
+    settings = get_settings()
+    model_api_key = settings.api_key_for_model(model_config["model"])
+    call_client = client
+    if model_api_key != settings.ANTHROPIC_API_KEY:
+        call_client = AsyncAnthropic(
+            api_key=model_api_key,
+            base_url=settings.ANTHROPIC_BASE_URL or None,
+        )
+
     # The Node original wrapped this call in try/catch and returned
     # {"error": message} with the real status code — this must not become an
     # unhandled 500 (regression found 2026-08-13: a fake/invalid API key was
     # crashing the whole request instead of surfacing a clean error).
     try:
-        response = await client.messages.create(**kwargs)
+        response = await call_client.messages.create(**kwargs)
     except anthropic.APIStatusError as error:
         raise HTTPException(status_code=error.status_code, detail=str(error.message)) from error
     except anthropic.APIError as error:
