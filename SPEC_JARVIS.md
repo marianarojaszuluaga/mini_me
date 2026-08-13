@@ -613,6 +613,16 @@ filesystem/Redis intercambiable, así que la migración no debería tocar lógic
   invocando el perfil canónico de Gimena dentro de la conversación, sin depender de la
   `ANTHROPIC_API_KEY` del `.env` (sigue falsa a propósito, no es un bloqueo real). Ver
   [`backlog.md`](backlog.md) y [`outputs/HU_RUN-001_2026-08-12.md`](outputs/HU_RUN-001_2026-08-12.md).
+- **Conectar DeepSeek para el tier barato de modelos** (pendiente, 2026-08-13): hoy todos los
+  agentes usan `claude-sonnet-4-6` (único modelo que la key de Mariana tiene habilitado en
+  `admin-llm.imagineapps.co`), así que la distinción de costo barato/caro de
+  `agent_registry.py`'s `MODEL_CONFIGS` (antes Haiku/Sonnet) quedó colapsada. Se probó una key de
+  DeepSeek (`deepseek-chat`) dos veces — ambas rechazadas por el proxy con
+  `token_not_found_in_db` (la key no existe en esa instancia de LiteLLM; probablemente pertenece
+  a `litellm.imagineapps.co`, que está caído — `502 Bad Gateway` confirmado). **Acción pendiente
+  de Mariana**: en el panel de `admin-llm.imagineapps.co` (no el YAML legacy), agregar
+  `deepseek-chat` a los modelos permitidos de la key existente, o generar una virtual key nueva
+  con ese acceso. Cuando la tenga, se conecta y se prueba en vivo igual que se hizo con Sonnet.
 
 ---
 
