@@ -504,12 +504,31 @@ HU-010-JarvisMode) — el orden de prioridad es de construcción, no de qué se 
 
 ## 8. Stack tecnológico
 
-| Capa | Ya existe | Nuevo para Jarvis Mode |
+### 8.0 Corrección de arquitectura (2026-08-12) — el backend se reescribe completo en Python/FastAPI
+
+**Decisión**: el backend actual (`src/server.js` MAP + `src/orchestrator.js` Orchestrator, Node/
+Express) **se reescribe por completo en Python con FastAPI** — no es un servicio nuevo en Python
+que conviva con el Node existente; es una migración total del backend. Framework confirmado:
+**FastAPI** (asíncrono nativo, tipado con Pydantic — encaja con el loop agéntico del chat y con
+llamadas concurrentes a herramientas/Anthropic).
+
+Esto es un cambio de alcance mayor que "solo Jarvis Mode": el MAP+Orchestrator ya construido y
+desplegado (`SPEC.md`, estado "MVP construido y desplegado") también se reescribe. Detalle
+completo de la migración en [`ARCHITECTURE_JARVIS.md`](ARCHITECTURE_JARVIS.md) §0 (estructura de
+capas FastAPI) — este spec deja de asumir Express como base a partir de aquí. `SPEC.md` queda
+marcado con una nota de pivote (ver su cabecera) para no generar inconsistencia entre documentos.
+
+| Capa | Antes (Node/Express, ya no vigente) | Ahora (Python/FastAPI) |
 |---|---|---|
-| Backend | Express, `@anthropic-ai/sdk`, `@upstash/redis` | Cliente GitHub (`@octokit/rest`), cliente Bitbucket, cron, loop agéntico con tool-calling para el chat |
-| Frontend | React + Vite (rediseño ya planeado) | Componente de chat multi-turno, pantalla Memoria de Mar, pantalla Analítica (gráficas de series de tiempo) |
-| Storage | Redis (prod) / filesystem (local) | Nuevas keys/colecciones: memoria de Mar, métricas de series de tiempo — sin cambiar el motor de storage |
-| Auth | App API Keys | OAuth Apps de GitHub/Bitbucket |
+| Backend — framework | Express | **FastAPI**, con capas explícitas (routers/services/schemas/adapters — §0 de `ARCHITECTURE_JARVIS.md`) |
+| Backend — Anthropic | `@anthropic-ai/sdk` (Node) | `anthropic` (SDK oficial Python) |
+| Backend — Redis | `@upstash/redis` (Node) | `upstash-redis` (Python) o cliente REST directo (misma API HTTP de Upstash, agnóstica de lenguaje) |
+| Backend — GitHub | — | `PyGithub` o `httpx` directo contra la REST API |
+| Backend — Bitbucket | — | `httpx` directo contra la REST API v2.0 (mismo patrón de `adapters/basecamp/AUTH_POC.md`) |
+| Backend — cron | — | APScheduler (in-process) o Vercel Cron llamando a un endpoint FastAPI, según cómo se despliegue (§8.2) |
+| Frontend | React + Vite (rediseño ya planeado) | **Sin cambio** — el rediseño React sigue igual; solo cambia con qué backend habla (misma API REST, contrato no cambia por el lenguaje del servidor) |
+| Storage | Redis (prod) / filesystem (local) | **Sin cambio de motor** — mismas colecciones/keys ya definidas en §6, solo cambia el cliente que las lee/escribe |
+| Auth | App API Keys | **Sin cambio de esquema** — mismas App API Keys, verificación se reimplementa en FastAPI (dependency injection en vez de middleware Express) |
 
 ### 8.1 Canal móvil — decidido: PWA
 

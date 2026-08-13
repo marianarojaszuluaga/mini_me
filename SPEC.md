@@ -1,6 +1,13 @@
 # SPEC — Orquestrador 360
-> **Status**: MVP construido y desplegado — pendiente de credenciales reales para uso en producción
+> **Status**: MVP construido y desplegado (Node/Express) — pendiente de credenciales reales para
+> uso en producción
 > **Creado**: Julio 2026
+> **⚠️ Pivote de arquitectura (2026-08-12)**: decidido en `SPEC_JARVIS.md` §8.0 — todo este
+> backend (MAP + Orchestrator) **se reescribe en Python/FastAPI**. Lo descrito abajo (Express,
+> `src/server.js`, `src/orchestrator.js`) documenta el MVP **tal como se construyó**, no el
+> destino final. Ver [`ARCHITECTURE_JARVIS.md`](ARCHITECTURE_JARVIS.md) para la arquitectura de
+> capas FastAPI que lo reemplaza — mismo contrato REST, mismo modelo de datos, mismos 22 agentes
+> y 5 fases, solo cambia el lenguaje/framework del servidor.
 
 ---
 
