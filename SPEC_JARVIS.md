@@ -1,5 +1,7 @@
 # SPEC — Jarvis Mode (chat conversacional, multi-repo, memoria de Mar, autoevaluación, analítica)
-> **Status**: Draft para aprobación — sin código todavía
+> **Status**: **Aprobado — primer esqueleto real implementado (2026-08-12)**. Backend FastAPI
+> arranca, los 24 endpoints del spec están registrados y verificados (`GET /health` responde,
+> `openapi.json` lista todas las rutas). Ver tabla de avance en §12.
 > **Creado**: Agosto 2026
 > **Depende de**: `SPEC.md` (Orquestrador 360 base — MAP + Orchestrator + 22 agentes + 5 fases)
 > **Elaboración técnica**: ver [`ARCHITECTURE_JARVIS.md`](ARCHITECTURE_JARVIS.md) — mapa contra
@@ -608,3 +610,32 @@ filesystem/Redis intercambiable, así que la migración no debería tocar lógic
   invocando el perfil canónico de Gimena dentro de la conversación, sin depender de la
   `ANTHROPIC_API_KEY` del `.env` (sigue falsa a propósito, no es un bloqueo real). Ver
   [`backlog.md`](backlog.md) y [`outputs/HU_RUN-001_2026-08-12.md`](outputs/HU_RUN-001_2026-08-12.md).
+
+---
+
+## 12. Avance de implementación (se actualiza según se construye, no solo al aprobar)
+
+**Backend FastAPI — primer esqueleto (2026-08-12, commit `ffca64a`)**
+
+Verificado por mí (no solo por el reporte del agente que lo construyó): `uvicorn app.main:app`
+arranca sin errores, `GET /health` responde `200`, y los 24 endpoints del spec están registrados
+en `openapi.json` (confirmado comparando la lista real contra §6.5 de `ARCHITECTURE_JARVIS.md`).
+
+| HU | Estado | Nota |
+|---|---|---|
+| HU-001/002-JarvisMode (multi-repo) | 🟡 Esqueleto real | Adaptadores GitHub/Bitbucket con `httpx` real (no mocks); falta ejercitarlos contra un repo real y el flujo de Auth Profiles con SSO de Google (§11) |
+| HU-003-JarvisMode (sync programada) | 🔴 No implementado | `sync_scheduler.py` (cron/APScheduler) no se construyó en esta ronda |
+| HU-004-JarvisMode (reconciliación) | 🟡 Versión simplificada | Chequeo actual: ¿el ID de la HU se menciona en el timeline? — no es todavía el matching real contra tests vía adaptadores de repo que pide el spec |
+| HU-005-JarvisMode (timeline) | 🟢 Implementado | `GET /projects/{id}/timeline` |
+| HU-006-JarvisMode (Jarvis Chat) | 🟢 Implementado | Loop agéntico completo con las 5 herramientas, versionado de sesión por límite de contexto (umbral 120k tokens, marcado para calibrar) |
+| HU-007-JarvisMode (Memoria de Mar) | 🟢 Implementado | Dedup por similitud Jaccard (umbral 0.6, marcado para calibrar) |
+| HU-008-JarvisMode (autoevaluación) | 🟡 Parcial | `collector.py`/`schemas/metrics.py` completos; falta confirmar que las 4 dimensiones se disparen automáticamente en cada invocación real (no solo el endpoint expuesto) |
+| HU-009-JarvisMode (changelog de mejoras) | 🔴 No implementado | |
+| HU-010-JarvisMode (Analítica) | 🟡 Parcial | 4 series expuestas (`/metrics/*`) + `/metrics/summary`; falta el drill-down a eventos crudos desde cada número |
+| Auth Profiles (§6.2) | 🟢 CRUD implementado | Falta resolver la investigación de SSO de Google antes de que el flujo de conexión sea real |
+| Reescritura completa a Python/FastAPI (§8.0) | 🟡 En curso | El MAP base (agents/phases/projects/evaluate/orchestrate) ya migró; el Orchestrator (`orchestrator.js` — toolchains/workflows) todavía no se ha portado |
+
+**No migrado todavía**: el `orchestrator.js` original (Master Orchestrator — `toolRegistry`,
+`/toolchain/execute`, `/workflows`) no forma parte de este primer esqueleto. Es trabajo pendiente
+de una próxima ronda, no un olvido — el foco de esta ronda fue el MAP + las piezas nuevas de
+Jarvis Mode.

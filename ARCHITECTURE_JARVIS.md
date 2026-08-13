@@ -1,5 +1,10 @@
 # Arquitectura técnica — Jarvis Mode (Python / FastAPI)
-> **Status**: Elaboración técnica — documentación de arquitectura, sin código todavía
+> **Status**: **Primer esqueleto implementado y verificado (2026-08-12, commit `ffca64a`)** —
+> `uvicorn app.main:app` arranca, `GET /health` responde, los 24 endpoints están registrados.
+> Ver `SPEC_JARVIS.md` §12 para el avance detallado por HU (qué es real, qué es simplificado, qué
+> falta). El árbol de `app/` de §0 abajo ya existe en disco tal cual se describe, salvo `cron/`
+> (no construido en esta ronda) y la migración de `orchestrator.js` (toolchains/workflows —
+> pendiente, fuera de esta ronda).
 > **Creado**: Agosto 2026 — **revisado 2026-08-12**: el backend se reescribe completo en
 > Python/FastAPI (decisión registrada en `SPEC_JARVIS.md` §8.0). Esta versión reemplaza la
 > anterior, que asumía Node/Express.
