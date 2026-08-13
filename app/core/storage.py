@@ -169,6 +169,17 @@ class Storage:
     def write_chat_sessions(self, sessions: list[dict[str, Any]]) -> None:
         self._write_dict("jarvis-sessions", {"sessions": sessions})
 
+    def read_changelog(self) -> list[dict[str, Any]]:
+        """System-improvement changelog (HU-009-JarvisMode, SPEC_JARVIS.md
+        §10) — storage/changelog.json, shape {"entries": [...]}. Exposed flat
+        (same convention as read_mar_memory)."""
+        wrapper = self._read_dict("changelog")
+        entries = wrapper.get("entries")
+        return entries if isinstance(entries, list) else []
+
+    def write_changelog(self, entries: list[dict[str, Any]]) -> None:
+        self._write_dict("changelog", {"entries": entries})
+
     def _read_dict(self, name: str) -> dict[str, Any]:
         if self.using_kv and self._redis is not None:
             value = self._redis.get(name)

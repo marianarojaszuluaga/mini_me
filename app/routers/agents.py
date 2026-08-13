@@ -9,6 +9,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any
 
+import anthropic
 from anthropic import AsyncAnthropic
 from fastapi import APIRouter, Body, Depends, HTTPException
 
@@ -18,6 +19,7 @@ from app.core.storage import get_storage
 from app.phases import phase_contracts
 from app.services import agent_registry
 from app.services.agent_evaluator import AgentEvaluator
+from app.services.metrics.evaluate_invocation import evaluate_and_check
 
 router = APIRouter(dependencies=[Depends(authenticate_token)])
 
@@ -82,7 +84,16 @@ async def invoke_agent_core(
     if prompt.system:
         kwargs["system"] = prompt.system
 
-    response = await client.messages.create(**kwargs)
+    # The Node original wrapped this call in try/catch and returned
+    # {"error": message} with the real status code — this must not become an
+    # unhandled 500 (regression found 2026-08-13: a fake/invalid API key was
+    # crashing the whole request instead of surfacing a clean error).
+    try:
+        response = await client.messages.create(**kwargs)
+    except anthropic.APIStatusError as error:
+        raise HTTPException(status_code=error.status_code, detail=str(error.message)) from error
+    except anthropic.APIError as error:
+        raise HTTPException(status_code=502, detail=str(error)) from error
 
     timestamp = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
     result = {
@@ -104,6 +115,17 @@ async def invoke_agent_core(
             "status": "completed",
         }
     )
+
+    # HU-008-JarvisMode: autoevaluación multidimensional inmediata — corre en
+    # cada invocación real, no como paso manual aparte (AC 2.1.2). No debe
+    # tumbar la invocación si la evaluación falla (ej. el juez de acertividad
+    # tiene un error transitorio de red).
+    try:
+        result["evaluation"] = await evaluate_and_check(
+            name, result["output"], context, input_=input_, client=client
+        )
+    except Exception as error:  # noqa: BLE001 - evaluation is best-effort, never blocks the invoke response
+        result["evaluation"] = {"error": f"Evaluation failed: {error}"}
 
     return result
 

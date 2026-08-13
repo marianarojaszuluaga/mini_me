@@ -11,8 +11,9 @@ priority table in SPEC_JARVIS.md §7.
 
 from __future__ import annotations
 
+import uuid
 from datetime import datetime, timezone
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -85,3 +86,26 @@ class OutputCount(BaseModel):
     type: OutputType
     count: int = Field(ge=0)
     date: datetime = Field(default_factory=_utcnow)
+
+
+RawEventType = Literal[
+    "agent_evaluation",
+    "reconciliation_run",
+    "usage_event",
+    "output_count",
+]
+
+
+class RawMetricEvent(BaseModel):
+    """One individual, drill-down-able raw event (SPEC_JARVIS.md HU-010,
+    AC6: "Cada número tiene un control de drill-down que lleva a los eventos
+    crudos que lo componen"). Written alongside (never instead of) the
+    aggregate series in collector.py, so time-series dashboards keep reading
+    the fast aggregates while drill-down queries this series instead.
+    """
+
+    id: str = Field(default_factory=lambda: uuid.uuid4().hex)
+    type: RawEventType
+    agent_name: str | None = None
+    timestamp: datetime = Field(default_factory=_utcnow)
+    payload: dict[str, Any] = Field(default_factory=dict)

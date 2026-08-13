@@ -16,6 +16,7 @@ from app.cron.sync_scheduler import start_scheduler
 from app.routers import (
     agents,
     brain,
+    changelog,
     health,
     jarvis_chat,
     mar_memory,
@@ -67,6 +68,11 @@ app.include_router(brain.router)
 # metrics.py: /metrics/* — Analytics/Metrics read surface
 # (ARCHITECTURE_JARVIS.md §4/§7, HU-008/009/010-JarvisMode) — behind auth.
 app.include_router(metrics.router)
+
+# changelog.py: /changelog, /changelog/{id}, /changelog/{id}/approve —
+# system-improvement changelog (SPEC_JARVIS.md §10, HU-009-JarvisMode) —
+# behind the auth dependency.
+app.include_router(changelog.router)
 
 # orchestrator.py: Master Orchestrator — /tools, /tools/{name},
 # /tools/{tool}/{action}, /toolchain/execute, /workflows, /workflows/{id}/execute,

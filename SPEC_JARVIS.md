@@ -629,9 +629,9 @@ en `openapi.json` (confirmado comparando la lista real contra §6.5 de `ARCHITEC
 | HU-005-JarvisMode (timeline) | 🟢 Implementado | `GET /projects/{id}/timeline` |
 | HU-006-JarvisMode (Jarvis Chat) | 🟢 Implementado | Loop agéntico completo con las 5 herramientas, versionado de sesión por límite de contexto (umbral 120k tokens, marcado para calibrar) |
 | HU-007-JarvisMode (Memoria de Mar) | 🟢 Implementado | Dedup por similitud Jaccard (umbral 0.6, marcado para calibrar) |
-| HU-008-JarvisMode (autoevaluación) | 🟡 Parcial | `collector.py`/`schemas/metrics.py` completos; falta confirmar que las 4 dimensiones se disparen automáticamente en cada invocación real (no solo el endpoint expuesto) |
-| HU-009-JarvisMode (changelog de mejoras) | 🔴 No implementado | |
-| HU-010-JarvisMode (Analítica) | 🟡 Parcial | 4 series expuestas (`/metrics/*`) + `/metrics/summary`; falta el drill-down a eventos crudos desde cada número |
+| HU-008-JarvisMode (autoevaluación) | 🟢 Implementado | Las 4 dimensiones se disparan automáticamente en `invoke_agent_core` (usada por `/agents/{name}/invoke` **y** `/orchestrate`), envuelto en try/except propio para no tumbar la respuesta si la evaluación falla. Detector de 2 invocaciones seguidas bajas conectado a la propuesta de changelog |
+| HU-009-JarvisMode (changelog de mejoras) | 🟢 Implementado | `POST /changelog` (propuesta), `POST /changelog/{id}/approve` (aprobación manual, nunca automática), ventana antes/después simétrica, scores reales del `collector`, nunca inventados |
+| HU-010-JarvisMode (Analítica) | 🟢 Implementado | `GET /metrics/events` + cada serie agregada trae `eventIds`/`eventsAvailable`; los agregados de antes de este cambio devuelven explícitamente "sin eventos crudos disponibles" en vez de inventar un desglose |
 | Auth Profiles (§6.2) | 🟢 CRUD implementado | Falta resolver la investigación de SSO de Google antes de que el flujo de conexión sea real |
 | Reescritura completa a Python/FastAPI (§8.0) | 🟢 Completa (MAP + Orchestrator) | El Orchestrator (`orchestrator.js` original: `toolRegistry`, `/toolchain/execute`, `/workflows`, `/system/state`) migró bajo el prefijo `/orchestrator/*` — 9 rutas verificadas, `GET /orchestrator/tools` responde con el tool `map` real |
 
@@ -645,3 +645,12 @@ heredado de Node: 3001) cuando no se fija explícitamente. Si se arranca `uvicor
 distinto vía `--port` sin también fijar la env var `PORT` al mismo valor, el Orchestrator
 llamaría al puerto equivocado al invocarse a sí mismo. Recordar fijar `PORT` en `.env`/entorno de
 despliegue igual al puerto real donde corre el servicio.
+
+**Bug real encontrado y corregido (2026-08-13)**: `POST /agents/{name}/invoke` (y por lo tanto
+`/orchestrate`, que comparte la misma función interna) no envolvía la llamada al SDK de Anthropic
+en manejo de errores — cualquier falla ahí (key inválida, rate limit, timeout) se propagaba como
+un `500 Internal Server Error` genérico sin cuerpo JSON, en vez del `{"error": message}` con
+status code real que sí devolvía el Express original. Verificado con una invocación real contra
+la key falsa del `.env`: antes del fix, `500` sin detalle; después del fix, `401` con el mensaje
+exacto de Anthropic. Corregido envolviendo la llamada en `try/except` sobre
+`anthropic.APIStatusError`/`anthropic.APIError`.
