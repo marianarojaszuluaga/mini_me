@@ -61,6 +61,7 @@ from app.core.storage import get_storage
 from app.schemas.auth_profile import AuthProfile
 from app.schemas.project import Repository
 from app.services.brain.ingest import record_event
+from app.services.obsidian_sync import sync_to_obsidian
 from app.services.repositories import get_adapter
 
 logger = logging.getLogger(__name__)
@@ -263,6 +264,16 @@ async def _sync_all_projects() -> None:
             await sync_now(project_id)
         except Exception:  # noqa: BLE001 - keep the scheduler loop alive
             logger.exception("sync_scheduler: sync_now failed for project %s", project_id)
+
+    # SPEC_JARVIS.md §11 item 3.1: keep the app's own memory (Mar Memory +
+    # Project Brain) mirrored into Obsidian on the same cadence as the repo
+    # sync above, instead of only running scripts/sync_memories_to_obsidian.py
+    # by hand. A failure here (e.g. the vault path isn't mounted on whatever
+    # host is running this) must not take down the repo sync job that just ran.
+    try:
+        sync_to_obsidian()
+    except Exception:  # noqa: BLE001 - keep the scheduler loop alive
+        logger.exception("sync_scheduler: sync_to_obsidian failed")
 
 
 _scheduler: AsyncIOScheduler | None = None
