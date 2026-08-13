@@ -227,6 +227,26 @@ async def run_reconciliation(project_id: str) -> dict[str, Any] | None:
     if project is None:
         return None
 
+    # BUG-010 fix: with 0 connected repos there is no evidence to reconcile
+    # against at all (HU-004 §2.3 requires an explicit "no repo connected"
+    # response, not fabricated gaps) — short-circuit before parsing any ACs.
+    if not project.get("repositories"):
+        now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+        reconciliation = {
+            "lastRunAt": now,
+            "gaps": [],
+            "note": "No hay repositorios conectados para este proyecto — no se puede verificar evidencia real.",
+        }
+        project.setdefault("memory", {}).setdefault("projectBrain", {})["reconciliation"] = reconciliation
+        storage.write_projects(projects)
+        await record_reconciliation_run(
+            project_id=project_id,
+            gaps_found=0,
+            gaps_closed_since_last=0,
+            sin_test=0,
+        )
+        return reconciliation
+
     workspace = _workspace_root(project)
     registry = _parse_backlog_registry(workspace)
     ac_units, unreconcilable_hus = _parse_acceptance_criteria(workspace, registry)

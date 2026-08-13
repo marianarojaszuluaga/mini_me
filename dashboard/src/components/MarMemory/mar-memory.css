@@ -1,0 +1,128 @@
+/* Memoria de Mar drill-down — uses design tokens from design-tokens.css only. */
+
+.mar-drilldown {
+  font-family: var(--font-sans);
+  color: hsl(var(--ds-gray-1000));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6x);
+}
+
+.mar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mar-header h1 {
+  font-size: 20px;
+  margin: 0;
+}
+
+.mar-note {
+  font-size: 13px;
+  color: hsl(var(--ds-gray-800));
+  background: hsl(var(--ds-gray-100));
+  border-radius: var(--radius-base);
+  padding: var(--space-3x);
+}
+
+.mar-note-error {
+  color: hsl(var(--ds-red-900));
+  background: hsl(var(--ds-red-100));
+}
+
+.mar-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3x);
+}
+
+.mar-group-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.mar-subtitle {
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.mar-group-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3x);
+}
+
+.mar-entry,
+.mar-new-entry {
+  background: hsl(var(--ds-background-100));
+  border-radius: var(--radius-material-medium);
+  box-shadow: var(--shadow-border-base);
+  padding: var(--space-4x);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2x);
+}
+
+.mar-entry-content {
+  font-size: 14px;
+  white-space: pre-wrap;
+}
+
+.mar-entry-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: hsl(var(--ds-gray-700));
+}
+
+.mar-entry-actions {
+  display: flex;
+  gap: var(--space-2x);
+  justify-content: flex-end;
+}
+
+.mar-entry-editing textarea,
+.mar-new-entry textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  border-radius: var(--radius-base);
+  border: 1px solid hsl(var(--ds-gray-400));
+  padding: var(--space-2x);
+  resize: vertical;
+}
+
+.mar-entry-editing select,
+.mar-new-entry select {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  border-radius: var(--radius-base);
+  border: 1px solid hsl(var(--ds-gray-400));
+  padding: var(--space-2x);
+  align-self: flex-start;
+}
+
+.btn-danger {
+  background: hsl(var(--ds-red-700));
+  color: var(--ds-white);
+  border: none;
+  border-radius: var(--radius-base);
+  padding: var(--space-2x) var(--space-4x);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.btn-danger:hover {
+  background: hsl(var(--ds-red-800));
+}
+
+.btn-danger:disabled {
+  opacity: 0.6;
+  cursor: default;
+}

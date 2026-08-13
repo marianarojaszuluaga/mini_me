@@ -281,8 +281,10 @@ html, body {
 }
 
 .btn-primary {
-  background: var(--success);
-  color: white;
+  /* BUG-008 fix: was hardcoded rgb(39,174,96) via the legacy --success
+     token; now resolves through design-tokens.css's --ds-* scale. */
+  background: hsl(var(--ds-green-800));
+  color: hsl(var(--ds-background-100));
   padding: 10px 20px;
   border: none;
   border-radius: 6px;
@@ -292,7 +294,7 @@ html, body {
 }
 
 .btn-primary:hover {
-  background: #1E8449;
+  background: hsl(var(--ds-green-900));
   transform: scale(1.05);
 }
 
@@ -428,6 +430,20 @@ html, body {
   gap: 10px;
   justify-content: flex-end;
   margin-top: 20px;
+}
+
+/* BUG-007 fix: the Status panel's 3-button row (unlike the fixed-width
+   modal footers this class was written for) lives in a narrower panel and
+   was overflowing with nowrap, truncating "Integraciones". Let it wrap and
+   shrink to the panel's own width instead of forcing a scrollbar. */
+.status-panel-action-row {
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  max-width: 100%;
+}
+
+.status-panel-action-row .btn-primary {
+  white-space: normal;
 }
 
 .btn-cancel {

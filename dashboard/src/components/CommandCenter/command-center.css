@@ -1,0 +1,365 @@
+/* Command Center layout — grid-based, fixes the historic overflow/overlap bug.
+   Root cause was .top-section (flex child) with no height/overflow control;
+   here every panel gets an explicit grid track and its own overflow-y. */
+
+.command-center {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-width: var(--layout-page-width-ds);
+  margin: 0 auto;
+  background: hsl(var(--ds-background-200));
+}
+
+.command-center-header {
+  flex: 0 0 auto;
+  padding: var(--space-4x) var(--space-6x);
+}
+
+.command-center-grid {
+  flex: 1 1 auto;
+  min-height: 0; /* required so children's overflow:auto actually kicks in */
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--space-gap);
+  padding: 0 var(--space-6x) var(--space-6x);
+}
+
+.command-center-panel {
+  min-height: 0; /* same reasoning — grid item must be allowed to shrink */
+  overflow-y: auto;
+  background: hsl(var(--ds-background-100));
+  border-radius: var(--radius-material-medium);
+  box-shadow: var(--shadow-border-base), var(--shadow-medium);
+  padding: var(--space-6x);
+}
+
+.cc-panel-placeholder {
+  color: hsl(var(--ds-gray-800));
+  font-family: var(--font-sans);
+  padding: var(--space-4x);
+}
+
+@media (max-width: 900px) {
+  .command-center-grid {
+    grid-template-columns: 1fr;
+    grid-auto-rows: minmax(0, 1fr);
+  }
+}
+
+/* ---- ChatPanel (Jarvis conversational chat, HU-006-JarvisMode) ---- */
+
+.chat-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  gap: var(--space-3x);
+  font-family: var(--font-sans);
+}
+
+.chat-history {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4x);
+  padding-right: var(--space-1x);
+}
+
+.chat-empty-state {
+  color: hsl(var(--ds-gray-700));
+  font-size: 14px;
+  padding: var(--space-4x) 0;
+}
+
+.chat-message {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1x);
+  padding: var(--space-3x);
+  border-radius: var(--radius-material-medium);
+  max-width: 90%;
+}
+
+.chat-message-user {
+  align-self: flex-end;
+  background: hsl(var(--ds-gray-100));
+}
+
+.chat-message-jarvis {
+  align-self: flex-start;
+  background: hsl(var(--ds-background-200));
+  box-shadow: var(--shadow-border-base);
+}
+
+.chat-message-author {
+  font-size: 12px;
+  font-weight: 600;
+  color: hsl(var(--ds-gray-800));
+}
+
+.chat-message-text {
+  font-size: 14px;
+  color: hsl(var(--ds-gray-1000));
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.chat-message-typing .chat-message-text {
+  color: hsl(var(--ds-gray-700));
+  font-style: italic;
+}
+
+.chat-message-unknown {
+  font-size: 12px;
+  color: hsl(var(--ds-gray-800));
+  font-style: italic;
+}
+
+.chat-sources {
+  margin-top: var(--space-2x);
+  border-top: 1px solid hsl(var(--ds-gray-300));
+  padding-top: var(--space-2x);
+}
+
+.chat-sources-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: hsl(var(--ds-gray-700));
+  margin-bottom: var(--space-1x);
+}
+
+.chat-sources-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1x);
+}
+
+.chat-source-item {
+  font-size: 12px;
+  color: hsl(var(--ds-gray-800));
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1x) var(--space-2x);
+}
+
+.chat-source-kind {
+  font-weight: 600;
+  color: hsl(var(--ds-gray-900));
+}
+
+.chat-source-ref {
+  color: hsl(var(--ds-gray-700));
+}
+
+.chat-source-excerpt {
+  color: hsl(var(--ds-gray-700));
+  flex-basis: 100%;
+}
+
+.chat-input-row {
+  flex: 0 0 auto;
+  display: flex;
+  gap: var(--space-2x);
+  align-items: flex-end;
+}
+
+.chat-input {
+  flex: 1 1 auto;
+  resize: none;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  padding: var(--space-2x) var(--space-3x);
+  border-radius: var(--radius-material-small);
+  border: none;
+  box-shadow: var(--shadow-border-base);
+  background: hsl(var(--ds-background-100));
+  color: hsl(var(--ds-gray-1000));
+}
+
+.chat-input:focus {
+  outline: 2px solid hsl(var(--ds-gray-500));
+  outline-offset: -1px;
+}
+
+.chat-send-button {
+  flex: 0 0 auto;
+  padding: var(--space-2x) var(--space-4x);
+  border-radius: var(--radius-material-small);
+  border: none;
+  background: hsl(var(--ds-gray-1000));
+  color: hsl(var(--ds-background-100));
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.chat-send-button:disabled {
+  background: hsl(var(--ds-gray-400));
+  cursor: not-allowed;
+}
+
+/* ---- DrillDown overlay ---- */
+
+.drilldown-backdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--ds-gray-alpha-700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+  padding: var(--space-6x);
+}
+
+.drilldown-content {
+  background: hsl(var(--ds-background-100));
+  border-radius: var(--radius-material-modal);
+  box-shadow: var(--shadow-modal-elevated);
+  max-width: 900px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: var(--space-6x);
+}
+
+/* ---- ProjectDetailDrillDown ("Detalle de Proyecto", SPEC_JARVIS.md §2) ---- */
+
+.pd-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4x);
+  margin-bottom: var(--space-4x);
+  font-family: var(--font-sans);
+}
+
+.pd-tabs {
+  display: flex;
+  gap: var(--space-2x);
+  border-bottom: 1px solid hsl(var(--ds-gray-300));
+  margin-bottom: var(--space-4x);
+  overflow-x: auto;
+}
+
+.pd-tab {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: var(--space-2x) var(--space-3x);
+  color: hsl(var(--ds-gray-800));
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.pd-tab:hover {
+  color: hsl(var(--ds-gray-1000));
+}
+
+.pd-tab.active {
+  color: hsl(var(--ds-blue-800));
+  border-bottom-color: hsl(var(--ds-blue-700));
+  font-weight: 500;
+}
+
+.pd-tab-content {
+  font-family: var(--font-sans);
+}
+
+.pd-subsection {
+  margin-bottom: var(--space-6x);
+}
+
+.pd-subsection-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4x);
+  margin-bottom: var(--space-2x);
+}
+
+.pd-meta {
+  font-size: 12px;
+  color: hsl(var(--ds-gray-700));
+  margin-top: var(--space-1x);
+}
+
+.pd-connect-repo-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2x);
+  margin-top: var(--space-3x);
+  padding: var(--space-4x);
+  border-radius: var(--radius-material-base);
+  box-shadow: var(--shadow-border-base);
+}
+
+.pd-repo-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2x);
+}
+
+.pd-repo-item {
+  padding: var(--space-3x);
+  border-radius: var(--radius-material-base);
+  box-shadow: var(--shadow-border-base);
+}
+
+.pd-repo-main {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2x);
+}
+
+.recon-item .recon-ac-text {
+  margin-top: var(--space-1x);
+  font-size: 14px;
+}
+
+.recon-ac-reason {
+  font-style: italic;
+  color: hsl(var(--ds-gray-700));
+}
+
+/* Reconciliation / repo status pills — color mapping decided in
+   ProjectDetailDrillDown.jsx (see STATUS_STYLE comment there):
+   verde = cumple/cerrado, amarillo = sin_test/con_test_sin_resultado,
+   rojo = gap/no_cumple/abierto(legacy), gris = no_reconciliable. */
+
+.recon-status-pill {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 2px var(--space-2x);
+  border-radius: var(--radius-material-small);
+}
+
+.recon-status-green {
+  background: hsl(var(--ds-green-200));
+  color: hsl(var(--ds-green-900));
+}
+
+.recon-status-amber {
+  background: hsl(var(--ds-amber-200));
+  color: hsl(var(--ds-amber-900));
+}
+
+.recon-status-red {
+  background: hsl(var(--ds-red-200));
+  color: hsl(var(--ds-red-900));
+}
+
+.recon-status-gray {
+  background: hsl(var(--ds-gray-200));
+  color: hsl(var(--ds-gray-900));
+}

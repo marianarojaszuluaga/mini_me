@@ -134,8 +134,13 @@ def compute_after_scores(entry_id: str) -> dict[str, Any] | None:
 
     window = DateWindow(start=after_window["start"], end=after_window["end"])
     scores = _average_scores(target["agent_name"], window)
-    target["after_scores"] = scores.model_dump(mode="json")
+    # BUG-012 fix: a zero-sample average is not a measurement — writing it
+    # unconditionally made "en progreso" permanently indistinguishable from
+    # a real all-zero result (P2Section only checks truthiness). Leave
+    # after_scores untouched (null until never set) while there's no real
+    # evaluation history yet.
     if scores.sample_count > 0:
+        target["after_scores"] = scores.model_dump(mode="json")
         target["status"] = "measured"
 
     storage.write_changelog(entries)

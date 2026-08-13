@@ -217,7 +217,13 @@ def read_raw_events(
     if date_from:
         events = [event for event in events if event.get("timestamp", "") >= date_from]
     if date_to:
-        events = [event for event in events if event.get("timestamp", "") <= date_to]
+        # BUG-013 fix: a bare date (e.g. "2026-08-13") sorts *before* any
+        # full ISO timestamp on that same day ("2026-08-13T10:00:00Z"), so
+        # the naive lexicographic "<=" excluded every event from the
+        # end-date itself. Extend a date-only date_to to the end of that
+        # day before comparing; a full timestamp is used as-is.
+        effective_date_to = date_to if "T" in date_to else f"{date_to}T23:59:59.999999Z"
+        events = [event for event in events if event.get("timestamp", "") <= effective_date_to]
 
     return events
 

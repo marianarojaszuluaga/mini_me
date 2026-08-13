@@ -85,10 +85,24 @@ async def connect_repository(
 
     if not provider or not owner or not repo_name:
         raise HTTPException(status_code=400, detail="provider, owner and repo are required")
+    if not environment:
+        raise HTTPException(status_code=400, detail="environment is required")
 
     storage = get_storage()
     projects = storage.read_projects()
     project = _find_project(projects, project_id)
+
+    for existing in project.get("repositories", []):
+        if (
+            existing.get("provider") == provider
+            and existing.get("owner") == owner
+            and existing.get("repo") == repo_name
+            and existing.get("environment") == environment
+        ):
+            raise HTTPException(
+                status_code=409,
+                detail="Repository already connected to this project with this environment",
+            )
 
     auth_profile = auth_profiles.get_auth_profile(auth_profile_id) if auth_profile_id else None
     if auth_profile_id and auth_profile is None:

@@ -20,6 +20,7 @@ from __future__ import annotations
 import uuid
 from typing import Any
 
+import anthropic
 from anthropic import AsyncAnthropic
 from anthropic.types import MessageParam
 from fastapi import APIRouter, Depends, HTTPException
@@ -111,13 +112,21 @@ async def _run_agentic_loop(
     max_iterations = 10
 
     for _ in range(max_iterations):
-        response = await client.messages.create(
-            model=CHAT_MODEL,
-            max_tokens=CHAT_MAX_TOKENS,
-            system=system_prompt,
-            tools=TOOL_SCHEMAS,
-            messages=messages,
-        )
+        # BUG-003 fix: same regression class as agents.py's invoke_agent_core —
+        # an invalid/fake API key must not crash the whole request as an
+        # unhandled 500, it must surface as a clean HTTPException.
+        try:
+            response = await client.messages.create(
+                model=CHAT_MODEL,
+                max_tokens=CHAT_MAX_TOKENS,
+                system=system_prompt,
+                tools=TOOL_SCHEMAS,
+                messages=messages,
+            )
+        except anthropic.APIStatusError as error:
+            raise HTTPException(status_code=error.status_code, detail=str(error.message)) from error
+        except anthropic.APIError as error:
+            raise HTTPException(status_code=502, detail=str(error)) from error
         total_input_tokens += response.usage.input_tokens
         total_output_tokens += response.usage.output_tokens
 

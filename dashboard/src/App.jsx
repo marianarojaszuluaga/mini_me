@@ -9,65 +9,10 @@
 
 import React, { useState, useEffect } from "react";
 import "./styles.css";
+import ApiClient from "./api-client.js";
+import CommandCenterLayout from "./components/CommandCenter/CommandCenterLayout.jsx";
 
 const STORAGE_KEY = "ORQ_APP_KEY";
-
-class ApiClient {
-  constructor(apiKey) {
-    this.apiKey = apiKey;
-    this.baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
-  }
-
-  async request(path, options = {}) {
-    const response = await fetch(`${this.baseUrl}${path}`, {
-      ...options,
-      headers: {
-        Authorization: `Bearer ${this.apiKey}`,
-        "Content-Type": "application/json",
-        ...(options.headers || {})
-      }
-    });
-    if (!response.ok) {
-      const body = await response.json().catch(() => ({}));
-      throw new Error(body.error || `${path} failed (${response.status})`);
-    }
-    return response.json();
-  }
-
-  getPhases() {
-    return this.request("/phases");
-  }
-
-  getAgents() {
-    return this.request("/agents");
-  }
-
-  getProjects() {
-    return this.request("/projects");
-  }
-
-  getProject(id) {
-    return this.request(`/projects/${id}`);
-  }
-
-  createProject(data) {
-    return this.request("/projects", { method: "POST", body: JSON.stringify(data) });
-  }
-
-  invokeAgent(agentName, projectId, input, context) {
-    return this.request(`/agents/${agentName}/invoke`, {
-      method: "POST",
-      body: JSON.stringify({ projectId, input, context })
-    });
-  }
-
-  evaluate(agentName, output, context) {
-    return this.request("/evaluate", {
-      method: "POST",
-      body: JSON.stringify({ agentName, output, context })
-    });
-  }
-}
 
 // ============================================================================
 // COMPONENTS
@@ -535,28 +480,5 @@ export default function App() {
     );
   }
 
-  return (
-    <div className="app">
-      <Header />
-      <div className="main-layout">
-        <PhasesSidebar phases={phases} selectedPhase={selectedPhase} onPhaseSelect={setSelectedPhase} />
-        <div className="content">
-          <div className="top-section">
-            <ProjectsContent
-              projects={projects}
-              onCreateProject={handleCreateProject}
-              onSelectProject={handleSelectProject}
-              loading={loading}
-            />
-            <AgentInvokePanel api={api} agents={agents} projects={projects} onEvaluated={handleEvaluated} />
-          </div>
-          <div className="bottom-section">
-            <AgentStatus agents={agents} evaluations={evaluations} />
-            <QualityDashboard evaluations={evaluations} />
-            <BrainPanel project={selectedProjectDetail} />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  return <CommandCenterLayout header={<Header />} api={api} agents={agents} phases={phases} />;
 }

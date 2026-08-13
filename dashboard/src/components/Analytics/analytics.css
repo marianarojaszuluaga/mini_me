@@ -1,0 +1,275 @@
+/* Analytics drill-down — no chart library, plain divs + CSS per project
+   constraints (dashboard/package.json has no chart dependency). Uses only
+   design tokens from design-tokens.css (--ds-*, --space-*, --radius-*,
+   --shadow-*, --cat-*), no new hardcoded colors. */
+
+.analytics-drilldown {
+  font-family: var(--font-sans);
+  color: hsl(var(--ds-gray-1000));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8x);
+}
+
+.analytics-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.analytics-header h1 {
+  font-size: 20px;
+  margin: 0;
+}
+
+.analytics-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3x);
+  padding-top: var(--space-4x);
+  border-top: 1px solid hsl(var(--ds-gray-200));
+}
+
+.analytics-section-p0 .analytics-section-title {
+  font-size: 18px;
+}
+
+.analytics-section-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.analytics-subtitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: hsl(var(--ds-gray-800));
+  margin: var(--space-2x) 0 0;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.analytics-note {
+  font-size: 13px;
+  color: hsl(var(--ds-gray-800));
+  background: hsl(var(--ds-gray-100));
+  border-radius: var(--radius-base);
+  padding: var(--space-3x);
+}
+
+.analytics-note-inline {
+  font-size: 12px;
+  color: hsl(var(--ds-gray-700));
+}
+
+.analytics-note-error {
+  color: hsl(var(--ds-red-900));
+  background: hsl(var(--ds-red-100));
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-3x);
+}
+
+.metric-tile {
+  background: hsl(var(--ds-background-100));
+  border-radius: var(--radius-material-medium);
+  box-shadow: var(--shadow-border-base);
+  overflow: hidden;
+}
+
+.metric-tile-red { box-shadow: var(--shadow-border-base), inset 3px 0 0 hsl(var(--ds-red-700)); }
+.metric-tile-green { box-shadow: var(--shadow-border-base), inset 3px 0 0 hsl(var(--ds-green-700)); }
+
+.metric-tile-trigger {
+  all: unset;
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  padding: var(--space-4x);
+  cursor: pointer;
+}
+
+.metric-tile-trigger:disabled {
+  cursor: default;
+}
+
+.metric-tile-value {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.metric-tile-label {
+  font-size: 13px;
+  color: hsl(var(--ds-gray-800));
+  margin-top: var(--space-1x);
+}
+
+.metric-tile-sublabel {
+  font-size: 12px;
+  color: hsl(var(--ds-gray-700));
+}
+
+.metric-tile-hint {
+  font-size: 11px;
+  color: hsl(var(--ds-blue-800));
+  margin-top: var(--space-2x);
+}
+
+.metric-tile-detail {
+  border-top: 1px solid hsl(var(--ds-gray-200));
+  padding: var(--space-3x);
+  background: hsl(var(--ds-gray-100));
+}
+
+.analytics-raw-events {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2x);
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.analytics-raw-event {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: hsl(var(--ds-background-100));
+  border-radius: var(--radius-base);
+  padding: var(--space-2x);
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.bar-track {
+  flex: 1 1 auto;
+  height: 8px;
+  border-radius: 4px;
+  background: hsl(var(--ds-gray-200));
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 4px;
+}
+
+.agent-quality-card {
+  background: hsl(var(--ds-background-100));
+  border-radius: var(--radius-material-medium);
+  box-shadow: var(--shadow-border-base);
+  padding: var(--space-4x);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2x);
+}
+
+.agent-quality-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.agent-quality-dim {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2x);
+  font-size: 12px;
+}
+
+.agent-quality-dim-label {
+  width: 90px;
+  color: hsl(var(--ds-gray-800));
+}
+
+.agent-quality-dim-value {
+  width: 32px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.before-after-card {
+  background: hsl(var(--ds-background-100));
+  border-radius: var(--radius-material-medium);
+  box-shadow: var(--shadow-border-base);
+  padding: var(--space-4x);
+  font-size: 13px;
+}
+
+.before-after-grid {
+  margin-top: var(--space-2x);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--space-2x);
+}
+
+.before-after-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: hsl(var(--ds-gray-800));
+}
+
+.weekly-trend {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2x);
+}
+
+.weekly-trend-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3x);
+  font-size: 12px;
+}
+
+.weekly-trend-label {
+  width: 110px;
+  color: hsl(var(--ds-gray-800));
+  flex: 0 0 auto;
+}
+
+.weekly-trend-value {
+  width: 32px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.changelog-entry {
+  background: hsl(var(--ds-background-100));
+  border-radius: var(--radius-material-medium);
+  box-shadow: var(--shadow-border-base);
+  padding: var(--space-4x);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2x);
+  margin-bottom: var(--space-3x);
+}
+
+.changelog-entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.changelog-entry-what {
+  font-size: 13px;
+}
+
+.changelog-status {
+  font-size: 11px;
+  text-transform: uppercase;
+  padding: 2px var(--space-2x);
+  border-radius: var(--radius-base);
+  background: hsl(var(--ds-gray-200));
+  color: hsl(var(--ds-gray-900));
+}
+
+.changelog-status-approved,
+.changelog-status-measured {
+  background: hsl(var(--ds-green-200));
+  color: hsl(var(--ds-green-900));
+}
