@@ -3,32 +3,26 @@
 > de los fixes ya aplicados en esa misma ronda (BUG-001/002/003/004/007/008/010/011/012/013 ya
 > están Fixed y verificados — no se repiten aquí).
 
-## P0 — Bloquea que la reconciliación sirva de algo con HUs reales
+## P0 — ✅ Resuelto (2026-08-13) — reconciliación funcional con HUs reales
 
-**Hallazgo nuevo, no estaba en el defect log**: `app/services/brain/reconciliation.py` parsea
-Acceptance Criteria buscando checkboxes `- [ ]`, pero el formato **canónico de Gimena**
-(`src/agents/spec-kit-agents/Gimena-userstorywriter.md`, el que realmente generó
-`outputs/HU_RUN-001_2026-08-12.md`) nunca usa checkboxes — usa subsecciones numeradas
-(`2.1 Interfaz y Experiencia`, `2.2 Casos de Uso`, `2.3 Manejo de Errores`). Resultado: contra
-cualquier HU real generada por Gimena, el motor siempre devuelve `no_reconciliable` para las 10
-HUs (confirmado en T-RECON-02) — la reconciliación está "implementada" pero es **funcionalmente
-inútil** hoy.
+`app/services/brain/reconciliation.py` ahora parsea las subsecciones reales de Gimena
+(`2.1`/`2.2`/`2.3`, bullets + filas de tabla de errores) en vez de checkboxes que nunca existían.
+Verificado en vivo: `POST /projects/{id}/reconciliation/run` contra este repo produjo **98 ACs
+reales** (antes: 10 `no_reconciliable` en bloque), 0 `no_reconciliable`. La misma convención
+quedó documentada en `qa/QA-EXECUTION-TEMPLATE.md`.
 
-- [ ] Redefinir la unidad reconciliable: en vez de un checkbox, usar cada bullet dentro de
-  `2.1`/`2.2`/`2.3` (o cada fila de la tabla de "Manejo de Errores") como el AC individual.
-- [ ] Actualizar la convención de vínculo `@ac:HU-XXX-N` para que N se numere contra esas
-  subsecciones reales, no contra checkboxes que no existen.
-- [ ] Re-correr `POST /projects/{id}/reconciliation/run` contra este mismo repo (que ya tiene
-  HUs reales) y confirmar que produce al menos un gap/status distinto de `no_reconciliable` en
-  todas las 10.
+## P1 — ✅ Resuelto — gaps de producto (HU-008) y limitación de ambiente
 
-## P1 — Gaps de producto (HU-008) y limitación de ambiente
-
-- [ ] **GAP-005**: construir el detector "2 invocaciones seguidas bajo umbral" y conectarlo a
-  `changelog.create_proposal()` — hoy nada lo dispara automáticamente (HU-008 AC 2.1.3).
-- [ ] **ENV-006**: no es un bug — cuando decidas poner una `ANTHROPIC_API_KEY` real, re-ejecutar
-  T-ANALYTICS-08/09/10 y HU-008 en general para confirmar en vivo (hoy solo verificado por
-  lectura de código).
+- [x] **GAP-005**: el detector "2 invocaciones seguidas bajo umbral" (`check_degradation` en
+  `evaluate_invocation.py`) ya está conectado a `changelog.create_proposal()`. Verificado en vivo
+  2026-08-13: se sembraron 2 evaluaciones bajas reales para un agente de prueba vía
+  `collector.record_evaluation()`, y `check_degradation()` devolvió `True` correctamente (y
+  `False` para una dimensión sin racha baja) — confirma que la lógica de "estrictamente 2
+  consecutivas" funciona con datos reales, no solo por lectura de código. Datos de prueba
+  limpiados de `storage/` después (que de todos modos está en `.gitignore`).
+- [x] **ENV-006**: ya no es una limitación — se conectó una `ANTHROPIC_API_KEY` real (proxy
+  LiteLLM de Mariana, `admin-llm.imagineapps.co`, modelo `claude-sonnet-4-6`), probada en vivo con
+  una llamada real a `messages.create` que devolvió una respuesta real.
 
 ## P2 — Backend feature real faltante (no un parche de UI)
 

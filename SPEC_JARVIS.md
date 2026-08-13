@@ -683,7 +683,16 @@ confiando en los resúmenes de los 3 trabajos paralelos:
   referencias en código (`App.jsx`, `dashboard/src`); solo aparece en la nota de decisión de este mismo
   archivo (línea ~94) y en los documentos históricos de QA. Confirmado también en el DOM real renderizado
   (`document.body.innerHTML` sin match de `AgentInvokePanel`/"Invocar Agente").
-- **No verificado en esta ronda (limitación de ambiente, no fabricado)**: `ANTHROPIC_API_KEY` sigue
-  siendo el placeholder del `.env`, así que no pude re-ejercitar HU-008 (auto-evaluación en vivo) ni
-  GAP-005 (detector de 2 invocaciones bajas) — siguen en el estado descrito en
-  `qa/CORRECTIONS-PLAN-2026-08-13.md` P1, sin cambios de esta verificación.
+- **ENV-006 y GAP-005 — RESUELTOS (2026-08-13, ronda posterior).** Se conectó una
+  `ANTHROPIC_API_KEY` real (proxy LiteLLM de Mariana, `admin-llm.imagineapps.co`, modelo
+  `claude-sonnet-4-6`), probada en vivo con una llamada real que devolvió respuesta real —
+  `ANTHROPIC_BASE_URL` nuevo en `Settings`, usado por los 6 sitios donde se instancia
+  `AsyncAnthropic`/`AgentEvaluator` (antes fijos a la API directa de Anthropic). Todos los modelos
+  hardcodeados (`claude-3-5-sonnet-20241022`, `claude-3-5-haiku-20241022`) se unificaron a
+  `claude-sonnet-4-6` — la key de Mariana solo tiene acceso a ese modelo, así que el tier
+  barato/caro de `agent_registry.py` queda colapsado hasta que haya una key con más alcance o se
+  conecte un segundo proveedor (DeepSeek, mencionado pero bloqueado por una key inválida en el
+  proxy — pendiente de que Mariana la regenere). `check_degradation()` (GAP-005) verificado en
+  vivo: sembradas 2 evaluaciones bajas reales, devolvió `True`; una tercera evaluación (buena)
+  reseteó la racha correctamente — la conexión a `changelog.create_proposal()` ya estaba en el
+  código de una ronda anterior, solo faltaba probarla con datos reales.
