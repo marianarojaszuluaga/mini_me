@@ -624,8 +624,8 @@ en `openapi.json` (confirmado comparando la lista real contra §6.5 de `ARCHITEC
 | HU | Estado | Nota |
 |---|---|---|
 | HU-001/002-JarvisMode (multi-repo) | 🟡 Esqueleto real | Adaptadores GitHub/Bitbucket con `httpx` real (no mocks); falta ejercitarlos contra un repo real y el flujo de Auth Profiles con SSO de Google (§11) |
-| HU-003-JarvisMode (sync programada) | 🔴 No implementado | `sync_scheduler.py` (cron/APScheduler) no se construyó en esta ronda |
-| HU-004-JarvisMode (reconciliación) | 🟡 Versión simplificada | Chequeo actual: ¿el ID de la HU se menciona en el timeline? — no es todavía el matching real contra tests vía adaptadores de repo que pide el spec |
+| HU-003-JarvisMode (sync programada) | 🟢 Implementado | `app/cron/sync_scheduler.py` — `sync_now()` on-demand + `start_scheduler()` con APScheduler (`hour="7-19/3"`), corre al iniciar la app. Watermark: usa `lastSyncAt` del repo, o ventana de 24h si nunca sincronizó |
+| HU-004-JarvisMode (reconciliación) | 🟢 Implementado (matching real) | Parsea `backlog.md` + `outputs/*.md` (formato real de Gimena), unidad = Acceptance Criteria individual, busca `# @ac:HU-XXX-N` / `// @ac:HU-XXX-N` en archivos de test vía los adaptadores de repo. Sin CI conectado: estado `con_test_sin_resultado`, nunca inventa pass/fail |
 | HU-005-JarvisMode (timeline) | 🟢 Implementado | `GET /projects/{id}/timeline` |
 | HU-006-JarvisMode (Jarvis Chat) | 🟢 Implementado | Loop agéntico completo con las 5 herramientas, versionado de sesión por límite de contexto (umbral 120k tokens, marcado para calibrar) |
 | HU-007-JarvisMode (Memoria de Mar) | 🟢 Implementado | Dedup por similitud Jaccard (umbral 0.6, marcado para calibrar) |
@@ -633,9 +633,15 @@ en `openapi.json` (confirmado comparando la lista real contra §6.5 de `ARCHITEC
 | HU-009-JarvisMode (changelog de mejoras) | 🔴 No implementado | |
 | HU-010-JarvisMode (Analítica) | 🟡 Parcial | 4 series expuestas (`/metrics/*`) + `/metrics/summary`; falta el drill-down a eventos crudos desde cada número |
 | Auth Profiles (§6.2) | 🟢 CRUD implementado | Falta resolver la investigación de SSO de Google antes de que el flujo de conexión sea real |
-| Reescritura completa a Python/FastAPI (§8.0) | 🟡 En curso | El MAP base (agents/phases/projects/evaluate/orchestrate) ya migró; el Orchestrator (`orchestrator.js` — toolchains/workflows) todavía no se ha portado |
+| Reescritura completa a Python/FastAPI (§8.0) | 🟢 Completa (MAP + Orchestrator) | El Orchestrator (`orchestrator.js` original: `toolRegistry`, `/toolchain/execute`, `/workflows`, `/system/state`) migró bajo el prefijo `/orchestrator/*` — 9 rutas verificadas, `GET /orchestrator/tools` responde con el tool `map` real |
 
-**No migrado todavía**: el `orchestrator.js` original (Master Orchestrator — `toolRegistry`,
-`/toolchain/execute`, `/workflows`) no forma parte de este primer esqueleto. Es trabajo pendiente
-de una próxima ronda, no un olvido — el foco de esta ronda fue el MAP + las piezas nuevas de
-Jarvis Mode.
+**Verificado por mí (2026-08-13)**, no solo por el reporte de los agentes: reinstalé dependencias
+(`apscheduler` incluido), arranqué `uvicorn` de nuevo, confirmé `/health` y `/orchestrator/tools`
+respondiendo con datos reales.
+
+**Nota operativa real encontrada** (no es un bug de código, es un detalle de despliegue a
+recordar): `MAP_URL` se autocalcula como `http://localhost:{PORT}` desde `Settings.PORT` (default
+heredado de Node: 3001) cuando no se fija explícitamente. Si se arranca `uvicorn` con un puerto
+distinto vía `--port` sin también fijar la env var `PORT` al mismo valor, el Orchestrator
+llamaría al puerto equivocado al invocarse a sí mismo. Recordar fijar `PORT` en `.env`/entorno de
+despliegue igual al puerto real donde corre el servicio.

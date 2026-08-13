@@ -12,7 +12,18 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import get_settings
-from app.routers import agents, brain, health, jarvis_chat, mar_memory, metrics, projects, repositories
+from app.cron.sync_scheduler import start_scheduler
+from app.routers import (
+    agents,
+    brain,
+    health,
+    jarvis_chat,
+    mar_memory,
+    metrics,
+    orchestrator,
+    projects,
+    repositories,
+)
 
 settings = get_settings()
 
@@ -56,6 +67,22 @@ app.include_router(brain.router)
 # metrics.py: /metrics/* — Analytics/Metrics read surface
 # (ARCHITECTURE_JARVIS.md §4/§7, HU-008/009/010-JarvisMode) — behind auth.
 app.include_router(metrics.router)
+
+# orchestrator.py: Master Orchestrator — /tools, /tools/{name},
+# /tools/{tool}/{action}, /toolchain/execute, /workflows, /workflows/{id}/execute,
+# /system/state, /health — migrated from src/orchestrator.js, mounted under
+# /orchestrator (matching how the Node app was reached via a rewrite from
+# /orchestrator/(.*)). No auth dependency, same as today's src/orchestrator.js
+# behavior for these routes.
+app.include_router(orchestrator.router, prefix="/orchestrator")
+
+
+# HU-003-JarvisMode: Project Brain scheduled sync (app/cron/sync_scheduler.py)
+# — every 3h between 7am-7pm, on top of the chat-session-start trigger wired
+# separately in jarvis_chat.
+@app.on_event("startup")
+async def _start_brain_sync_scheduler() -> None:
+    start_scheduler()
 
 
 if __name__ == "__main__":
