@@ -21,6 +21,7 @@ from app.routers import (
     jarvis_chat,
     mar_memory,
     metrics,
+    oauth,
     orchestrator,
     projects,
     repositories,
@@ -60,6 +61,14 @@ app.include_router(jarvis_chat.router)
 # repositories.py: /auth-profiles, /projects/{id}/repositories — repo
 # connections + Auth Profiles (SPEC_JARVIS.md §6.1/§6.2) — behind auth.
 app.include_router(repositories.router)
+
+# oauth.py: GET /auth-profiles/oauth/{provider}/start|callback — real OAuth
+# Authorization Code flow (SPEC_JARVIS.md §11, resolved 2026-08-14). NOT
+# behind the Bearer-auth dependency (browser top-level redirects can't carry
+# it) — /start authenticates via ?app_key= instead, /callback is the
+# provider's own redirect and needs no app auth at all (state param is the
+# CSRF guard).
+app.include_router(oauth.router)
 
 # brain.py: /projects/{id}/timeline, /projects/{id}/reconciliation[/run] —
 # Project Brain timeline + reconciliation (ARCHITECTURE_JARVIS.md §5) — behind auth.

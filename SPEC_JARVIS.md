@@ -600,12 +600,34 @@ filesystem/Redis intercambiable, así que la migración no debería tocar lógic
 
 ## 11. Pendientes técnicos (no son preguntas para Mar — son tareas de preparación antes/durante la implementación)
 
-- **Investigar el flujo real de Auth Profiles con SSO de Google**: la cuenta `@imagineapps.co` de
-  Mar entra vía SSO de Google, no usuario/contraseña propio — hay que confirmar en Fase 2
-  (Backend) si eso significa "conectar con Google" en vez de "conectar con GitHub/Bitbucket"
-  directamente para ese perfil, y si la org de Bitbucket de Imagine Apps fuerza SSO (§6.2).
-- **Registrar o localizar las credenciales de OAuth App** (GitHub/Bitbucket) antes de poder
-  implementar Auth Profiles — Mar no tiene esa respuesta today, es tarea de Fase 2.
+- ~~Investigar el flujo real de Auth Profiles con SSO de Google~~ / ~~Registrar credenciales de
+  OAuth App~~ — **Resuelto en código (2026-08-14), pendiente de credenciales reales de Mariana.**
+  Respuesta de Mariana a "¿SSO de Google o OAuth directo?": **"AMBOS"** — implementado un flujo
+  real de Authorization Code para **los tres** proveedores en paralelo (GitHub, Bitbucket, Google),
+  no uno en vez del otro. Nuevo `app/routers/oauth.py`:
+  `GET /auth-profiles/oauth/{provider}/start` (redirige a la pantalla real de login/consentimiento
+  del proveedor; autentica por `?app_key=` ya que una navegación de nivel superior no puede llevar
+  el header `Authorization`) y `GET /auth-profiles/oauth/{provider}/callback` (intercambia el
+  `code` real por un token vía `httpx`, resuelve la identidad real de la cuenta, y hace upsert de
+  un `AuthProfile` con `auth_method="oauth"`). `AuthProfile` ahora separa `access_token`/
+  `refresh_token` (nunca expuestos por `GET /auth-profiles` — `to_public_dict()` los excluye) del
+  `token_ref` del formulario manual, que sigue existiendo como fallback (ej. Basecamp, que no tiene
+  OAuth App). Los adaptadores de GitHub/Bitbucket ahora resuelven el token real de un
+  `AuthProfile` OAuth en vez de solo leer una env var por nombre.
+  **Verificado en vivo real** (no solo `py_compile`): con `GITHUB_OAUTH_CLIENT_ID/SECRET` sin
+  configurar (todavía no los tenemos), el botón real "Conectar con GitHub" del dashboard navega de
+  verdad a `http://localhost:3001/auth-profiles/oauth/github/start` y el backend responde un `501`
+  real y explícito (`"OAuth App for 'github' is not configured yet..."`) — no un éxito fingido.
+  `app_key` inválido → `403` real. `GET /auth-profiles` confirmado sin `access_token`/
+  `refresh_token` en el JSON de respuesta.
+  **Acción pendiente de Mariana** (bloqueante solo para probar el flujo completo, no para el
+  código): registrar 3 OAuth Apps reales — GitHub OAuth App, Bitbucket OAuth consumer, Google
+  OAuth 2.0 Client — cada uno con su callback apuntando a
+  `{BACKEND_PUBLIC_URL}/auth-profiles/oauth/{provider}/callback` (`BACKEND_PUBLIC_URL` nueva en
+  `Settings`, hoy `http://localhost:3001` por default) y pasarme los 6 valores
+  (`GITHUB_OAUTH_CLIENT_ID/SECRET`, `BITBUCKET_OAUTH_CLIENT_ID/SECRET`,
+  `GOOGLE_OAUTH_CLIENT_ID/SECRET`) para conectarlos y volver a verificar en vivo con un login real,
+  igual que se hizo con la key de DeepSeek.
 - ~~Retención de conversaciones del chat~~ — **Reinterpretado y resuelto (2026-08-14).** Mariana
   pidió, en vez de una política de expiración: "obligame a comenzar y terminar de forma digital
   en el programa" — el chat ahora fuerza un inicio y un cierre deliberados, en vez de dejar

@@ -4,9 +4,28 @@ import DrillDown from "../CommandCenter/DrillDown.jsx";
 
 const STORAGE_KEY = "ORQ_APP_KEY";
 
+// Providers with a real OAuth App wired up server-side (app/routers/oauth.py).
+// "basecamp" has no OAuth App registered yet — stays manual-only below.
+const OAUTH_PROVIDERS = [
+  { id: "github", label: "GitHub" },
+  { id: "bitbucket", label: "Bitbucket" },
+  { id: "google", label: "Google (SSO)" }
+];
+
 function defaultApi() {
   const key = localStorage.getItem(STORAGE_KEY);
   return key ? new ApiClient(key) : null;
+}
+
+function readOAuthRedirectResult() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("integrations") !== "oauth") return null;
+  return {
+    status: params.get("status"),
+    provider: params.get("provider"),
+    account: params.get("account"),
+    reason: params.get("reason")
+  };
 }
 
 /**
@@ -32,6 +51,7 @@ export default function IntegrationsDrillDown({ open, onClose, api: apiProp }) {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ provider: "github", account: "", scope: "" });
   const [busy, setBusy] = useState(false);
+  const [oauthResult, setOauthResult] = useState(readOAuthRedirectResult);
 
   const load = async () => {
     if (!api) {
@@ -51,6 +71,35 @@ export default function IntegrationsDrillDown({ open, onClose, api: apiProp }) {
     if (open) load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
+
+  useEffect(() => {
+    // Consume the ?integrations=oauth&... query params left by the backend's
+    // redirect (app/routers/oauth.py's oauth_callback) exactly once, so a
+    // page refresh doesn't keep re-showing "conectado" — and refresh the
+    // profile list so the new OAuth-created Auth Profile shows up.
+    if (!oauthResult) return;
+    if (oauthResult.status === "success") load();
+    const url = new URL(window.location.href);
+    url.searchParams.delete("integrations");
+    url.searchParams.delete("status");
+    url.searchParams.delete("provider");
+    url.searchParams.delete("account");
+    url.searchParams.delete("reason");
+    window.history.replaceState({}, "", url.toString());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleConnectOAuth = (providerId) => {
+    if (!api) {
+      setError("No hay sesión activa.");
+      return;
+    }
+    // Real Authorization Code flow — top-level navigation so the provider's
+    // own login/consent screen can render (can't be done via XHR/fetch).
+    // The app's Bearer token can't travel on a browser redirect, so it goes
+    // as ?app_key= instead (checked server-side in oauth.py's oauth_start).
+    window.location.href = `${api.baseUrl}/auth-profiles/oauth/${providerId}/start?app_key=${encodeURIComponent(api.apiKey)}`;
+  };
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -74,20 +123,41 @@ export default function IntegrationsDrillDown({ open, onClose, api: apiProp }) {
           <h2>🔌 Integraciones</h2>
         </div>
 
-        <div className="flag">
-          ⚠️ OAuth real (SSO de Google, etc.) está pendiente de investigación
-          (SPEC_JARVIS.md §11) — este formulario es un stand-in manual mientras
-          tanto, no un flujo de autenticación real.
-        </div>
+        {oauthResult?.status === "success" && (
+          <div className="flag flag-success">
+            ✅ Conectado: {oauthResult.provider} — {oauthResult.account}
+          </div>
+        )}
+        {oauthResult?.status === "error" && (
+          <div className="flag">⚠️ No se pudo conectar ({oauthResult.reason || "error desconocido"}).</div>
+        )}
 
         {error && <div className="flag">⚠️ {error}</div>}
+
+        <div className="pd-subsection">
+          <div className="pd-subsection-header">
+            <h3>Conectar con OAuth real</h3>
+          </div>
+          <div className="pd-oauth-buttons">
+            {OAUTH_PROVIDERS.map((p) => (
+              <button key={p.id} className="btn-primary" onClick={() => handleConnectOAuth(p.id)}>
+                Conectar con {p.label}
+              </button>
+            ))}
+          </div>
+          <p className="pd-meta">
+            Cada botón redirige a la pantalla de login/consentimiento real del proveedor. Si el
+            OAuth App de ese proveedor no está configurado todavía en el backend, el proveedor
+            devuelve un error explícito en vez de fingir éxito.
+          </p>
+        </div>
 
         <div className="pd-subsection">
           <div className="pd-subsection-header">
             <h3>Auth Profiles {profiles ? `(${profiles.length})` : ""}</h3>
             {!showForm && (
               <button className="btn-primary" onClick={() => setShowForm(true)}>
-                + Nuevo Auth Profile
+                + Nuevo Auth Profile manual
               </button>
             )}
           </div>
@@ -104,6 +174,7 @@ export default function IntegrationsDrillDown({ open, onClose, api: apiProp }) {
                     <span className="eval-agent">
                       {p.provider} — {p.account}
                     </span>
+                    <span className="pd-meta">{p.auth_method === "oauth" ? "OAuth real" : "manual"}</span>
                   </div>
                   {p.scope && <div className="pd-meta">Scope: {p.scope}</div>}
                 </div>

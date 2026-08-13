@@ -19,7 +19,7 @@ from fastapi import APIRouter, Body, Depends, HTTPException
 from app.core.security import authenticate_token
 from app.core.storage import get_storage
 from app.cron.sync_scheduler import sync_one_repository
-from app.schemas.auth_profile import AuthProfile, AuthProfileCreateRequest
+from app.schemas.auth_profile import AuthProfileCreateRequest
 from app.schemas.project import Repository
 from app.services import auth_profiles
 from app.services.repositories import get_adapter
@@ -42,13 +42,15 @@ def _find_project(projects: list[dict[str, Any]], project_id: str) -> dict[str, 
 
 
 @router.get("/auth-profiles")
-async def list_auth_profiles() -> list[AuthProfile]:
-    return auth_profiles.list_auth_profiles()
+async def list_auth_profiles() -> list[dict[str, Any]]:
+    # to_public_dict() strips access_token/refresh_token — real OAuth tokens
+    # (app/routers/oauth.py) must never leave the server (SPEC_JARVIS.md §11).
+    return [p.to_public_dict() for p in auth_profiles.list_auth_profiles()]
 
 
 @router.post("/auth-profiles", status_code=201)
-async def create_auth_profile(body: AuthProfileCreateRequest) -> AuthProfile:
-    return auth_profiles.create_auth_profile(body)
+async def create_auth_profile(body: AuthProfileCreateRequest) -> dict[str, Any]:
+    return auth_profiles.create_auth_profile(body).to_public_dict()
 
 
 @router.delete("/auth-profiles/{profile_id}")

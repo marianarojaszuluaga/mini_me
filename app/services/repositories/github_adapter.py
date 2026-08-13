@@ -27,6 +27,10 @@ _API_BASE = "https://api.github.com"
 
 
 def _resolve_token(auth_profile: AuthProfile) -> str | None:
+    # OAuth-created profiles (app/routers/oauth.py) carry the real token
+    # directly — only the manual stand-in path resolves an env var by name.
+    if auth_profile.auth_method == "oauth" and auth_profile.access_token:
+        return auth_profile.access_token
     if not auth_profile.token_ref:
         return None
     return os.environ.get(auth_profile.token_ref)

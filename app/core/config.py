@@ -85,6 +85,24 @@ class Settings(BaseSettings):
     # open today, matching the Express app's bare `cors()`).
     FRONTEND_URL: str = "http://localhost:5173"
 
+    # Real OAuth Auth Profiles (SPEC_JARVIS.md §11, resolved 2026-08-14):
+    # each provider needs an OAuth App registered by Mariana (GitHub OAuth
+    # App, Bitbucket OAuth consumer, Google OAuth 2.0 client) with its
+    # callback pointed at {BACKEND_PUBLIC_URL}/auth-profiles/oauth/{provider}/callback.
+    # Left unset by default — app/routers/oauth.py returns a clear 501 per
+    # provider until its pair is configured, same "real key when she has it"
+    # pattern as DEEPSEEK_API_KEY.
+    GITHUB_OAUTH_CLIENT_ID: str | None = None
+    GITHUB_OAUTH_CLIENT_SECRET: str | None = None
+    BITBUCKET_OAUTH_CLIENT_ID: str | None = None
+    BITBUCKET_OAUTH_CLIENT_SECRET: str | None = None
+    GOOGLE_OAUTH_CLIENT_ID: str | None = None
+    GOOGLE_OAUTH_CLIENT_SECRET: str | None = None
+    # Public URL of THIS backend (not the frontend) — used to build the
+    # OAuth callback redirect_uri sent to each provider. Defaults to local
+    # dev; must be the real deployed backend URL in production.
+    BACKEND_PUBLIC_URL: str = "http://localhost:3001"
+
     @property
     def environment(self) -> str:
         """Resolved environment name: ENVIRONMENT if set, else NODE_ENV."""

@@ -627,6 +627,17 @@ html, body {
   opacity: 0.9;
 }
 
+.flag-success {
+  color: hsl(var(--ds-green-700, 142 71% 30%));
+}
+
+.pd-oauth-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2x, 8px);
+  margin-bottom: var(--space-2x, 8px);
+}
+
 /* ============================================================================
    RESPONSIVE
    ============================================================================ */

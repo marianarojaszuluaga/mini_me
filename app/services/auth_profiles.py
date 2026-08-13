@@ -47,3 +47,43 @@ def delete_auth_profile(profile_id: str) -> bool:
         return False
     storage.write_auth_profiles(remaining)
     return True
+
+
+def upsert_oauth_profile(
+    provider: str,
+    account: str,
+    scope: str | None,
+    access_token: str,
+    refresh_token: str | None,
+    token_expires_at: str | None,
+) -> AuthProfile:
+    """Called by the OAuth callback (app/routers/oauth.py) after a real
+    token exchange. Upserts by (provider, account) instead of always
+    inserting — reconnecting the same GitHub/Bitbucket/Google account just
+    refreshes its token in place rather than piling up duplicate profiles."""
+    storage = get_storage()
+    profiles = storage.read_auth_profiles()
+
+    profile = AuthProfile(
+        id=_new_profile_id(provider),
+        provider=provider,
+        account=account,
+        scope=scope,
+        auth_method="oauth",
+        access_token=access_token,
+        refresh_token=refresh_token,
+        token_expires_at=token_expires_at,
+    )
+
+    existing_index = next(
+        (i for i, p in enumerate(profiles) if p.get("provider") == provider and p.get("account") == account),
+        None,
+    )
+    if existing_index is not None:
+        profile = profile.model_copy(update={"id": profiles[existing_index]["id"]})
+        profiles[existing_index] = profile.model_dump()
+    else:
+        profiles.append(profile.model_dump())
+
+    storage.write_auth_profiles(profiles)
+    return profile
