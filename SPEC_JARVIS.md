@@ -2,6 +2,8 @@
 > **Status**: Draft para aprobación — sin código todavía
 > **Creado**: Agosto 2026
 > **Depende de**: `SPEC.md` (Orquestrador 360 base — MAP + Orchestrator + 22 agentes + 5 fases)
+> **Elaboración técnica**: ver [`ARCHITECTURE_JARVIS.md`](ARCHITECTURE_JARVIS.md) — mapa contra
+> `src/` actual, secuencias del loop de chat, adaptadores de repo, reconciliación.
 > **Nombres**: "Jarvis" = "mini me" = "Orquestrador 360" — es el mismo sistema, tres nombres
 > según el momento (visión / repo original / nombre técnico del producto).
 
