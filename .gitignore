@@ -7,3 +7,9 @@ dashboard/dist/
 .vercel/
 
 .vercel
+
+# Python (Jarvis Mode backend, app/)
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
