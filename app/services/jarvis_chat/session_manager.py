@@ -106,7 +106,35 @@ def open_or_resume(
     session = get_session(conversation_id)
     if session is None:
         raise LookupError(f"Unknown conversation_id: {conversation_id}")
+    if session.status == "closed":
+        raise ValueError(
+            f"conversation_id {conversation_id} is closed — start a new session "
+            "(POST /jarvis/chat with conversation_id omitted and a purpose) instead "
+            "of resuming a closed one"
+        )
     return session
+
+
+def close_session(conversation_id: str) -> ChatSession:
+    """Explicit user-driven close (SPEC_JARVIS.md §11 — sessions must be
+    opened/closed deliberately in the UI, not just cut by context-limit
+    versioning). Idempotent: closing an already-closed session just returns
+    it unchanged rather than erroring, since the frontend's "end session"
+    action shouldn't fail on a double-click or a stale tab."""
+    sessions = _load_all()
+    session = get_session(conversation_id)
+    if session is None:
+        raise LookupError(f"Unknown conversation_id: {conversation_id}")
+    if session.status == "closed":
+        return session
+
+    closed = session.model_copy(update={"status": "closed", "closed_at": _now_iso()})
+    for i, raw in enumerate(sessions):
+        if raw.get("id") == closed.id:
+            sessions[i] = closed.model_dump()
+            break
+    _save_all(sessions)
+    return closed
 
 
 def _summarize_for_resumption(session: ChatSession) -> str:

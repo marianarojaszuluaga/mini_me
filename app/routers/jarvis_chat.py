@@ -28,7 +28,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from app.core.config import Settings, get_settings
 from app.core.security import authenticate_token
 from app.core.storage import get_storage
-from app.schemas.chat import ChatRequest, ChatTurn, ChatTurnResponse, SourceCitation, ToolCallRecord
+from app.schemas.chat import ChatRequest, ChatSession, ChatTurn, ChatTurnResponse, SourceCitation, ToolCallRecord
 from app.services import mar_memory
 from app.services.jarvis_chat import session_manager
 from app.services.jarvis_chat.tools import TOOL_SCHEMAS, dispatch_tool
@@ -229,3 +229,15 @@ async def jarvis_chat(
         session_status="closed" if new_conversation_id else "open",
         new_conversation_id=new_conversation_id,
     )
+
+
+@router.post("/jarvis/chat/{conversation_id}/close")
+async def close_jarvis_chat(conversation_id: str) -> ChatSession:
+    """Explicit end-of-session action (SPEC_JARVIS.md §11): the dashboard's
+    "Terminar sesión" button hits this instead of just letting a session go
+    stale — the same deliberate-open/deliberate-close pattern as
+    session_manager.open_or_resume requiring `purpose` up front."""
+    try:
+        return session_manager.close_session(conversation_id)
+    except LookupError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error

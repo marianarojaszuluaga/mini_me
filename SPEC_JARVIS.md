@@ -606,9 +606,22 @@ filesystem/Redis intercambiable, así que la migración no debería tocar lógic
   directamente para ese perfil, y si la org de Bitbucket de Imagine Apps fuerza SSO (§6.2).
 - **Registrar o localizar las credenciales de OAuth App** (GitHub/Bitbucket) antes de poder
   implementar Auth Profiles — Mar no tiene esa respuesta today, es tarea de Fase 2.
-- **Retención de conversaciones del chat**: sin definir todavía si el historial de sesiones
-  cerradas (§6.6) se conserva indefinidamente o expira — no bloquea el diseño, se decide al
-  implementar el store de sesiones.
+- ~~Retención de conversaciones del chat~~ — **Reinterpretado y resuelto (2026-08-14).** Mariana
+  pidió, en vez de una política de expiración: "obligame a comenzar y terminar de forma digital
+  en el programa" — el chat ahora fuerza un inicio y un cierre deliberados, en vez de dejar
+  sesiones abiertas indefinidamente o cortadas solo por límite de contexto (§6.6 versionado por
+  tokens sigue existiendo, es un mecanismo aparte). Cambios: `session_manager.open_or_resume`
+  ahora rechaza reanudar un `conversation_id` con `status="closed"` (antes lo permitía
+  silenciosamente); nuevo `POST /jarvis/chat/{conversation_id}/close` (`session_manager.close_session`,
+  idempotente); `ChatPanel.jsx` ya no deriva el `purpose` del primer mensaje — exige una pantalla
+  de "dale un propósito a esta conversación" antes de habilitar el input, y agrega un botón
+  "Terminar sesión" siempre visible que llama al nuevo endpoint y bloquea el panel hasta que se
+  defina un propósito nuevo. Verificado en vivo con `uvicorn`+`vite` reales: `curl` confirmó que
+  postear a una sesión recién cerrada devuelve `400` con el mensaje explícito; en el navegador
+  real, "Iniciar sesión" → mensaje real respondido por `claude-sonnet-4-6` → "Terminar sesión" →
+  el panel vuelve a exigir un propósito nuevo antes de aceptar más texto. La retención en sí
+  (cuánto tiempo se guardan sesiones `closed`) sigue sin definirse — no bloquea nada, es limpieza
+  de storage a futuro, no parte de esta HU.
 - ~~Regenerar las HUs de §5 con Gimena~~ — **Resuelto** (RUN-001, 2026-08-12): generadas
   invocando el perfil canónico de Gimena dentro de la conversación, sin depender de la
   `ANTHROPIC_API_KEY` del `.env` (sigue falsa a propósito, no es un bloqueo real). Ver

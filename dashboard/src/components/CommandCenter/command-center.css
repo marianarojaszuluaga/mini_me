@@ -206,6 +206,51 @@
   cursor: not-allowed;
 }
 
+.chat-panel-toolbar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2x);
+  padding-bottom: var(--space-2x);
+  border-bottom: 1px solid hsl(var(--ds-gray-300));
+  margin-bottom: var(--space-2x);
+}
+
+.chat-panel-purpose {
+  font-size: 12px;
+  color: hsl(var(--ds-gray-700));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-end-button {
+  flex: 0 0 auto;
+  padding: var(--space-1x) var(--space-3x);
+  border-radius: var(--radius-material-small);
+  border: none;
+  box-shadow: var(--shadow-border-base);
+  background: hsl(var(--ds-background-100));
+  color: hsl(var(--ds-gray-900));
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.chat-end-button:disabled {
+  color: hsl(var(--ds-gray-500));
+  cursor: not-allowed;
+}
+
+.chat-history-empty {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* ---- DrillDown overlay ---- */
 
 .drilldown-backdrop {

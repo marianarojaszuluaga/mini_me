@@ -45,6 +45,15 @@ export default function ChatPanel({ api: apiProp } = {}) {
   const [conversationId, setConversationId] = useState(null);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState("");
+  // SPEC_JARVIS.md §11: sessions must start and end deliberately in the UI,
+  // not implicitly on the first/last message. `purposeDraft` is the pending
+  // "why are you opening this session" answer required before any message
+  // can be sent; `sessionEnded` locks the panel once "Terminar sesión" fires,
+  // forcing a fresh purpose (and thus a fresh conversation_id) to continue.
+  const [purposeDraft, setPurposeDraft] = useState("");
+  const [pendingPurpose, setPendingPurpose] = useState(null);
+  const [isEndingSession, setIsEndingSession] = useState(false);
+  const [sessionEnded, setSessionEnded] = useState(false);
   const scrollRef = useRef(null);
   const apiRef = useRef(null);
 
@@ -61,9 +70,39 @@ export default function ChatPanel({ api: apiProp } = {}) {
     }
   }, [messages, isSending]);
 
+  const handleStartSession = () => {
+    const purpose = purposeDraft.trim();
+    if (!purpose) return;
+    // Opening is itself deliberate — no message sent yet, no conversationId
+    // minted yet either. The first real POST /jarvis/chat (in handleSend)
+    // is what actually creates the session, carrying this purpose.
+    setSessionEnded(false);
+    setMessages([]);
+    setConversationId(null);
+    setPendingPurpose(purpose);
+    setPurposeDraft("");
+  };
+
+  const handleEndSession = async () => {
+    if (!conversationId || isEndingSession) return;
+    setIsEndingSession(true);
+    setError("");
+    try {
+      await apiRef.current.closeChatSession(conversationId);
+      setSessionEnded(true);
+      setConversationId(null);
+      setPendingPurpose(null);
+    } catch (err) {
+      setError(err.message || "Error al terminar la sesión.");
+    } finally {
+      setIsEndingSession(false);
+    }
+  };
+
   const handleSend = async () => {
     const text = input.trim();
-    if (!text || isSending) return;
+    if (!text || isSending || sessionEnded) return;
+    if (!conversationId && !pendingPurpose) return; // must start a session first
 
     const userMessage = { id: `u-${Date.now()}`, role: "user", text };
     setMessages((prev) => [...prev, userMessage]);
@@ -72,10 +111,11 @@ export default function ChatPanel({ api: apiProp } = {}) {
     setIsSending(true);
 
     try {
-      // BUG-004 fix: the backend requires `purpose` to open a brand-new
-      // session (no conversationId yet); the UI has no dedicated field for
-      // it, so the first message of a session doubles as its purpose.
-      const purpose = conversationId ? undefined : text;
+      // Purpose only travels on the message that actually opens the
+      // session (conversationId still null) — every later message on the
+      // same session must NOT resend it, since session_manager treats
+      // conversation_id + purpose as "open a new one".
+      const purpose = conversationId ? undefined : pendingPurpose;
       const response = await apiRef.current.sendChatMessage(conversationId, text, purpose);
       // Shape per app/schemas/chat.py ChatTurnResponse: { conversationId, version,
       // turn: { assistantMessage, sourcesCited, declaredUnknown }, sessionStatus,
@@ -116,8 +156,61 @@ export default function ChatPanel({ api: apiProp } = {}) {
     }
   };
 
+  const handlePurposeKeyDown = (event) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      handleStartSession();
+    }
+  };
+
+  // No active/pending session yet, or the previous one was explicitly ended
+  // — force naming a purpose before any message can go out.
+  if (!conversationId && pendingPurpose === null) {
+    return (
+      <div className="chat-panel">
+        <div className="chat-history chat-history-empty">
+          <div className="chat-empty-state">
+            {sessionEnded
+              ? "Sesión anterior terminada. Dale un propósito a la nueva conversación para empezar."
+              : "Antes de empezar, dale un propósito a esta conversación con Jarvis."}
+          </div>
+        </div>
+        {error && <div className="flag">⚠️ {error}</div>}
+        <div className="chat-input-row">
+          <textarea
+            className="chat-input"
+            value={purposeDraft}
+            onChange={(event) => setPurposeDraft(event.target.value)}
+            onKeyDown={handlePurposeKeyDown}
+            placeholder="Ej.: revisar el estado del sprint actual"
+            rows={2}
+          />
+          <button
+            type="button"
+            className="chat-send-button"
+            onClick={handleStartSession}
+            disabled={!purposeDraft.trim()}
+          >
+            Iniciar sesión
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="chat-panel">
+      <div className="chat-panel-toolbar">
+        <span className="chat-panel-purpose">Propósito: {pendingPurpose || "—"}</span>
+        <button
+          type="button"
+          className="chat-end-button"
+          onClick={handleEndSession}
+          disabled={!conversationId || isEndingSession}
+        >
+          {isEndingSession ? "Terminando..." : "Terminar sesión"}
+        </button>
+      </div>
       <div className="chat-history" ref={scrollRef}>
         {messages.length === 0 && (
           <div className="chat-empty-state">Pregúntale algo a Jarvis sobre tus proyectos.</div>

@@ -134,6 +134,10 @@ export default class ApiClient {
     });
   }
 
+  closeChatSession(conversationId) {
+    return this.request(`/jarvis/chat/${conversationId}/close`, { method: "POST" });
+  }
+
   // ---- new: Mar memory ----
 
   listMarMemory() {
