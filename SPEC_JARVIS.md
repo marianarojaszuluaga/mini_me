@@ -66,27 +66,46 @@ Jarvis Mode es la capa conversacional + de verdad + de memoria + de mejora, cons
 
 ## 2. Sitemap — organizado como Command Center, no como menú de páginas
 
+**Rediseño de IA (2026-08-14, resuelto vía mockup HTML revisado con Mariana antes de tocar
+código — ver HU-011-JarvisMode en §5).** El sitemap de abajo reemplaza el anterior: la marca pasa
+a **"Mar en internet"** (subtítulo: "Mini me with her smarts and AI"), "Hablar con Jarvis" deja de
+ser un ítem de navegación más y se vuelve el **call-to-action principal** del sidebar, y tres
+secciones cambian de comportamiento (Proyectos gana un flujo real de listado+creación+detalle,
+Analítica pasa a pantalla completa en vez de drill-down flotante, Memoria de Mar pasa a vista
+inline en vez de modal):
+
 ```
-🎯 Jarvis — Command Center                          ← ÚNICA pantalla de trabajo real
+🎯 Mar en internet — sidebar + vistas                ← navegación real, no un menú de páginas sueltas
 │
-├── 💬 Panel de Chat (persistente, mitad de la pantalla — NO es "otra sección")
-│   ├── Conversación multi-turno, con memoria de sesión
-│   ├── Sesiones con inicio y fin por tarea (ver §6.6 — "crear HUs" abre y cierra su propia
-│   │   sesión, no todo vive en un hilo infinito)
-│   └── Cada respuesta cita su fuente y puede disparar una actualización visible al instante
-│       en el Panel de Estado (misma pantalla, sin recargar ni navegar)
+├── [CTA] Hablar con Jarvis — botón destacado arriba del todo, no un ítem más de la lista
 │
-├── 📊 Panel de Estado (la otra mitad — se actualiza en vivo con lo que pasa en el chat)
-│   ├── Semáforo por proyecto (on-track / atención / bloqueado) — click → detalle
-│   ├── Top alertas de reconciliación abiertas (las más urgentes, no todas)
-│   └── Snapshot de las métricas clave del momento (uso de hoy, últimos gaps, calidad reciente)
+├── 💬 Vista: Jarvis Chat (default al abrir la app)
+│   ├── Conversación multi-turno, con memoria de sesión e inicio/fin explícitos (§6.6)
+│   ├── Panel de Estado visible al costado (métricas clave, alertas top) — no desaparece
+│   │   mientras chateás, solo se oculta cuando entrás a Analítica (ver abajo)
+│   └── Cada respuesta cita su fuente
 │
-└── Drill-downs (se abren desde un click en el Panel de Estado — nunca es el punto de partida)
-    ├── 📁 Detalle de Proyecto — fases y agentes, Project Brain (con Reconciliación),
-    │   Repositorios asociados, Timeline de actividad
-    ├── 📈 Analítica completa — todas las series de tiempo con drill-down a eventos crudos
-    ├── 🧠 Memoria de Mar — glosario vivo, preguntas abiertas, editable manualmente
-    └── 🔌 Integraciones — Auth Profiles (§6.2), repos conectados, Basecamp
+├── 📁 Vista: Proyectos (antes: solo un contador en el Panel de Estado)
+│   ├── Estado de lista: grid de tarjetas, una por proyecto — cada tarjeta muestra su propio
+│   │   estado (semáforo) y sus propias stats enfocadas (gaps, alertas, decisiones), no un
+│   │   número global. Incluye una tarjeta "+ Nuevo proyecto" en la misma grilla — crear un
+│   │   proyecto es una acción de esta vista, no algo que solo se pide por chat.
+│   └── Estado de detalle (drill-down real, click en una tarjeta): stats de ESE proyecto en
+│       grande, reconciliación reciente, repositorios asociados — vuelve a la grilla con un
+│       back-link, nunca te saca de la vista Proyectos hacia otra pantalla.
+│
+├── 📈 Vista: Analítica (antes: drill-down flotante encima del chat)
+│   └── Al entrar, la vista Jarvis Chat se cierra por completo (no queda detrás, no hay overlay)
+│       y el área principal entera pasa a mostrar todas las series/estadísticas. "Volver al chat"
+│       es la única forma de salir — refuerza que es un modo de lectura, no una capa flotante.
+│
+├── 🧠 Vista: Memoria de Mar (antes: modal)
+│   └── Vista propia, siempre visible al entrar (no un modal que tapa el resto) — entendimiento
+│       acumulado, preguntas abiertas y correcciones, con creación manual de entradas.
+│
+└── 🔌 Integraciones — se mantiene como modal (Auth Profiles §6.2, OAuth real §11) — es una
+    acción de configuración puntual, no un lugar donde se pasa tiempo, a diferencia de las
+    cuatro de arriba.
 ```
 
 **Decisión explícita (2026-08-13)**: se elimina el drill-down "Invocar Agente" (uso directo/manual
@@ -95,8 +114,10 @@ una alternativa más. El panel correspondiente (`AgentInvokePanel` en `App.jsx`)
 sin renderizar (QA T-DS-07) y fue borrado junto con esta referencia del sitemap.
 
 **Principio de UX**: nunca tienes que "ir a otro lado" para tomar una decisión — preguntas en el
-chat, ves la consecuencia en el Panel de Estado de la misma pantalla, y si necesitas el detalle
-completo de algo, se abre encima (drill-down), no te saca del Command Center.
+chat, ves la consecuencia en el Panel de Estado de la misma pantalla; Proyectos y Memoria de Mar
+son vistas de primera clase con su propio flujo, no cosas escondidas detrás de un modal; y
+Analítica es intencionalmente el único lugar que **sí** te saca del chat, porque leer 15 series de
+tiempo y sostener una conversación compiten por la misma atención.
 
 ---
 
@@ -274,6 +295,39 @@ Uso/Manejo de Errores, Referencia Visual): [`outputs/HU_RUN-001_2026-08-12.md`](
 | HU-008-JarvisMode | Autoevaluación multidimensional y continua | F5 — Autoevaluación |
 | HU-009-JarvisMode | Changelog de mejoras del sistema | F5 — Autoevaluación |
 | HU-010-JarvisMode | Panel de Analítica de negocio | F6 — Analítica |
+| HU-011-JarvisMode | Rediseño de IA — sidebar, CTA de Jarvis, Proyectos/Memoria de Mar como vistas, Analítica a pantalla completa | F7 — UX/Design system |
+
+**HU-011-JarvisMode — Criterios de Aceptación** (mockup HTML revisado con Mariana el 2026-08-14
+antes de implementar, ver §2 para el sitemap completo):
+
+- **2.1 — Interfaz**
+  1. El header del sidebar muestra "Mar en internet" como H1 y "Mini me with her smarts and AI"
+     como subtítulo, reemplazando "Orquestrador 360 / 19 agentes · 5 fases del SDLC".
+  2. "Hablar con Jarvis" es un botón destacado (color de acento, no gris neutro) arriba de las
+     secciones de navegación del sidebar — no un ítem más de la lista de navegación.
+  3. El banner degradado morado/azul del header se elimina por completo — no debe quedar ningún
+     `linear-gradient` en la navegación principal.
+  4. Ningún emoji se usa como ícono funcional en sidebar, chat, tarjetas o modales — todos los
+     íconos son SVG de línea del mismo set.
+- **2.2 — Casos de uso**
+  1. Entrar a "Proyectos" muestra un grid de tarjetas (una por proyecto, con su semáforo y sus
+     stats propias: gaps/alertas/decisiones) más una tarjeta "+ Nuevo proyecto" en la misma
+     grilla — crear un proyecto no requiere pasar primero por el chat.
+  2. Click en una tarjeta de proyecto abre el detalle de ESE proyecto dentro de la misma vista
+     Proyectos (stats en grande, reconciliación reciente, repos asociados) con un back-link a la
+     grilla — no navega a una URL/pantalla distinta ni abre un modal separado.
+  3. Entrar a "Analítica" oculta por completo la vista de Jarvis Chat (no queda un overlay ni un
+     panel residual) y expande el área principal a mostrar todas las estadísticas disponibles;
+     "Volver al chat" es la única acción que regresa a la vista de Chat.
+  4. Entrar a "Memoria de Mar" muestra sus entradas inline como vista propia (mismo tratamiento
+     que Proyectos/Analítica) — no se abre como modal/overlay.
+  5. "Integraciones" se mantiene como modal (no es una de las cuatro vistas de navegación
+     principal — ver §2 para la razón).
+- **2.3 — Manejo de errores / estados vacíos**
+  1. Un proyecto sin gaps/alertas/decisiones muestra `0` explícito en cada stat de su tarjeta, no
+     la tarjeta oculta ni un guion genérico.
+  2. La vista Proyectos sin proyectos todavía muestra solo la tarjeta "+ Nuevo proyecto" (sin un
+     grid vacío ni un mensaje de error).
 
 ---
 
@@ -683,6 +737,21 @@ filesystem/Redis intercambiable, así que la migración no debería tocar lógic
 ---
 
 ## 12. Avance de implementación (se actualiza según se construye, no solo al aprobar)
+
+**HU-011-JarvisMode (rediseño de IA) — 🟡 Mockup aprobado, código pendiente (2026-08-14).**
+Mariana reportó "el UI está super inconsistente" y pidió comparar contra el sistema Geist real
+(Figma) antes de tocar código — el Dev Mode MCP Server de Figma no estaba disponible en esta
+sesión (requiere la app de escritorio con Dev Mode habilitado), así que se usó `design-tokens.css`
+(ya extraído de Geist en una ronda anterior) como fuente de verdad en su lugar. Encontrado y
+confirmado como causa raíz de la inconsistencia: `dashboard/src/styles.css`'s `.btn-primary` está
+pintado en verde (`--ds-green-800`) y se reusa para navegación, creación y aprobación por igual —
+en Geist real el color "primary" es neutro (texto/fondo invertidos) y el verde queda solo para
+estados de éxito. Se construyó un mockup HTML autocontenido (sin React) con la IA revisada en
+esta conversación — sidebar reemplaza el banner degradado, "Hablar con Jarvis" como CTA, Proyectos
+con grid+creación+detalle, Analítica a pantalla completa, Memoria de Mar inline, iconos SVG en vez
+de emoji — y Mariana lo aprobó antes de iniciar el refactor real sobre `dashboard/src/`. Los
+criterios de aceptación de este mockup están en la HU de arriba (§5); el refactor de
+`dashboard/src/App.jsx` y sus componentes para implementarlo de verdad todavía no se ha hecho.
 
 **Backend FastAPI — primer esqueleto (2026-08-12, commit `ffca64a`)**
 
