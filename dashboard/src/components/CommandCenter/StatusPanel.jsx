@@ -69,7 +69,11 @@ export default function StatusPanel({ refreshKey, api: apiProp, agents = [], pha
         projectArray.map(async (project) => {
           try {
             const reconciliation = await api.getReconciliation(project.id);
-            return [project.id, Array.isArray(reconciliation) ? reconciliation : reconciliation?.items || []];
+            // Backend shape is { gaps: [...], lastRunAt } — NOT { items }.
+            // Fixed 2026-08-13 (BUG-016): this was silently reading a key
+            // that never existed, so the KPI stayed at 0 even after a real
+            // reconciliation run populated real gaps.
+            return [project.id, Array.isArray(reconciliation) ? reconciliation : reconciliation?.gaps || []];
           } catch {
             return [project.id, []];
           }
@@ -99,10 +103,13 @@ export default function StatusPanel({ refreshKey, api: apiProp, agents = [], pha
     setDrillDownOpen(true);
   };
 
+  // "Gap" here means "not confirmed compliant" — with the real reconciliation
+  // engine (fixed 2026-08-13), most items land on "sin_test" or
+  // "con_test_sin_resultado" rather than a literal "gap" status, but those
+  // still represent an AC whose completion isn't verified. Only "cumple"
+  // (a real passing test) is excluded from this count.
   const getGaps = (projectId) =>
-    (reconciliationByProject[projectId] || []).filter(
-      (item) => item.status === "gap" || item.status === "no_reconciliable"
-    );
+    (reconciliationByProject[projectId] || []).filter((item) => item.status !== "cumple");
 
   const getSemaphore = (projectId) => {
     const gapCount = getGaps(projectId).length;

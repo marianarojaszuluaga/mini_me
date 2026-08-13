@@ -269,7 +269,8 @@ function ConnectRepoForm({ api, project, authProfiles, onConnected, onCancel }) 
       <select value={authProfileId} onChange={(e) => handleAuthProfileChange(e.target.value)} required>
         {authProfiles.map((p) => (
           <option key={p.id} value={p.id}>
-            {p.id} ({p.provider} — {p.account})
+            {/* BUG-017 fix: label legible (cuenta — alcance), no el id crudo */}
+            {p.account} — {p.scope ? p.scope : p.provider}
           </option>
         ))}
       </select>

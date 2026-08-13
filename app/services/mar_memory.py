@@ -83,20 +83,6 @@ def add_or_update_entry(entry: MarMemoryEntry) -> dict[str, Any]:
     return new_entry
 
 
-def update_entry(entry_id: str, content: str) -> dict[str, Any] | None:
-    """Manual edit of an existing entry's content (e.g. Mar correcting
-    something Jarvis assumed wrong — SPEC_JARVIS.md §6, Flujo D). Returns
-    the updated entry, or None if `entry_id` doesn't exist."""
-    storage = get_storage()
-    entries = storage.read_mar_memory()
-    target = next((e for e in entries if e.get("id") == entry_id), None)
-    if target is None:
-        return None
-    target["content"] = content
-    storage.write_mar_memory(entries)
-    return target
-
-
 def delete_entry(entry_id: str) -> bool:
     storage = get_storage()
     entries = storage.read_mar_memory()
