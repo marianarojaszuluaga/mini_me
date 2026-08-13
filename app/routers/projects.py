@@ -26,7 +26,7 @@ router = APIRouter(dependencies=[Depends(authenticate_token)])
 
 
 def _get_anthropic_client(settings: Settings = Depends(get_settings)) -> AsyncAnthropic:
-    return AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
+    return AsyncAnthropic(**settings.anthropic_client_kwargs)
 
 
 def _now_iso() -> str:

@@ -134,8 +134,8 @@ PM_AGENT_PROMPTS: dict[str, Callable[[str, dict | None], str]] = {
 # ---------------------------------------------------------------------------
 
 MODEL_IDS: dict[str, str] = {
-    "haiku": "claude-3-5-haiku-20241022",
-    "sonnet": "claude-3-5-sonnet-20241022",
+    "haiku": "claude-sonnet-4-6",
+    "sonnet": "claude-sonnet-4-6",
 }
 
 

@@ -35,7 +35,7 @@ from app.services.jarvis_chat.tools import TOOL_SCHEMAS, dispatch_tool
 
 router = APIRouter(dependencies=[Depends(authenticate_token)])
 
-CHAT_MODEL = "claude-3-5-sonnet-20241022"
+CHAT_MODEL = "claude-sonnet-4-6"
 CHAT_MAX_TOKENS = 4096
 
 # Which tool name maps to which SourceCitation.kind (ARCHITECTURE_JARVIS.md §2.2).
@@ -56,7 +56,7 @@ _UNKNOWN_MARKERS = ("no lo sé", "no lo se", "no tengo información", "no tengo 
 
 
 def _get_client(settings: Settings = Depends(get_settings)) -> AsyncAnthropic:
-    return AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
+    return AsyncAnthropic(**settings.anthropic_client_kwargs)
 
 
 def _build_system_prompt(project_id: str | None, resumption_summary: str | None) -> str:

@@ -223,7 +223,7 @@ async def invoke_agent(agent_name: str, input: str, project_id: str | None = Non
 
     model_config = agent_registry.get_model_config(agent_name)
     settings = get_settings()
-    client = AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
+    client = AsyncAnthropic(**settings.anthropic_client_kwargs)
 
     kwargs: dict[str, Any] = {
         "model": model_config["model"],

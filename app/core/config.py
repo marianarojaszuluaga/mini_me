@@ -23,8 +23,13 @@ class Settings(BaseSettings):
         case_sensitive=True,
     )
 
-    # Anthropic API key (required, server-side only).
+    # Anthropic API key (required, server-side only). Mariana routes this
+    # through her own LiteLLM proxy (https://admin-llm.imagineapps.co/) rather
+    # than calling api.anthropic.com directly — ANTHROPIC_BASE_URL below
+    # redirects the SDK there. Both must be set together for the proxy path;
+    # leaving ANTHROPIC_BASE_URL unset falls back to Anthropic's real API.
     ANTHROPIC_API_KEY: str = ""
+    ANTHROPIC_BASE_URL: str | None = None
 
     # Comma-separated allowlist of API keys this service accepts from its own
     # clients (dashboard, CLI, CI, Apps Script). Parsed into a list by
@@ -76,6 +81,16 @@ class Settings(BaseSettings):
     def environment(self) -> str:
         """Resolved environment name: ENVIRONMENT if set, else NODE_ENV."""
         return self.ENVIRONMENT or self.NODE_ENV
+
+    @property
+    def anthropic_client_kwargs(self) -> dict:
+        """kwargs for AsyncAnthropic(**this) — every call site should build its
+        client through this instead of passing api_key= directly, so the
+        LiteLLM proxy redirect (ANTHROPIC_BASE_URL) applies everywhere at once."""
+        kwargs: dict = {"api_key": self.ANTHROPIC_API_KEY}
+        if self.ANTHROPIC_BASE_URL:
+            kwargs["base_url"] = self.ANTHROPIC_BASE_URL
+        return kwargs
 
     @property
     def allowed_api_keys(self) -> list[str]:

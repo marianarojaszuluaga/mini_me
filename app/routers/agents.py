@@ -51,11 +51,11 @@ STEP_TO_AGENT: dict[str, str] = {
 
 
 def _get_anthropic_client(settings: Settings = Depends(get_settings)) -> AsyncAnthropic:
-    return AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
+    return AsyncAnthropic(**settings.anthropic_client_kwargs)
 
 
 def _get_evaluator(settings: Settings = Depends(get_settings)) -> AgentEvaluator:
-    return AgentEvaluator(api_key=settings.ANTHROPIC_API_KEY)
+    return AgentEvaluator(api_key=settings.ANTHROPIC_API_KEY, base_url=settings.ANTHROPIC_BASE_URL)
 
 
 async def invoke_agent_core(

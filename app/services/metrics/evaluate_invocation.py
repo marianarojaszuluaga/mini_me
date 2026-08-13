@@ -29,7 +29,7 @@ from app.schemas.metrics import AgentEvaluation
 # Fast/cheap model for the acertividad judge call — same tier rationale as
 # AgentEvaluator's own EVALUATOR_MODEL (mechanical judging, highest-volume
 # call if run on every invocation).
-ACERTIVIDAD_MODEL = "claude-3-5-haiku-20241022"
+ACERTIVIDAD_MODEL = "claude-sonnet-4-6"
 
 # TODO: calibrar en implementacion — starting thresholds; tune once real
 # invocation history is observed. Below this score counts as "low" for the
@@ -223,8 +223,8 @@ async def evaluate_invocation(
     the response immediately (AC 2.1.2 — no waiting on a later job)."""
     settings = get_settings()
     own_client = client is None
-    client = client or AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
-    evaluator = evaluator or AgentEvaluator(api_key=settings.ANTHROPIC_API_KEY)
+    client = client or AsyncAnthropic(**settings.anthropic_client_kwargs)
+    evaluator = evaluator or AgentEvaluator(api_key=settings.ANTHROPIC_API_KEY, base_url=settings.ANTHROPIC_BASE_URL)
 
     context = context or {}
 

@@ -17,7 +17,7 @@ from typing import Any
 
 from anthropic import AsyncAnthropic
 
-EVALUATOR_MODEL = "claude-3-5-haiku-20241022"
+EVALUATOR_MODEL = "claude-sonnet-4-6"
 
 
 @dataclass(frozen=True)
@@ -205,10 +205,14 @@ class AgentEvaluator:
 
     api_key: str
     model: str = EVALUATOR_MODEL
+    base_url: str | None = None
     _client: AsyncAnthropic = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
-        self._client = AsyncAnthropic(api_key=self.api_key)
+        kwargs: dict[str, Any] = {"api_key": self.api_key}
+        if self.base_url:
+            kwargs["base_url"] = self.base_url
+        self._client = AsyncAnthropic(**kwargs)
 
     async def evaluate(
         self, agent_name: str, output: str, context: dict[str, Any] | None = None
