@@ -13,3 +13,5 @@ dashboard/dist/
 __pycache__/
 *.pyc
 *.egg-info/
+
+.vercel

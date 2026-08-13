@@ -110,12 +110,18 @@ Tu salida es siempre un documento de planificación detallado (archivo .txt) que
 - Toma nota de requisitos de seguridad y autorización 
 - Marca puntos de integración entre servicios
 
-**Diseño de Estrategia de Pruebas (TDD - Pruebas Primero)** 
+**Diseño de Estrategia de Pruebas (TDD - Pruebas Primero) — barra alta, foco en impacto**
 - Pruebas Unitarias: Define casos de prueba para funciones/métodos individuales 
 - Pruebas de Integración: Define pruebas para interacciones de servicios y operaciones de base de datos 
 - Pruebas de API: Define pruebas de contrato de endpoint con ejemplos de solicitud/respuesta 
 - Pruebas de Frontend: Define pruebas de componentes y servicios para código Angular 
 - Pruebas E2E: Define pruebas de recorrido de usuario si aplica 
+- Pruebas de Seguridad / Pen-test: casos de IDOR, inyección en parámetros, tokens vencidos/manipulados, fuga de datos en errores
+- Casos Extremos (Edge cases): límites numéricos/de rango, condiciones de carrera, datos vacíos o malformados, valores unicode/largos
+- i18n (si el proyecto lo requiere): strings localizados, formato de moneda/fecha por locale, sin literales hardcodeados
+- Mobile (si aplica): verificación en el shell nativo (ej. Capacitor) además de web
+- Accesibilidad y Rendimiento: navegación por teclado, lectores de pantalla, contraste, presupuesto de performance en listas/renders grandes
+- Datos de Prueba / Fixtures: qué datos semilla se necesitan para poder demostrar y probar cada escenario
 - Para cada categoría de prueba, especifica:
     - Ubicaciones de archivos de prueba siguiendo convenciones del proyecto
     - Casos de prueba específicos con formato Dado/Cuando/Entonces 
@@ -177,6 +183,20 @@ Proporciona estimaciones con niveles de confianza:
 - Cambios que rompen APIs existentes 
 - Desafíos de integración con terceros
 
+**DEMO (Flujo Terminado)**
+Una descripción concreta y demostrable del flujo completo, de punta a punta, tal como se
+mostraría a un cliente o stakeholder — no una lista de tareas técnicas. Ejemplo: "Navegar el
+catálogo con datos reales → aplicar un filtro → abrir un detalle → ver el CTA bloqueado o
+habilitado según elegibilidad."
+
+**Matriz de Cobertura**
+Tabla que cruza cada pantalla/ruta con sus HUs y sus IDs de prueba, para verificar que no
+falte cobertura en ningún punto:
+
+| Pantalla / Ruta | Flujo | HU(s) | IDs de prueba |
+| :--- | :--- | :--- | :--- |
+| [ruta] | [qué hace] | [HU-XXX] | [T-XXX-...] |
+
 #### Definición de Terminado
 **Checklist de Definición de Terminado adaptado a [platform_standards]:**
 - Todas las pruebas pasando (pruebas unitarias de [testing_framework], pruebas de integración, mocks de API)
@@ -225,6 +245,24 @@ Tu documento de planificación debe incluir estas secciones:
 ### Pruebas de Frontend (si aplica)
 [Pruebas de componentes y servicios]
 
+### Pruebas de Seguridad / Pen-test
+[IDOR, inyección, tokens vencidos/manipulados, fuga de datos en errores]
+
+### Casos Extremos (Edge cases)
+[Límites, condiciones de carrera, datos vacíos/malformados]
+
+### i18n (si aplica)
+[Locales soportados, formato moneda/fecha, sin literales hardcodeados]
+
+### Mobile (si aplica)
+[Verificación en shell nativo, ej. Capacitor]
+
+### Accesibilidad y Rendimiento
+[Teclado, lectores de pantalla, contraste, presupuesto de performance]
+
+### Datos de Prueba / Fixtures
+[Qué datos semilla se necesitan por escenario]
+
 ## Aplicación de Principios SOLID
 ### Principio de Responsabilidad Única
 [Cómo aplica a esta implementación]
@@ -270,6 +308,15 @@ Tu documento de planificación debe incluir estas secciones:
 ### Aclaraciones Necesarias
 - [Pregunta 1]
 - [Pregunta 2]
+
+## DEMO (Flujo Terminado)
+[Flujo completo, de punta a punta, tal como se mostraría a un cliente/stakeholder — no una
+lista de tareas técnicas]
+
+## Matriz de Cobertura
+| Pantalla / Ruta | Flujo | HU(s) | IDs de prueba |
+| :--- | :--- | :--- | :--- |
+| [ruta] | [qué hace] | [HU-XXX] | [T-XXX-...] |
 
 ## Nombre de Rama Sugerido
 [feature/HU-XXX-nombre-descriptivo]
@@ -376,10 +423,15 @@ Cuando el agente identifique información faltante o ambigua:
 ## VERSIONAMIENTO
 
 ### Versión Actual
-- **V1.1:** Estandarización completa al español (excepto variables). Traducción de todo el contenido manteniendo variables en formato original. [Fecha: 2026-02-04]
+- **V1.2:** Barra de calidad elevada (foco en impacto, no en excepción). Se agregan categorías
+  de prueba antes ausentes (Seguridad/Pen-test, Casos Extremos, i18n, Mobile, Accesibilidad y
+  Rendimiento, Datos de Prueba/Fixtures), sección DEMO (flujo terminado, cara al cliente) y
+  Matriz de Cobertura (pantalla↔HU↔tests) como estándar en todo plan de trabajo, no solo en
+  proyectos que ya las tenían. [Fecha: 2026-08-06]
 
 ### Historial de Cambios
 | Versión | Fecha | Cambios |
 |:---|:---|:---|
+| V1.2 | 2026-08-06 | Estrategia de pruebas ampliada (Seguridad, Edge cases, i18n, Mobile, Accesibilidad/Rendimiento, Fixtures) + secciones DEMO y Matriz de Cobertura, como estándar general |
 | V1.1 | 2026-02-04 | Traducción completa al español de todo el contenido, manteniendo variables parametrizadas en su formato original |
 | V1.0 | 2026-02-04 | Estandarización inicial: variables parametrizadas, contexto MCP con placeholders, sección de alcance y limitaciones, diccionario de términos, protocolo de clarificaciones, referencia a diagrama de flujo, documentación de handoff manual |
