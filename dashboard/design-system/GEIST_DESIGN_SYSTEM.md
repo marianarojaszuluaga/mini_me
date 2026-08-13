@@ -36,7 +36,26 @@ contraste correcto en ambos modos.
 | 700–800 | Fondos de alto contraste |
 | 900–1000 | Texto/iconos (900 = secundario, 1000 = primario) |
 
-### 1.2 Cómo ajustar el color de marca/acento
+### 1.2 Paleta categórica confirmada (2026-08-12)
+
+Mariana pasó 8 colores en HEX para usar como paleta categórica (series de gráficas, badges,
+tags — donde se necesita un color fijo, no dependiente del tema). Verificado matemáticamente
+(hex → HSL): coinciden con el **paso 800** de cada escala, que resulta ser **idéntico entre modo
+claro y oscuro** — no se generó ninguna escala nueva, es la confirmación de qué paso usar. Ver
+`categoricalPalette` en `geist-tokens.json`:
+
+| Color | Hex | Escala / paso |
+|---|---|---|
+| Gris | `#7D7D7D` | `gray.800` |
+| Azul | `#0062D1` | `blue.800` |
+| Morado | `#8E4EC6` | `purple.800` |
+| Rosa/Magenta | `#DF2670` | `pink.800` |
+| Rojo | `#DA2F35` | `red.800` |
+| Naranja | `#FF990A` | `amber.800` |
+| Verde | `#398E4A` | `green.800` |
+| Verde azulado | `#0D8C7D` | `teal.800` |
+
+### 1.3 Cómo ajustar el color de marca/acento
 
 Todo vive como `"H, S%, L%"` (sin la función `hsl()`) bajo cada escala en `geist-tokens.json`. Para
 cambiar el acento (ej. reemplazar el azul de Vercel por otro color de marca):
@@ -47,7 +66,7 @@ cambiar el acento (ej. reemplazar el azul de Vercel por otro color de marca):
    una escala nueva, ej. `brand`, y usa esa en vez de `blue` en los componentes).
 3. No cambies los **nombres** de los tokens si el CSS/Tailwind ya los consume — solo los valores.
 
-### 1.3 Colores estáticos (no cambian con el tema)
+### 1.4 Colores estáticos (no cambian con el tema)
 
 `black: #000`, `white: #fff`. `grayAlpha` son grises semitransparentes (para overlays/hovers sobre
 cualquier fondo) — en modo claro son negro con alpha, en modo oscuro blanco con alpha.

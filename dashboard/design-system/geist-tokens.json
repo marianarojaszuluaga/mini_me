@@ -3,7 +3,19 @@
     "source": "https://vercel.com/geist (colors, typography, materials, grid)",
     "extractedFrom": "CSS custom properties read live via getComputedStyle/CSSOM — real values, not fabricated",
     "extractedAt": "2026-08-12",
-    "howToAdjustColors": "Cada color vive como 'H, S%, L%' (HSL sin la función hsla()) bajo *-value. Para ajustar el acento de marca, cambia solo los tokens de la escala que quieras (ej. blue.*) manteniendo la forma 'H, S%, L%' — todo lo que consume var(--ds-blue-900) sigue funcionando igual."
+    "howToAdjustColors": "Cada color vive como 'H, S%, L%' (HSL sin la función hsla()) bajo *-value. Para ajustar el acento de marca, cambia solo los tokens de la escala que quieras (ej. blue.*) manteniendo la forma 'H, S%, L%' — todo lo que consume var(--ds-blue-900) sigue funcionando igual.",
+    "categoricalPaletteNote": "Mariana confirmó 8 colores en HEX (2026-08-12) para usar como paleta categórica (series de charts, badges, tags). Verificado: coinciden con el paso 800 de cada escala, que es idéntico en claro y oscuro (invariante al tema) — no se generó nada nuevo, ver 'categoricalPalette' abajo."
+  },
+  "categoricalPalette": {
+    "_note": "Paso 800 de cada escala — mismo valor en light y dark (theme-invariant). Usar estos hex directo para series de gráficas/badges cuando se necesite un color fijo que no cambie con el tema.",
+    "gray": "#7D7D7D",
+    "blue": "#0062D1",
+    "purple": "#8E4EC6",
+    "pink": "#DF2670",
+    "red": "#DA2F35",
+    "amber": "#FF990A",
+    "green": "#398E4A",
+    "teal": "#0D8C7D"
   },
   "color": {
     "light": {
