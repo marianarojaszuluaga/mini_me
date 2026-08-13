@@ -25,6 +25,8 @@ orquestrador-360/
 │   │   └── spec-kit-agents/   # Copia de ia-hybrid-teams/agents/*.md — ver nota de sincronía
 │   └── phases/phaseContracts.js  # Transcripción de ia-hybrid-teams/spec-kit/PHASE_CONTRACTS.md
 └── dashboard/                 # React + Vite — consume la API con una App API Key propia
+    └── design-system/          # Tokens de Geist (Vercel) extraídos en vivo — ver
+                                 # GEIST_DESIGN_SYSTEM.md + geist-tokens.json
 ```
 
 **MAP** (`server.js`, puerto 3001) sabe invocar cualquiera de los 19 agentes y evaluar su

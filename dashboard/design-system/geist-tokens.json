@@ -1,0 +1,213 @@
+{
+  "_meta": {
+    "source": "https://vercel.com/geist (colors, typography, materials, grid)",
+    "extractedFrom": "CSS custom properties read live via getComputedStyle/CSSOM — real values, not fabricated",
+    "extractedAt": "2026-08-12",
+    "howToAdjustColors": "Cada color vive como 'H, S%, L%' (HSL sin la función hsla()) bajo *-value. Para ajustar el acento de marca, cambia solo los tokens de la escala que quieras (ej. blue.*) manteniendo la forma 'H, S%, L%' — todo lo que consume var(--ds-blue-900) sigue funcionando igual."
+  },
+  "color": {
+    "light": {
+      "background": { "100": "0, 0%, 100%", "200": "0, 0%, 98%" },
+      "gray": {
+        "100": "0, 0%, 95%", "200": "0, 0%, 92%", "300": "0, 0%, 90%", "400": "0, 0%, 92%",
+        "500": "0, 0%, 79%", "600": "0, 0%, 66%", "700": "0, 0%, 56%", "800": "0, 0%, 49%",
+        "900": "0, 0%, 30%", "1000": "0, 0%, 9%"
+      },
+      "grayAlpha": {
+        "100": "#0000000d", "200": "#00000015", "300": "#0000001a", "400": "#00000014",
+        "500": "#00000036", "600": "#0000003d", "700": "#00000070", "800": "#00000082",
+        "900": "#000000b3", "1000": "#000000e8"
+      },
+      "blue": {
+        "100": "212, 100%, 97%", "200": "210, 100%, 96%", "300": "210, 100%, 94%", "400": "209, 100%, 90%",
+        "500": "209, 100%, 80%", "600": "208, 100%, 66%", "700": "212, 100%, 48%", "800": "212, 100%, 41%",
+        "900": "211, 100%, 42%", "1000": "211, 100%, 15%"
+      },
+      "red": {
+        "100": "0, 100%, 97%", "200": "0, 100%, 96%", "300": "0, 100%, 95%", "400": "0, 90%, 92%",
+        "500": "0, 82%, 85%", "600": "359, 90%, 71%", "700": "358, 75%, 59%", "800": "358, 70%, 52%",
+        "900": "358, 66%, 48%", "1000": "355, 49%, 15%"
+      },
+      "amber": {
+        "100": "39, 100%, 95%", "200": "44, 100%, 92%", "300": "43, 96%, 90%", "400": "42, 100%, 78%",
+        "500": "38, 100%, 71%", "600": "36, 90%, 62%", "700": "39, 100%, 57%", "800": "35, 100%, 52%",
+        "900": "30, 100%, 32%", "1000": "20, 79%, 17%"
+      },
+      "green": {
+        "100": "120, 60%, 96%", "200": "120, 60%, 95%", "300": "120, 60%, 91%", "400": "122, 60%, 86%",
+        "500": "124, 60%, 75%", "600": "125, 60%, 64%", "700": "131, 41%, 46%", "800": "132, 43%, 39%",
+        "900": "133, 50%, 32%", "1000": "128, 29%, 15%"
+      },
+      "teal": {
+        "100": "169, 70%, 96%", "200": "167, 70%, 94%", "300": "168, 70%, 90%", "400": "170, 70%, 85%",
+        "500": "170, 70%, 72%", "600": "170, 70%, 57%", "700": "173, 80%, 36%", "800": "173, 83%, 30%",
+        "900": "174, 91%, 25%", "1000": "171, 80%, 13%"
+      },
+      "purple": {
+        "100": "276, 100%, 97%", "200": "277, 87%, 97%", "300": "274, 78%, 95%", "400": "276, 71%, 92%",
+        "500": "274, 70%, 82%", "600": "273, 72%, 73%", "700": "272, 51%, 54%", "800": "272, 47%, 45%",
+        "900": "274, 71%, 43%", "1000": "276, 100%, 15%"
+      },
+      "pink": {
+        "100": "330, 100%, 96%", "200": "340, 90%, 96%", "300": "340, 82%, 94%", "400": "341, 76%, 91%",
+        "500": "340, 75%, 84%", "600": "341, 75%, 73%", "700": "336, 80%, 58%", "800": "336, 74%, 51%",
+        "900": "336, 65%, 45%", "1000": "333, 74%, 15%"
+      }
+    },
+    "dark": {
+      "background": { "100": "0, 0%, 4%", "200": "0, 0%, 0%" },
+      "gray": {
+        "100": "0, 0%, 10%", "200": "0, 0%, 12%", "300": "0, 0%, 16%", "400": "0, 0%, 18%",
+        "500": "0, 0%, 27%", "600": "0, 0%, 53%", "700": "0, 0%, 56%", "800": "0, 0%, 49%",
+        "900": "0, 0%, 63%", "1000": "0, 0%, 93%"
+      },
+      "grayAlpha": {
+        "100": "#ffffff12", "200": "#ffffff17", "300": "#ffffff21", "400": "#ffffff24",
+        "500": "#ffffff3d", "600": "#ffffff82", "700": "#ffffff8a", "800": "#ffffff78",
+        "900": "#ffffff9c", "1000": "#ffffffeb"
+      },
+      "blue": {
+        "100": "216, 50%, 12%", "200": "214, 59%, 15%", "300": "213, 71%, 20%", "400": "212, 78%, 23%",
+        "500": "211, 86%, 27%", "600": "206, 100%, 50%", "700": "212, 100%, 48%", "800": "212, 100%, 41%",
+        "900": "210, 100%, 66%", "1000": "206, 100%, 96%"
+      },
+      "red": {
+        "100": "357, 37%, 12%", "200": "357, 46%, 16%", "300": "356, 54%, 22%", "400": "357, 55%, 26%",
+        "500": "357, 60%, 32%", "600": "358, 75%, 59%", "700": "358, 75%, 59%", "800": "358, 69%, 52%",
+        "900": "358, 100%, 69%", "1000": "353, 90%, 96%"
+      },
+      "amber": {
+        "100": "35, 100%, 8%", "200": "32, 100%, 10%", "300": "33, 100%, 15%", "400": "35, 100%, 17%",
+        "500": "35, 91%, 22%", "600": "39, 85%, 49%", "700": "39, 100%, 57%", "800": "35, 100%, 52%",
+        "900": "39, 90%, 50%", "1000": "40, 94%, 93%"
+      },
+      "green": {
+        "100": "136, 50%, 9%", "200": "137, 50%, 12%", "300": "136, 50%, 14%", "400": "135, 70%, 16%",
+        "500": "135, 70%, 23%", "600": "135, 70%, 34%", "700": "131, 41%, 46%", "800": "132, 43%, 39%",
+        "900": "131, 43%, 57%", "1000": "136, 73%, 94%"
+      },
+      "teal": {
+        "100": "169, 78%, 7%", "200": "170, 74%, 9%", "300": "171, 75%, 13%", "400": "171, 85%, 13%",
+        "500": "172, 85%, 20%", "600": "172, 85%, 32%", "700": "173, 80%, 36%", "800": "173, 83%, 30%",
+        "900": "174, 90%, 41%", "1000": "166, 71%, 93%"
+      },
+      "purple": {
+        "100": "283, 30%, 12%", "200": "281, 38%, 16%", "300": "279, 44%, 23%", "400": "277, 46%, 28%",
+        "500": "274, 49%, 35%", "600": "272, 51%, 54%", "700": "272, 51%, 54%", "800": "272, 47%, 45%",
+        "900": "275, 80%, 71%", "1000": "281, 73%, 96%"
+      },
+      "pink": {
+        "100": "335, 32%, 12%", "200": "335, 43%, 16%", "300": "335, 47%, 21%", "400": "335, 51%, 22%",
+        "500": "335, 57%, 27%", "600": "336, 75%, 40%", "700": "336, 80%, 58%", "800": "336, 74%, 51%",
+        "900": "341, 90%, 67%", "1000": "333, 90%, 96%"
+      }
+    },
+    "static": { "black": "#000", "white": "#fff" }
+  },
+  "typography": {
+    "fontFamily": {
+      "sans": "GeistSans, \"GeistSans Fallback\", -apple-system, sans-serif",
+      "mono": "\"Geist Mono\", Menlo, Monaco, monospace"
+    },
+    "heading": {
+      "14": { "fontSize": "14px", "lineHeight": "20px", "fontWeight": 600, "letterSpacing": "-0.28px" },
+      "16": { "fontSize": "16px", "lineHeight": "24px", "fontWeight": 600, "letterSpacing": "-0.32px" },
+      "20": { "fontSize": "20px", "lineHeight": "26px", "fontWeight": 600, "letterSpacing": "-0.4px" },
+      "24": { "fontSize": "24px", "lineHeight": "32px", "fontWeight": 600, "letterSpacing": "-0.96px" },
+      "32": { "fontSize": "32px", "lineHeight": "40px", "fontWeight": 600, "letterSpacing": "-1.28px" },
+      "40": { "fontSize": "40px", "lineHeight": "48px", "fontWeight": 600, "letterSpacing": "-2.4px" },
+      "48": { "fontSize": "48px", "lineHeight": "56px", "fontWeight": 600, "letterSpacing": "-2.88px" },
+      "56": { "fontSize": "56px", "lineHeight": "56px", "fontWeight": 600, "letterSpacing": "-3.36px" },
+      "64": { "fontSize": "64px", "lineHeight": "64px", "fontWeight": 600, "letterSpacing": "-3.84px" },
+      "72": { "fontSize": "72px", "lineHeight": "72px", "fontWeight": 600, "letterSpacing": "-4.32px" }
+    },
+    "button": {
+      "12": { "fontSize": "12px", "lineHeight": "16px", "fontWeight": 500, "letterSpacing": "normal" },
+      "14": { "fontSize": "14px", "lineHeight": "20px", "fontWeight": 500, "letterSpacing": "normal" },
+      "16": { "fontSize": "16px", "lineHeight": "20px", "fontWeight": 500, "letterSpacing": "normal" }
+    },
+    "label": {
+      "12": { "fontSize": "12px", "lineHeight": "16px", "fontWeight": 400, "letterSpacing": "normal" },
+      "13": { "fontSize": "13px", "lineHeight": "16px", "fontWeight": 400, "letterSpacing": "normal" },
+      "14": { "fontSize": "14px", "lineHeight": "20px", "fontWeight": 400, "letterSpacing": "normal" },
+      "16": { "fontSize": "16px", "lineHeight": "20px", "fontWeight": 400, "letterSpacing": "normal" },
+      "18": { "fontSize": "18px", "lineHeight": "20px", "fontWeight": 400, "letterSpacing": "normal" },
+      "20": { "fontSize": "20px", "lineHeight": "32px", "fontWeight": 400, "letterSpacing": "normal" }
+    },
+    "copy": {
+      "13": { "fontSize": "13px", "lineHeight": "18px", "fontWeight": 400, "letterSpacing": "normal" },
+      "14": { "fontSize": "14px", "lineHeight": "20px", "fontWeight": 400, "letterSpacing": "normal" },
+      "16": { "fontSize": "16px", "lineHeight": "24px", "fontWeight": 400, "letterSpacing": "normal" },
+      "18": { "fontSize": "18px", "lineHeight": "28px", "fontWeight": 400, "letterSpacing": "normal" },
+      "20": { "fontSize": "20px", "lineHeight": "36px", "fontWeight": 400, "letterSpacing": "normal" },
+      "24": { "fontSize": "24px", "lineHeight": "36px", "fontWeight": 400, "letterSpacing": "normal" }
+    }
+  },
+  "spacing": {
+    "1x": "4px", "2x": "8px", "3x": "12px", "4x": "16px", "6x": "24px", "8x": "32px",
+    "10x": "40px", "16x": "64px", "24x": "96px", "32x": "128px", "48x": "192px", "64x": "256px",
+    "small": "32px", "medium": "36px", "large": "40px",
+    "gap": "24px", "gapHalf": "12px", "gapQuarter": "8px"
+  },
+  "layout": {
+    "pageWidth": "1200px",
+    "pageWidthDS": "1400px",
+    "pageMargin": "24px"
+  },
+  "radius": {
+    "base": "6px",
+    "marketing": "8px",
+    "materialBase": "6px",
+    "materialSmall": "6px",
+    "materialMedium": "12px",
+    "materialLarge": "12px",
+    "materialTooltip": "6px",
+    "materialMenu": "12px",
+    "materialModal": "12px",
+    "materialFullscreen": "16px"
+  },
+  "shadow": {
+    "light": {
+      "borderBase": "0 0 0 1px #00000014",
+      "borderInset": "inset 0 0 0 1px #00000014",
+      "2xs": "0px 1px 1px #0000000a",
+      "xs": "0px 1px 2px #0000000a",
+      "small": "0px 2px 2px #0000000a",
+      "medium": "0px 2px 2px #0000000a, 0px 8px 8px -8px #0000000a",
+      "large": "0px 2px 2px #0000000a, 0px 8px 16px -4px #0000000a",
+      "xl": "0px 1px 1px #00000005, 0px 4px 8px -4px #0000000a, 0px 16px 24px -8px #0000000f",
+      "2xl": "0px 1px 1px #00000005, 0px 8px 16px -4px #0000000a, 0px 24px 32px -8px #0000000f",
+      "modalElevated": "0px 0px 0px 1px #00000014, 0px 32px 72px -12px #0000000f, 0px 8px 32px -12px #00000014, 0px 8px 24px -12px #0000001f"
+    },
+    "dark": {
+      "borderBase": "0 0 0 1px #ffffff25",
+      "borderInset": "inset 0 0 0 1px #ffffff1a",
+      "2xs": "0px 1px 1px #00000029",
+      "xs": "0px 1px 2px #00000029",
+      "small": "0px 1px 2px #00000029",
+      "medium": "0px 2px 2px #00000052, 0px 8px 8px -8px #00000029",
+      "large": "0px 2px 2px #0000000a, 0px 8px 16px -4px #0000000a",
+      "xl": "0px 1px 1px #00000005, 0px 4px 8px -4px #0000000a, 0px 16px 24px -8px #0000000f",
+      "2xl": "0px 1px 1px #00000005, 0px 8px 16px -4px #0000000a, 0px 24px 32px -8px #0000000f",
+      "modalElevated": "0 0 0 1px var(--ds-gray-alpha-400), 0px 32px 72px -12px #0000000f, 0px 8px 32px -12px #00000014, 0px 8px 24px -12px #0000001f"
+    }
+  },
+  "zIndex": {
+    "drawer": 200,
+    "modal": 300,
+    "menu": 2001,
+    "toast": 5000,
+    "tooltip": 99999
+  },
+  "motion": {
+    "timingSwift": "cubic-bezier(.175, .885, .32, 1.1)",
+    "overlayScale": 0.96,
+    "overlayDuration": "0.3s",
+    "popoverDuration": "0.2s"
+  },
+  "formControl": {
+    "large": { "font": "1rem", "lineHeight": "1.5rem", "height": "40px" },
+    "medium": { "font": "0.875rem", "lineHeight": "1.25rem", "height": "36px" },
+    "small": { "font": "0.875rem", "lineHeight": "0.875rem", "height": "32px" }
+  }
+}
