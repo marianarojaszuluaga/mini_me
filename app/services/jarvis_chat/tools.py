@@ -94,8 +94,8 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
     {
         "name": "invoke_agent",
         "description": (
-            "Invokes one of the 22 real MAP agents (e.g. 'gimena', 'gabi', "
-            "'auditor') with a given input, and returns its output. Use this "
+            "Invokes one of the 22 real MAP agents (e.g. 'gime', 'gabi', "
+            "'vale') with a given input, and returns its output. Use this "
             "when the user explicitly asks Jarvis to run an agent, not for "
             "answering questions Jarvis can answer from context alone."
         ),
@@ -104,7 +104,7 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
             "properties": {
                 "agent_name": {
                     "type": "string",
-                    "description": "Registered agent id, e.g. 'gimena', 'gabi', 'auditor'.",
+                    "description": "Registered agent id, e.g. 'gime', 'gabi', 'vale'.",
                 },
                 "input": {
                     "type": "string",

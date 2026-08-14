@@ -27,26 +27,26 @@ router = APIRouter(dependencies=[Depends(authenticate_token)])
 # phase_contracts so we never invoke an agent that isn't actually assigned to
 # that phase.
 #
-# santi/daniel (actas, release notes) are intentionally NOT here: they aren't
+# santi/dani (actas, release notes) are intentionally NOT here: they aren't
 # tied to a single phase step, they run continuously across the whole
 # lifecycle. Invoke them directly via /agents/{name}/invoke instead.
 STEP_TO_AGENT: dict[str, str] = {
-    "1:lock_scope": "gimena",
-    "1:milestones": "milestone-writer",
-    "1:dod": "dod-definer",
+    "1:lock_scope": "gime",
+    "1:milestones": "mila",
+    "1:dod": "diana",
     "1:estimation": "gabi",
-    "1:reconciliation": "capacity-reconciler",
-    "1:timeline": "gina-scheduler",
-    "1:transversales": "auditor",
-    "2:data_model": "data-engineer",
+    "1:reconciliation": "cami",
+    "1:timeline": "gina",
+    "1:transversales": "vale",
+    "2:data_model": "fer",
     "2:work_plan": "gabi",
-    "2:review": "auditor",
-    "3:frontend_web": "fullstack-developer",
-    "3:frontend_app": "flutter-developer",
-    "3:integration": "integration",
-    "4:sonar_gate": "sonar-quality-gate",
-    "4:unit_test_review": "unit-test-standards-reviewer",
-    "4:quality_report": "quality-report-generator",
+    "2:review": "vale",
+    "3:frontend_web": "mafe",
+    "3:frontend_app": "isa",
+    "3:integration": "rena",
+    "4:sonar_gate": "sara",
+    "4:unit_test_review": "xime",
+    "4:quality_report": "pau",
 }
 
 

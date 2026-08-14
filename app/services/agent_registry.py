@@ -3,10 +3,27 @@ Agent Registry — migrated from src/agents/registry.js. See that file's header
 comment for the full rationale (kept here in condensed form); this is a
 faithful port, not a redesign.
 
+Agent ids renamed 2026-08-14 (Mariana's request — short first-name ids,
+English by default, instead of role-descriptive slugs): the mapping below
+is id-only — source .md filenames on disk are unchanged, since those are an
+implementation detail, not something callers see.
+
+    gimena -> gime          santi -> santi (unchanged)
+    gabi -> gabi (unchanged) daniel -> dani
+    gabriela -> gaby        architect -> sofi
+    fullstack-developer -> mafe   flutter-developer -> isa
+    data-engineer -> fer    auditor -> vale
+    fixed-errors -> lore    gina-scheduler -> gina
+    qa-integrator -> moni   integration -> rena
+    sonar-quality-gate -> sara     mcp-integration-tester -> tami
+    test-video-recorder -> vane    unit-test-standards-reviewer -> xime
+    quality-report-generator -> pau        milestone-writer -> mila
+    dod-definer -> diana    capacity-reconciler -> cami
+
 Two agent families, one lookup table:
 
-1. PM agents (gabriela, santi, daniel) — prompts are inline, built from the
-   input/context at call time. gimena and gabi look like PM agents by name
+1. PM agents (gaby, santi, dani) — prompts are inline, built from the
+   input/context at call time. gime and gabi look like PM agents by name
    but are actually loaded from spec-kit .md files (see SPEC_KIT_FILES) —
    this matches the real registry.js exactly, not the task's naive
    assumption that all 5 "PM" names are inline.
@@ -14,8 +31,8 @@ Two agent families, one lookup table:
 2. Spec-kit agents — prompts are loaded VERBATIM from
    SPEC_KIT_AGENTS_DIR/*.md at request time. Never paraphrased.
 
-3. External agents (milestone-writer, dod-definer, capacity-reconciler) —
-   same verbatim-load mechanism, from EXTERNAL_AGENTS_DIR.
+3. External agents (mila, diana, cami) — same verbatim-load mechanism,
+   from EXTERNAL_AGENTS_DIR.
 
 MODEL SELECTION: every agent has a declared model tier + max_tokens in
 AGENT_MODEL_CONFIG, instead of one hardcoded model for every call.
@@ -31,33 +48,35 @@ from typing import Callable
 from app.core.config import get_settings
 
 # canon agent_id -> source .md filename (per ia-hybrid-teams/spec-kit/AGENT_REGISTRY.md,
-# corrected where the registry doc itself is wrong — see registry.js header)
+# corrected where the registry doc itself is wrong — see registry.js header).
+# Filenames on disk keep their original (role-descriptive) names — only the
+# id callers use was renamed.
 SPEC_KIT_FILES: dict[str, str] = {
-    "architect": "architect.md",
-    "fullstack-developer": "fullstack-developer.md",
-    "flutter-developer": "flutter-developer.md",
-    "data-engineer": "data-engineer.md",
-    "auditor": "auditor.md",
-    "fixed-errors": "fixed-errors.md",
-    "gimena": "Gimena-userstorywriter.md",
+    "sofi": "architect.md",
+    "mafe": "fullstack-developer.md",
+    "isa": "flutter-developer.md",
+    "fer": "data-engineer.md",
+    "vale": "auditor.md",
+    "lore": "fixed-errors.md",
+    "gime": "Gimena-userstorywriter.md",
     "gabi": "Gabi-workplanner.md",
     # NOTE: AGENT_REGISTRY.md references "gimena-scheduler.md" but the actual
     # file in agents/ is "Gina-scheduler.md" — pre-existing inconsistency in
     # ia-hybrid-teams itself, not introduced here. Pointing at the real file.
-    "gina-scheduler": "Gina-scheduler.md",
-    "qa-integrator": "qa-integrator.md",
-    "integration": "integration.md",
-    "sonar-quality-gate": "sonar-quality-gate.md",
-    "mcp-integration-tester": "mcp-integration-tester.md",
-    "test-video-recorder": "test-video-recorder.md",
-    "unit-test-standards-reviewer": "unit-test-standards-reviewer.md",
-    "quality-report-generator": "quality-report-generator.md",
+    "gina": "Gina-scheduler.md",
+    "moni": "qa-integrator.md",
+    "rena": "integration.md",
+    "sara": "sonar-quality-gate.md",
+    "tami": "mcp-integration-tester.md",
+    "vane": "test-video-recorder.md",
+    "xime": "unit-test-standards-reviewer.md",
+    "pau": "quality-report-generator.md",
 }
 
 EXTERNAL_AGENT_FILES: dict[str, str] = {
-    "milestone-writer": "milestone-writer.md",
-    "dod-definer": "dod-definer.md",
-    "capacity-reconciler": "capacity-reconciler.md",
+    "mila": "milestone-writer.md",
+    "diana": "dod-definer.md",
+    "cami": "capacity-reconciler.md",
 }
 
 
@@ -77,7 +96,7 @@ V2.0.0), no una estructura libre:
 IMPORTANTE:
 1. Archivo: project_brain_[project_name].md
 2. Ante cualquier discrepancia entre este documento y el Decision Log, gana el Decision Log
-3. Los agentes gimena/gabi consultan este documento ANTES de cualquier decisión
+3. Los agentes gime/gabi consultan este documento ANTES de cualquier decisión
 4. Responde SOLO en JSON
 
 CONTEXTO: {json.dumps(context or {}, ensure_ascii=False)}
@@ -124,9 +143,9 @@ Genera ambas versiones de release notes."""
 
 
 PM_AGENT_PROMPTS: dict[str, Callable[[str, dict | None], str]] = {
-    "gabriela": _gabriela_prompt,
+    "gaby": _gabriela_prompt,
     "santi": _santi_prompt,
-    "daniel": _daniel_prompt,
+    "dani": _daniel_prompt,
 }
 
 # ---------------------------------------------------------------------------
@@ -154,28 +173,28 @@ class ModelTierConfig:
 DEFAULT_MODEL_CONFIG = ModelTierConfig(tier="sonnet", max_tokens=2000)
 
 AGENT_MODEL_CONFIG: dict[str, ModelTierConfig] = {
-    "gimena": ModelTierConfig("sonnet", 4000),
+    "gime": ModelTierConfig("sonnet", 4000),
     "gabi": ModelTierConfig("sonnet", 4000),
-    "gabriela": ModelTierConfig("sonnet", 3000),
+    "gaby": ModelTierConfig("sonnet", 3000),
     "santi": ModelTierConfig("sonnet", 2500),
-    "daniel": ModelTierConfig("sonnet", 3000),
-    "architect": ModelTierConfig("sonnet", 3000),
-    "fullstack-developer": ModelTierConfig("sonnet", 3000),
-    "flutter-developer": ModelTierConfig("sonnet", 3000),
-    "data-engineer": ModelTierConfig("sonnet", 3000),
-    "auditor": ModelTierConfig("sonnet", 3000),
-    "fixed-errors": ModelTierConfig("sonnet", 2500),
-    "gina-scheduler": ModelTierConfig("sonnet", 2500),
-    "qa-integrator": ModelTierConfig("sonnet", 2500),
-    "integration": ModelTierConfig("sonnet", 2500),
-    "sonar-quality-gate": ModelTierConfig("sonnet", 2000),
-    "mcp-integration-tester": ModelTierConfig("sonnet", 2000),
-    "test-video-recorder": ModelTierConfig("haiku", 1000),
-    "unit-test-standards-reviewer": ModelTierConfig("sonnet", 2000),
-    "quality-report-generator": ModelTierConfig("haiku", 1500),
-    "milestone-writer": ModelTierConfig("sonnet", 2500),
-    "dod-definer": ModelTierConfig("sonnet", 2500),
-    "capacity-reconciler": ModelTierConfig("sonnet", 2500),
+    "dani": ModelTierConfig("sonnet", 3000),
+    "sofi": ModelTierConfig("sonnet", 3000),
+    "mafe": ModelTierConfig("sonnet", 3000),
+    "isa": ModelTierConfig("sonnet", 3000),
+    "fer": ModelTierConfig("sonnet", 3000),
+    "vale": ModelTierConfig("sonnet", 3000),
+    "lore": ModelTierConfig("sonnet", 2500),
+    "gina": ModelTierConfig("sonnet", 2500),
+    "moni": ModelTierConfig("sonnet", 2500),
+    "rena": ModelTierConfig("sonnet", 2500),
+    "sara": ModelTierConfig("sonnet", 2000),
+    "tami": ModelTierConfig("sonnet", 2000),
+    "vane": ModelTierConfig("haiku", 1000),
+    "xime": ModelTierConfig("sonnet", 2000),
+    "pau": ModelTierConfig("haiku", 1500),
+    "mila": ModelTierConfig("sonnet", 2500),
+    "diana": ModelTierConfig("sonnet", 2500),
+    "cami": ModelTierConfig("sonnet", 2500),
 }
 
 

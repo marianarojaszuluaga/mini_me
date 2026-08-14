@@ -21,7 +21,7 @@ PLANNING_SUB_PHASES: list[dict[str, Any]] = [
         "objective": "Congelar qué es el MVP y medir lo ya avanzado",
         "output": "Backlog del alcance + % de avance real",
         "gate": "¿El alcance está congelado?",
-        "agent": "gimena",
+        "agent": "gime",
     },
     {
         "id": 1,
@@ -30,7 +30,7 @@ PLANNING_SUB_PHASES: list[dict[str, Any]] = [
         "objective": "Partir el alcance en hitos que digan 'qué vas a poder ver/hacer'",
         "output": "Lista de milestones con su promesa de valor",
         "gate": "¿Los milestones son demostrables y aprobados?",
-        "agent": "milestone-writer",
+        "agent": "mila",
     },
     {
         "id": 2,
@@ -39,7 +39,7 @@ PLANNING_SUB_PHASES: list[dict[str, Any]] = [
         "objective": "Definir 'terminado' objetivo: global + por milestone",
         "output": "DoD global + DoD por milestone",
         "gate": "¿El DoD es objetivo y acordado?",
-        "agent": "dod-definer",
+        "agent": "diana",
     },
     {
         "id": 3,
@@ -57,7 +57,7 @@ PLANNING_SUB_PHASES: list[dict[str, Any]] = [
         "objective": "Ver si cabe; si no, aplicar palancas — es un loop",
         "output": "Brecha calculada + decisiones de ajuste",
         "gate": "¿La brecha alcance↔capacidad↔fecha está cerrada o decidida? (el gate más importante)",
-        "agent": "capacity-reconciler",
+        "agent": "cami",
     },
     {
         "id": 5,
@@ -66,7 +66,7 @@ PLANNING_SUB_PHASES: list[dict[str, Any]] = [
         "objective": "Ubicar tareas en el calendario: fechas internas vs cliente + buffer",
         "output": "Cronograma / Gantt comprometible",
         "gate": "¿El timeline es comprometible con buffer?",
-        "agent": "gina-scheduler",
+        "agent": "gina",
     },
     {
         "id": 6,
@@ -75,11 +75,11 @@ PLANNING_SUB_PHASES: list[dict[str, Any]] = [
         "objective": "Cerrar lo que cruza todos los hitos",
         "output": "Notas de multiplataforma, deploy, pruebas, seguridad",
         "gate": None,
-        # Cross-cutting by nature — auditor listed as the representative owner
-        # for /orchestrate's single-agent-per-step mapping, but qa-integrator
-        # and architect also contribute here and can be invoked directly
-        # regardless of this mapping.
-        "agent": "auditor",
+        # Cross-cutting by nature — vale (auditor) listed as the representative
+        # owner for /orchestrate's single-agent-per-step mapping, but moni
+        # (qa-integrator) and sofi (architect) also contribute here and can be
+        # invoked directly regardless of this mapping.
+        "agent": "vale",
     },
 ]
 
@@ -107,13 +107,13 @@ PHASES: list[dict[str, Any]] = [
             "Notas transversales (multiplataforma, deploy, pruebas, seguridad)",
         ],
         "agents": [
-            "gabriela",
-            "gimena",
-            "gina-scheduler",
+            "gaby",
+            "gime",
+            "gina",
             "gabi",
-            "milestone-writer",
-            "dod-definer",
-            "capacity-reconciler",
+            "mila",
+            "diana",
+            "cami",
         ],
         "planningSubPhases": PLANNING_SUB_PHASES,
     },
@@ -132,7 +132,7 @@ PHASES: list[dict[str, Any]] = [
             "OpenAPI/Swagger URL del backend",
             "Reportes de pruebas automatizadas de API",
         ],
-        "agents": ["data-engineer", "gabi", "architect", "auditor", "fixed-errors", "qa-integrator"],
+        "agents": ["fer", "gabi", "sofi", "vale", "lore", "moni"],
     },
     {
         "id": 3,
@@ -150,7 +150,7 @@ PHASES: list[dict[str, Any]] = [
             "Swagger/OpenAPI API URL",
             "Reportes E2E (si aplica)",
         ],
-        "agents": ["fullstack-developer", "flutter-developer", "auditor", "fixed-errors", "integration"],
+        "agents": ["mafe", "isa", "vale", "lore", "rena"],
     },
     {
         "id": 4,
@@ -170,11 +170,11 @@ PHASES: list[dict[str, Any]] = [
             "Recomendación Go/No-Go",
         ],
         "agents": [
-            "sonar-quality-gate",
-            "unit-test-standards-reviewer",
-            "mcp-integration-tester",
-            "test-video-recorder",
-            "quality-report-generator",
+            "sara",
+            "xime",
+            "tami",
+            "vane",
+            "pau",
         ],
     },
     {

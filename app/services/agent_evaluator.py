@@ -34,8 +34,8 @@ class AgentCriteria:
 
 
 EVALUATION_CRITERIA: dict[str, AgentCriteria] = {
-    "gimena": AgentCriteria(
-        name="Gimena - User Story Writer",
+    "gime": AgentCriteria(
+        name="Gime - User Story Writer",
         dimensions={
             "format_compliance": Dimension(0.2, "HU format compliance (As/I want/For structure)"),
             "completeness": Dimension(0.3, "Complete AC, error handling, visual references"),
@@ -56,8 +56,8 @@ EVALUATION_CRITERIA: dict[str, AgentCriteria] = {
         },
         target_score=85,
     ),
-    "gabriela": AgentCriteria(
-        name="Gabriela - Project Brain",
+    "gaby": AgentCriteria(
+        name="Gaby - Project Brain",
         dimensions={
             "stakeholder_clarity": Dimension(0.2, "Complete stakeholder table with roles"),
             "scope_definition": Dimension(0.25, "In/Out scope matrix clarity"),
@@ -78,8 +78,8 @@ EVALUATION_CRITERIA: dict[str, AgentCriteria] = {
         },
         target_score=85,
     ),
-    "daniel": AgentCriteria(
-        name="Daniel - Release Notes",
+    "dani": AgentCriteria(
+        name="Dani - Release Notes",
         dimensions={
             "technical_accuracy": Dimension(0.25, "Bitbucket version accuracy"),
             "dual_version_coherence": Dimension(0.25, "Bitbucket ↔ Basecamp alignment"),

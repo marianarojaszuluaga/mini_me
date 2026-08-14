@@ -150,7 +150,7 @@ async def _ingest_event(
     _ensure_brain_shape(project)
 
     prompt = agent_registry.build_acta_ingest_prompt(content, metadata)
-    model_config = agent_registry.get_model_config("gabriela")
+    model_config = agent_registry.get_model_config("gaby")
     response = await client.messages.create(
         model=model_config["model"],
         max_tokens=model_config["max_tokens"],
@@ -185,7 +185,7 @@ async def _ingest_event(
     project.setdefault("memory", {}).setdefault("timeline", {}).setdefault("activities", []).append(
         {
             "timestamp": timestamp,
-            "agent": "gabriela",
+            "agent": "gaby",
             "action": f"evento '{event_type}' ingerido al Project Brain",
             "status": "completed",
         }

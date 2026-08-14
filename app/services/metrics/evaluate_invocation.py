@@ -153,10 +153,10 @@ async def _acertividad_judge(
 
 
 # Agents whose documented contract is strict JSON (per agent_registry.py's
-# prompts: gabriela/santi/daniel all say "Responde SOLO en JSON"). gimena is
-# the HU-format contract (Gimena-style: CONTEXTO/CRITERIOS DE ACEPTACION).
-_JSON_CONTRACT_AGENTS = {"gabriela", "santi", "daniel"}
-_HU_FORMAT_AGENTS = {"gimena"}
+# prompts: gaby/santi/dani all say "Responde SOLO en JSON"). gime is
+# the HU-format contract (Gime-style: CONTEXTO/CRITERIOS DE ACEPTACION).
+_JSON_CONTRACT_AGENTS = {"gaby", "santi", "dani"}
+_HU_FORMAT_AGENTS = {"gime"}
 
 
 def _formato_heuristic(agent_name: str, output: str) -> tuple[float, str]:
