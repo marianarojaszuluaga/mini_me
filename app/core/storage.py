@@ -58,12 +58,29 @@ class Storage:
         self._redis = None
 
         if self.using_kv:
-            # Lazy-imported: local/file-mode deployments never need this
-            # package installed.
-            from upstash_redis import Redis  # type: ignore[import-not-found]
+            # Real bug found 2026-08-14: a stale Vercel Marketplace Redis
+            # integration (added, then never actually provisioned with a
+            # real database — "nunca la hemos configurado") left
+            # *_KV_REST_API_URL/TOKEN env vars in production. This branch
+            # had NO error handling at all, so instantiating a client
+            # against a non-existent/broken Redis silently took down every
+            # route that calls get_storage() (GET /health, /projects, ...)
+            # with a raw 500 — including endpoints that don't even read
+            # data, since the crash happened in the client constructor
+            # itself. Falls back to filesystem mode instead of crashing the
+            # whole app over a broken KV credential.
+            try:
+                # Lazy-imported: local/file-mode deployments never need this
+                # package installed.
+                from upstash_redis import Redis  # type: ignore[import-not-found]
 
-            self._redis = Redis(url=redis_url, token=redis_token)
-        else:
+                self._redis = Redis(url=redis_url, token=redis_token)
+            except Exception as error:  # noqa: BLE001 - a broken KV config must degrade, never crash every route
+                print(f"storage.py: Redis/KV init failed, falling back to filesystem: {error}")
+                self.using_kv = False
+                self._redis = None
+
+        if not self.using_kv:
             try:
                 self.storage_dir.mkdir(parents=True, exist_ok=True)
             except OSError as error:
@@ -76,8 +93,12 @@ class Storage:
 
     def _read_list(self, name: str) -> list[Any]:
         if self.using_kv and self._redis is not None:
-            value = self._redis.get(name)
-            return value or []
+            try:
+                value = self._redis.get(name)
+                return value or []
+            except Exception as error:  # noqa: BLE001 - a flaky KV call must not 500 the whole route
+                print(f'storage.py: Redis read_list("{name}") failed: {error}')
+                return []
         try:
             file_path = self._file_path(name)
             if not file_path.exists():
@@ -89,7 +110,10 @@ class Storage:
 
     def _write_list(self, name: str, value: list[Any]) -> None:
         if self.using_kv and self._redis is not None:
-            self._redis.set(name, value)
+            try:
+                self._redis.set(name, value)
+            except Exception as error:  # noqa: BLE001 - a flaky KV call must not 500 the whole route
+                print(f'storage.py: Redis write_list("{name}") failed: {error}')
             return
         try:
             self._file_path(name).write_text(
@@ -182,8 +206,12 @@ class Storage:
 
     def _read_dict(self, name: str) -> dict[str, Any]:
         if self.using_kv and self._redis is not None:
-            value = self._redis.get(name)
-            return value or {}
+            try:
+                value = self._redis.get(name)
+                return value or {}
+            except Exception as error:  # noqa: BLE001 - a flaky KV call must not 500 the whole route
+                print(f'storage.py: Redis read_dict("{name}") failed: {error}')
+                return {}
         try:
             file_path = self._file_path(name)
             if not file_path.exists():
@@ -195,7 +223,10 @@ class Storage:
 
     def _write_dict(self, name: str, value: dict[str, Any]) -> None:
         if self.using_kv and self._redis is not None:
-            self._redis.set(name, value)
+            try:
+                self._redis.set(name, value)
+            except Exception as error:  # noqa: BLE001 - a flaky KV call must not 500 the whole route
+                print(f'storage.py: Redis write_dict("{name}") failed: {error}')
             return
         try:
             self._file_path(name).write_text(
