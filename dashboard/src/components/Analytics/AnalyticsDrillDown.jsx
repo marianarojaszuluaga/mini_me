@@ -3,6 +3,15 @@ import DrillDown from "../CommandCenter/DrillDown.jsx";
 import ApiClient from "../../api-client.js";
 import "./analytics.css";
 
+// Real per-agent photos (2026-08-14, Mariana). One file per agent id, e.g.
+// "gime.jpg" -> agent "gime". Vite resolves these to real asset URLs at
+// build time — no fetch, no runtime lookup against a server.
+const AGENT_PHOTOS = Object.fromEntries(
+  Object.entries(import.meta.glob("../../assets/agent-avatars/*.jpg", { eager: true, import: "default" })).map(
+    ([path, url]) => [path.match(/([^/]+)\.jpg$/)[1], url]
+  )
+);
+
 const STORAGE_KEY = "ORQ_APP_KEY";
 
 function defaultApi() {
@@ -559,22 +568,29 @@ function AgentAvatarGroup({ agentEvaluations }) {
     return <div className="analytics-note">Sin agentes invocados todavía para este proyecto.</div>;
   }
 
+  const missingPhoto = agents.filter((agent) => !AGENT_PHOTOS[agent]);
+
   return (
     <div className="avatar-group">
-      {agents.map((agent) => (
-        <div
-          key={agent}
-          className="avatar"
-          style={{ background: AGENT_COLORS[agent] || "#7D7D7D" }}
-          title={agent}
-        >
-          {agent.slice(0, 2)}
+      {agents.map((agent) =>
+        AGENT_PHOTOS[agent] ? (
+          <img key={agent} className="avatar avatar-photo" src={AGENT_PHOTOS[agent]} alt={agent} title={agent} />
+        ) : (
+          <div
+            key={agent}
+            className="avatar"
+            style={{ background: AGENT_COLORS[agent] || "#7D7D7D" }}
+            title={agent}
+          >
+            {agent.slice(0, 2)}
+          </div>
+        )
+      )}
+      {missingPhoto.length > 0 && (
+        <div className="agent-note">
+          Sin foto real todavía: {missingPhoto.join(", ")} — placeholder de color mientras tanto.
         </div>
-      ))}
-      <div className="agent-note">
-        Placeholder de color por agente — cuando tengamos las fotos reales de cada uno, reemplazan
-        estas iniciales.
-      </div>
+      )}
     </div>
   );
 }
