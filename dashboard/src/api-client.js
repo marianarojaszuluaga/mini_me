@@ -56,6 +56,17 @@ export default class ApiClient {
     return this.request("/projects", { method: "POST", body: JSON.stringify(data) });
   }
 
+  linkBasecampProject(projectId, accountId, basecampProjectId) {
+    return this.request(`/projects/${projectId}/basecamp`, {
+      method: "PUT",
+      body: JSON.stringify({ account_id: accountId, project_id: basecampProjectId })
+    });
+  }
+
+  unlinkBasecampProject(projectId) {
+    return this.request(`/projects/${projectId}/basecamp`, { method: "DELETE" });
+  }
+
   invokeAgent(agentName, projectId, input, context) {
     return this.request(`/agents/${agentName}/invoke`, {
       method: "POST",

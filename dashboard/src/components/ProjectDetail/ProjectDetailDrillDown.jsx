@@ -29,6 +29,7 @@ const SECTIONS = [
   { id: "fases", label: "Fases y agentes" },
   { id: "brain", label: "Project Brain" },
   { id: "repos", label: "Repositorios asociados" },
+  { id: "basecamp", label: "Basecamp" },
   { id: "timeline", label: "Timeline de actividad" }
 ];
 
@@ -586,6 +587,98 @@ function TimelineSection({ api, project }) {
 }
 
 // ---------------------------------------------------------------------------
+// Basecamp link — account_id + project_id, e.g. from
+// https://3.basecamp.com/{account_id}/projects/{project_id}. Real link
+// only: this does not read from the Basecamp API (that needs a connected
+// Auth Profile's OAuth token) — just stores/shows the reference and a real
+// "Ver en Basecamp" URL.
+// ---------------------------------------------------------------------------
+
+function BasecampSection({ api, project, onProjectUpdated }) {
+  const existing = project.basecamp;
+  const [accountId, setAccountId] = useState(existing?.account_id || "");
+  const [basecampProjectId, setBasecampProjectId] = useState(existing?.project_id || "");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleLink = async (e) => {
+    e.preventDefault();
+    setBusy(true);
+    setError("");
+    try {
+      const fresh = await api.linkBasecampProject(project.id, accountId, basecampProjectId);
+      onProjectUpdated?.(fresh);
+    } catch (err) {
+      setError(err.message);
+    }
+    setBusy(false);
+  };
+
+  const handleUnlink = async () => {
+    setBusy(true);
+    setError("");
+    try {
+      const fresh = await api.unlinkBasecampProject(project.id);
+      setAccountId("");
+      setBasecampProjectId("");
+      onProjectUpdated?.(fresh);
+    } catch (err) {
+      setError(err.message);
+    }
+    setBusy(false);
+  };
+
+  return (
+    <div className="pd-subsection">
+      <h3>Basecamp</h3>
+      {existing ? (
+        <div className="pd-meta">
+          Vinculado a{" "}
+          <a
+            href={`https://3.basecamp.com/${existing.account_id}/projects/${existing.project_id}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            https://3.basecamp.com/{existing.account_id}/projects/{existing.project_id}
+          </a>
+        </div>
+      ) : (
+        <div className="empty-state">Sin proyecto de Basecamp vinculado todavía.</div>
+      )}
+
+      {error && <div className="flag">⚠️ {error}</div>}
+
+      <form onSubmit={handleLink} className="pd-connect-repo-form">
+        <input
+          type="text"
+          placeholder="account_id (ej. 5172885)"
+          value={accountId}
+          onChange={(e) => setAccountId(e.target.value)}
+          required
+        />
+        <input
+          type="text"
+          placeholder="project_id (ej. 44382327)"
+          value={basecampProjectId}
+          onChange={(e) => setBasecampProjectId(e.target.value)}
+          required
+        />
+        <div className="modal-buttons">
+          {existing && (
+            <button type="button" className="btn-cancel" onClick={handleUnlink} disabled={busy}>
+              Desvincular
+            </button>
+          )}
+          <button type="submit" className="btn-success" disabled={busy}>
+            {busy ? "Guardando..." : existing ? "Actualizar" : "Vincular"}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main component
 // ---------------------------------------------------------------------------
 
@@ -632,6 +725,9 @@ export default function ProjectDetailDrillDown({ api, project, agents = [], phas
         )}
         {activeSection === "repos" && (
           <RepositoriosSection api={api} project={currentProject} onProjectUpdated={handleProjectUpdated} />
+        )}
+        {activeSection === "basecamp" && (
+          <BasecampSection api={api} project={currentProject} onProjectUpdated={handleProjectUpdated} />
         )}
         {activeSection === "timeline" && <TimelineSection api={api} project={currentProject} />}
       </div>

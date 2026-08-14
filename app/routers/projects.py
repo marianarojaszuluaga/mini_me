@@ -118,6 +118,43 @@ async def create_project(body: ProjectCreateRequest) -> dict[str, Any]:
     return new_project
 
 
+@router.put("/projects/{project_id}/basecamp")
+async def link_basecamp_project(project_id: str, body: dict[str, Any] = Body(...)) -> dict[str, Any]:
+    """Links (or re-links) this project to a real Basecamp project —
+    account_id + project_id, e.g. from https://3.basecamp.com/{account_id}/
+    projects/{project_id}. Real link only: does not verify access against
+    the Basecamp API here (that needs a connected Auth Profile's token,
+    which the caller may not have yet) — a genuinely broken link surfaces
+    when something actually tries to read from it, not fabricated here."""
+    account_id = body.get("account_id")
+    project_ref = body.get("project_id")
+    if not account_id or not project_ref:
+        raise HTTPException(status_code=400, detail="account_id and project_id are required")
+
+    storage = get_storage()
+    projects = storage.read_projects()
+    project = next((p for p in projects if p.get("id") == project_id), None)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    project["basecamp"] = {"account_id": str(account_id), "project_id": str(project_ref)}
+    storage.write_projects(projects)
+    return project
+
+
+@router.delete("/projects/{project_id}/basecamp")
+async def unlink_basecamp_project(project_id: str) -> dict[str, Any]:
+    storage = get_storage()
+    projects = storage.read_projects()
+    project = next((p for p in projects if p.get("id") == project_id), None)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    project["basecamp"] = None
+    storage.write_projects(projects)
+    return project
+
+
 async def _ingest_event(
     client: AsyncAnthropic,
     event_type: str,

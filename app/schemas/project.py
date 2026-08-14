@@ -164,6 +164,20 @@ class Repository(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# Basecamp link (2026-08-14) — a project can point at a real Basecamp
+# project (account_id + project_id), used for "Ver en Basecamp" and, once a
+# real adapter reads sprint/to-do data, the Dashboard's "Estadísticas del
+# proyecto" section. Separate from Repository — a Basecamp project isn't a
+# code repo, it's a project-management link.
+# ---------------------------------------------------------------------------
+
+
+class BasecampLink(BaseModel):
+    account_id: str
+    project_id: str
+
+
+# ---------------------------------------------------------------------------
 # Project
 # ---------------------------------------------------------------------------
 
@@ -181,6 +195,7 @@ class Project(BaseModel):
     memory: ProjectMemory = Field(default_factory=ProjectMemory)
     # New in SPEC_JARVIS.md §6.1. A Project can have 0, 1, or N repos.
     repositories: list[Repository] = Field(default_factory=list)
+    basecamp: BasecampLink | None = None
 
 
 class ProjectCreateRequest(BaseModel):
