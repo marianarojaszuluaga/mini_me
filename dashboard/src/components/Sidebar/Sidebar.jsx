@@ -21,7 +21,13 @@ function useLiveStatus(api) {
     let cancelled = false;
     const check = async () => {
       try {
-        const res = await fetch(`${api.baseUrl}/health`);
+        // no-store: a transient 500 (e.g. a real backend crash) must never
+        // get stuck in the browser's HTTP cache and keep reporting "Caído"
+        // forever after the real problem is fixed — found live 2026-08-14
+        // when a since-fixed crash's cached response kept failing CORS
+        // checks (a cached error response carries no CORS headers) long
+        // after the backend itself was healthy again.
+        const res = await fetch(`${api.baseUrl}/health`, { cache: "no-store" });
         if (!cancelled) {
           setStatus(
             res.ok
