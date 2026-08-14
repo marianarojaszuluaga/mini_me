@@ -295,39 +295,88 @@ Uso/Manejo de Errores, Referencia Visual): [`outputs/HU_RUN-001_2026-08-12.md`](
 | HU-008-JarvisMode | Autoevaluación multidimensional y continua | F5 — Autoevaluación |
 | HU-009-JarvisMode | Changelog de mejoras del sistema | F5 — Autoevaluación |
 | HU-010-JarvisMode | Panel de Analítica de negocio | F6 — Analítica |
-| HU-011-JarvisMode | Rediseño de IA — sidebar, CTA de Jarvis, Proyectos/Memoria de Mar como vistas, Analítica a pantalla completa | F7 — UX/Design system |
+| HU-011-JarvisMode | Rediseño de IA — sidebar, CTA de Jarvis, Proyectos/Memoria de Mar/Dashboard como vistas | F7 — UX/Design system |
+| HU-012-JarvisMode | Renombre de los 22 ids de agente a nombres cortos en inglés | F7 — UX/Design system |
 
-**HU-011-JarvisMode — Criterios de Aceptación** (mockup HTML revisado con Mariana el 2026-08-14
-antes de implementar, ver §2 para el sitemap completo):
+**HU-011-JarvisMode — Criterios de Aceptación** (mockup HTML iterado con Mariana en 7 rondas,
+2026-08-14, antes de implementar — ver §2 para el sitemap completo). Cada ronda de feedback quedó
+resuelta en el mockup antes de tocar código; esto documenta el estado FINAL acordado:
 
-- **2.1 — Interfaz**
+- **2.1 — Interfaz general**
   1. El header del sidebar muestra "Mar en internet" como H1 y "Mini me with her smarts and AI"
      como subtítulo, reemplazando "Orquestrador 360 / 19 agentes · 5 fases del SDLC".
-  2. "Hablar con Jarvis" es un botón destacado (color de acento, no gris neutro) arriba de las
-     secciones de navegación del sidebar — no un ítem más de la lista de navegación.
-  3. El banner degradado morado/azul del header se elimina por completo — no debe quedar ningún
-     `linear-gradient` en la navegación principal.
+  2. "Hablar con Jarvis" es un botón destacado (color de acento) arriba de las secciones de
+     navegación del sidebar — no un ítem más de la lista.
+  3. El banner degradado morado/azul del header se elimina por completo — cero `linear-gradient`
+     en la navegación principal.
   4. Ningún emoji se usa como ícono funcional en sidebar, chat, tarjetas o modales — todos los
      íconos son SVG de línea del mismo set.
-- **2.2 — Casos de uso**
-  1. Entrar a "Proyectos" muestra un grid de tarjetas (una por proyecto, con su semáforo y sus
-     stats propias: gaps/alertas/decisiones) más una tarjeta "+ Nuevo proyecto" en la misma
-     grilla — crear un proyecto no requiere pasar primero por el chat.
-  2. Click en una tarjeta de proyecto abre el detalle de ESE proyecto dentro de la misma vista
-     Proyectos (stats en grande, reconciliación reciente, repos asociados) con un back-link a la
-     grilla — no navega a una URL/pantalla distinta ni abre un modal separado.
-  3. Entrar a "Analítica" oculta por completo la vista de Jarvis Chat (no queda un overlay ni un
-     panel residual) y expande el área principal a mostrar todas las estadísticas disponibles;
-     "Volver al chat" es la única acción que regresa a la vista de Chat.
-  4. Entrar a "Memoria de Mar" muestra sus entradas inline como vista propia (mismo tratamiento
-     que Proyectos/Analítica) — no se abre como modal/overlay.
-  5. "Integraciones" se mantiene como modal (no es una de las cuatro vistas de navegación
-     principal — ver §2 para la razón).
-- **2.3 — Manejo de errores / estados vacíos**
-  1. Un proyecto sin gaps/alertas/decisiones muestra `0` explícito en cada stat de su tarjeta, no
-     la tarjeta oculta ni un guion genérico.
-  2. La vista Proyectos sin proyectos todavía muestra solo la tarjeta "+ Nuevo proyecto" (sin un
-     grid vacío ni un mensaje de error).
+  5. Toda sección (Dashboard, drill-down de Proyectos, estados vacíos) es UN contenedor/card con
+     el título adentro — nunca un título flotando arriba de tarjetas sueltas; los stats internos
+     de esa sección no llevan su propio borde (evita doble-caja).
+  6. El color principal (acento) es configurable, no fijo en código: verde oscuro por default,
+     con azul/púrpura/naranja como alternativas — **sin rojo** (reservado para estados de error).
+     El control vive en un modal de "Configuración" (ícono de rueda al pie del sidebar, no
+     controles sueltos), con tema (auto/claro/oscuro) + color, y un botón "Guardar" explícito —
+     el cambio no se aplica hasta confirmar.
+  7. El indicador de estado del sidebar (antes un punto estático "Operativo") refleja salud real
+     de la plataforma con 3 estados posibles: Operativo (verde), Novedades (ámbar, ej. latencia
+     elevada), Caído (rojo) — cada uno con su texto explícito, no solo un color.
+- **2.2 — Navegación y vistas**
+  1. "Proyectos": grid de tarjetas (semáforo + stats propias: gaps/alertas/decisiones) + tarjeta
+     "+ Nuevo proyecto" en la misma grilla.
+  2. Click en una tarjeta abre el detalle de ESE proyecto dentro de la misma vista (back-link a
+     la grilla, nunca una URL ni un modal distinto).
+  3. "Dashboard" (renombrado de "Analítica") oculta por completo la vista de Jarvis Chat al
+     entrar — "Volver al chat" es la única salida. Orden fijo de secciones: (1) Estadísticas del
+     proyecto, (2) Últimos agentes usados + desglose de outputs, (3) Salud del sistema. Un
+     selector de proyecto arriba gobierna las secciones 1 y 2; cada título de sección lleva un
+     badge de alcance ("Proyecto X" vs. "Todos los proyectos") para que nunca se confunda un
+     número por-proyecto con uno global — Salud del Sistema es la única sección deliberadamente
+     global.
+  4. "Memoria de Mar" es una vista simple (sin categorías por tipo) con un badge fijo de respaldo:
+     "Respaldado automáticamente en Obsidian — carpeta `Orquestrador 360 - Memoria de la App`,
+     cada 3h" (ver §11, sync ya implementado).
+  5. "Integraciones" se mantiene como modal — incluye GitHub, Bitbucket, Google (OAuth real) y
+     **Basecamp**.
+- **2.3 — Jarvis Chat**
+  1. Soporta múltiples conversaciones abiertas a la vez, mostradas como tabs arriba del chat;
+     cada tab lleva un chip visible con el proyecto al que pertenece.
+  2. El panel de estado lateral separa visualmente "Esta conversación" (turnos, tokens de ESTA
+     sesión) de "Sistema" (gaps totales, alertas — todos los proyectos) con un divisor claro —
+     nunca mezclados en la misma lista.
+- **2.4 — Proyectos: repos, ramas y estados vacíos**
+  1. Un proyecto puede tener **N repositorios**, cada uno con **N ramas monitoreadas** — ambos
+     listados vienen de `project.repositories[]` real (no un solo repo/rama quemado). Botón
+     "Agregar repositorio" siempre visible en la sección.
+  2. Un proyecto sin repos ni Basecamp vinculado muestra dos CTAs explícitos — "Integrar Repo" e
+     "Integrar Basecamp" — en vez de secciones vacías o en blanco.
+  3. El modal de "Conectar repositorio" exige un **Proyecto** (campo obligatorio, marcado `*`) —
+     un repo SIEMPRE pertenece a un proyecto, nunca queda suelto — además de proveedor, Auth
+     Profile, `owner/repo`, ambiente, y un selector de **múltiples ramas** (chips, no una sola).
+  4. El modal de "Nuevo proyecto" incluye nombre, descripción, vínculo opcional a Basecamp, y
+     referencia al mismo flujo de conectar repositorio (sin duplicar sus campos).
+  5. En el drill-down de proyecto, "Sprint abierto" incluye un link "Ver en Basecamp".
+- **2.5 — Manejo de errores / estados vacíos**
+  1. Un proyecto sin gaps/alertas/decisiones muestra `0` explícito en cada stat, nunca la tarjeta
+     oculta ni un guion genérico.
+  2. La vista Proyectos sin proyectos todavía muestra solo la tarjeta "+ Nuevo proyecto".
+
+**HU-012-JarvisMode — Criterios de Aceptación** (resuelto en código, no solo mockup — 2026-08-14):
+
+- **2.1** Los 22 agentes tienen un id corto en inglés por defecto: `gime` (ex-gimena), `gabi`
+  (sin cambio), `gaby` (ex-gabriela), `santi` (sin cambio), `dani` (ex-daniel), `sofi`
+  (ex-architect), `mafe` (ex-fullstack-developer), `isa` (ex-flutter-developer), `fer`
+  (ex-data-engineer), `vale` (ex-auditor), `lore` (ex-fixed-errors), `gina`
+  (ex-gina-scheduler), `moni` (ex-qa-integrator), `rena` (ex-integration), `sara`
+  (ex-sonar-quality-gate), `tami` (ex-mcp-integration-tester), `vane` (ex-test-video-recorder),
+  `xime` (ex-unit-test-standards-reviewer), `pau` (ex-quality-report-generator), `mila`
+  (ex-milestone-writer), `diana` (ex-dod-definer), `cami` (ex-capacity-reconciler).
+- **2.2** Los archivos `.md` fuente en `src/agents/spec-kit-agents/`/external agents NO cambian
+  de nombre — el id es solo la clave de lookup (`agent_registry.py`'s `SPEC_KIT_FILES`/
+  `EXTERNAL_AGENT_FILES`), no el archivo en disco.
+- **2.3** El id viejo ya no funciona: `POST /agents/{id_viejo}/invoke` responde `400 Unknown
+  agent`, no un fallback silencioso al nuevo id.
 
 ---
 
@@ -749,9 +798,42 @@ en Geist real el color "primary" es neutro (texto/fondo invertidos) y el verde q
 estados de éxito. Se construyó un mockup HTML autocontenido (sin React) con la IA revisada en
 esta conversación — sidebar reemplaza el banner degradado, "Hablar con Jarvis" como CTA, Proyectos
 con grid+creación+detalle, Analítica a pantalla completa, Memoria de Mar inline, iconos SVG en vez
-de emoji — y Mariana lo aprobó antes de iniciar el refactor real sobre `dashboard/src/`. Los
-criterios de aceptación de este mockup están en la HU de arriba (§5); el refactor de
+de emoji — y Mariana lo aprobó (tras 7 rondas de feedback iterado sobre el mismo HTML: config de
+color, reorden del Dashboard, multi-repo/ramas, CTAs de integración faltante, chats múltiples,
+etc. — ver §5 para el estado final) antes de iniciar el refactor real sobre `dashboard/src/`. Los
+criterios de aceptación completos están en la HU de arriba (§5); el refactor de
 `dashboard/src/App.jsx` y sus componentes para implementarlo de verdad todavía no se ha hecho.
+
+**HU-012-JarvisMode (renombre de agentes) — 🟢 Implementado (2026-08-14).** A diferencia de
+HU-011, esto sí se implementó directamente en el backend real (Mariana: "sí reemplazalos"), no
+solo en el mockup. Cambiados los 22 ids en `agent_registry.py` (`PM_AGENT_PROMPTS`,
+`SPEC_KIT_FILES`, `EXTERNAL_AGENT_FILES`, `AGENT_MODEL_CONFIG`), `phase_contracts.py` (agente por
+fase/sub-fase), `agents.py`'s `STEP_TO_AGENT`, `projects.py`'s ingesta de actas,
+`agent_evaluator.py`'s `EVALUATION_CRITERIA`, `jarvis_chat/tools.py`'s descripción de
+`invoke_agent`, y `evaluate_invocation.py`'s sets de contrato JSON/HU-format. Los archivos `.md`
+fuente NO se renombraron (es solo el id de lookup). **Verificado en vivo**: `GET /agents` devuelve
+los 22 ids nuevos; `POST /agents/gimena/invoke` (id viejo) responde `400 Unknown agent`; `POST
+/agents/vale/invoke` (renombrado de `auditor`) completó una llamada real a `claude-sonnet-4-6` con
+salida y evaluación reales.
+
+**Analítica robustecida — outputs reales por agente/proyecto (2026-08-14).** A pedido de Mariana
+("debemos tener outputs de todos los agentes"), investigué `record_output()`
+(`app/services/metrics/collector.py`) y encontré que **no tenía ningún caller en todo el
+sistema** — el contador de outputs (HU/plan/acta/QA) era código muerto, así que "# de outputs" en
+el Dashboard solo podía estar vacío o inventado. Corregido: `OutputCount` ahora lleva
+`project_id`/`agent_name`; `OutputType` se amplió con `qa_run` y `pull_request`; y
+`invoke_agent_core` (`app/routers/agents.py`) llama `record_output()` de verdad después de cada
+invocación exitosa (`gime`→hu, `gabi`→plan, `santi`→acta, `vale`/`sara`/`xime`→qa_run). `GET
+/metrics/output-counts` y `/metrics/summary` aceptan `?project_id=` para escopar el resultado a UN
+proyecto (antes solo devolvían el total global — el mismo gap que Mariana señaló para
+"Estadísticas de Proyectos"). **Pendiente, documentado explícitamente en vez de fingido**:
+`pull_request` quedó en el enum pero SIN wiring desde `sync_scheduler.py` — los adapters de
+GitHub/Bitbucket traen TODAS las PRs del repo (sin filtro "desde la última sync" como sí tienen los
+commits), así que sumar ese conteo cada 3h duplicaría/triplicaría el número en vez de reflejar PRs
+nuevas; hace falta que el adapter soporte un delta real antes de conectarlo. Verificado en vivo:
+`POST /agents/gime/invoke` + `/agents/vale/invoke` contra un `project_id` real, seguido de `GET
+/metrics/output-counts?project_id=...`, devolvió `hu=1` y `qa_run=1` reales, cada uno con
+`eventIds` reales para drill-down.
 
 **Backend FastAPI — primer esqueleto (2026-08-12, commit `ffca64a`)**
 
@@ -769,7 +851,7 @@ en `openapi.json` (confirmado comparando la lista real contra §6.5 de `ARCHITEC
 | HU-007-JarvisMode (Memoria de Mar) | 🟢 Implementado | Dedup por similitud Jaccard (umbral 0.6, marcado para calibrar) |
 | HU-008-JarvisMode (autoevaluación) | 🟢 Implementado | Las 4 dimensiones se disparan automáticamente en `invoke_agent_core` (usada por `/agents/{name}/invoke` **y** `/orchestrate`), envuelto en try/except propio para no tumbar la respuesta si la evaluación falla. Detector de 2 invocaciones seguidas bajas conectado a la propuesta de changelog |
 | HU-009-JarvisMode (changelog de mejoras) | 🟢 Implementado | `POST /changelog` (propuesta), `POST /changelog/{id}/approve` (aprobación manual, nunca automática), ventana antes/después simétrica, scores reales del `collector`, nunca inventados |
-| HU-010-JarvisMode (Analítica) | 🟢 Implementado | `GET /metrics/events` + cada serie agregada trae `eventIds`/`eventsAvailable`; los agregados de antes de este cambio devuelven explícitamente "sin eventos crudos disponibles" en vez de inventar un desglose |
+| HU-010-JarvisMode (Analítica) | 🟢 Implementado | `GET /metrics/events` + cada serie agregada trae `eventIds`/`eventsAvailable`; los agregados de antes de este cambio devuelven explícitamente "sin eventos crudos disponibles" en vez de inventar un desglose. **2026-08-14**: `record_output()` conectado a invocaciones reales (antes sin callers) y `OutputCount` escopado por `project_id` — ver detalle abajo |
 | Auth Profiles (§6.2) | 🟢 CRUD implementado | Falta resolver la investigación de SSO de Google antes de que el flujo de conexión sea real |
 | Reescritura completa a Python/FastAPI (§8.0) | 🟢 Completa (MAP + Orchestrator) | El Orchestrator (`orchestrator.js` original: `toolRegistry`, `/toolchain/execute`, `/workflows`, `/system/state`) migró bajo el prefijo `/orchestrator/*` — 9 rutas verificadas, `GET /orchestrator/tools` responde con el tool `map` real |
 
