@@ -19,9 +19,25 @@ from app.core.storage import get_storage
 from app.phases import phase_contracts
 from app.services import agent_registry
 from app.services.agent_evaluator import AgentEvaluator
+from app.services.metrics import collector
 from app.services.metrics.evaluate_invocation import evaluate_and_check
 
 router = APIRouter(dependencies=[Depends(authenticate_token)])
+
+# Which agent produces which OutputCount type (SPEC_JARVIS.md §7, resolved
+# 2026-08-14 — record_output() previously had zero callers anywhere in the
+# system, so the Dashboard's "# de outputs" was always fabricated/empty).
+# Agents not listed here (e.g. gaby, gina, lore) don't map to one of the
+# tracked output types and simply don't add to any counter — not every
+# agent invocation is a countable "output" in this sense.
+_AGENT_OUTPUT_TYPE: dict[str, str] = {
+    "gime": "hu",
+    "gabi": "plan",
+    "santi": "acta",
+    "vale": "qa_run",
+    "sara": "qa_run",
+    "xime": "qa_run",
+}
 
 # Which agent handles a given (phase, step) — validated against
 # phase_contracts so we never invoke an agent that isn't actually assigned to
@@ -131,6 +147,10 @@ async def invoke_agent_core(
             "status": "completed",
         }
     )
+
+    output_type = _AGENT_OUTPUT_TYPE.get(name)
+    if output_type:
+        await collector.record_output(output_type, project_id=project_id, agent_name=name)
 
     # HU-008-JarvisMode: autoevaluación multidimensional inmediata — corre en
     # cada invocación real, no como paso manual aparte (AC 2.1.2). No debe

@@ -24,6 +24,12 @@ OutputType = Literal[
     "acta",
     "evaluacion",
     "reconciliacion",
+    # Added 2026-08-14 (Mariana: "robustecer las analíticas... outputs de
+    # todos los agentes") — qa_run covers vale/sara/xime's QA-phase agents,
+    # pull_request is recorded from the repo digest (sync_scheduler.py),
+    # not from an agent invocation directly.
+    "qa_run",
+    "pull_request",
 ]
 
 
@@ -81,11 +87,19 @@ class UsageEvent(BaseModel):
 class OutputCount(BaseModel):
     """Independent per-type output counter — the P0 'base de todo lo demás'
     metric (SPEC_JARVIS.md §7): HUs, specs, planes, actas, evaluaciones y
-    reconciliaciones are counted separately, never mixed into one total."""
+    reconciliaciones are counted separately, never mixed into one total.
+
+    project_id/agent_name added 2026-08-14: the Dashboard's "Estadísticas
+    del proyecto" section must show real outputs scoped to ONE project, not
+    a system-wide total (Mariana: "la info es por proyecto no general") —
+    both are optional because some output types (e.g. a manual agent
+    invocation with no project context) genuinely have neither."""
 
     type: OutputType
     count: int = Field(ge=0)
     date: datetime = Field(default_factory=_utcnow)
+    project_id: str | None = None
+    agent_name: str | None = None
 
 
 RawEventType = Literal[

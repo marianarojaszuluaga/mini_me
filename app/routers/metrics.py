@@ -77,8 +77,10 @@ async def usage_events() -> list[dict[str, Any]]:
 
 
 @router.get("/metrics/output-counts")
-async def output_counts() -> list[dict[str, Any]]:
-    return [_enrich(row, "output_count") for row in collector.read_output_counts()]
+async def output_counts(
+    project_id: str | None = Query(default=None, description="Filter to one project's outputs — omit for the system-wide total"),
+) -> list[dict[str, Any]]:
+    return [_enrich(row, "output_count") for row in collector.read_output_counts(project_id=project_id)]
 
 
 @router.get("/metrics/events")
@@ -100,12 +102,14 @@ async def raw_events(
 
 
 @router.get("/metrics/summary")
-async def summary() -> dict[str, Any]:
+async def summary(
+    project_id: str | None = Query(default=None, description="Scopes outputCounts to one project — the rest stay system-wide"),
+) -> dict[str, Any]:
     """One-shot payload for HU-010's analytics panel — all four series
     together, so the frontend doesn't need four round-trips."""
     return {
         "agentEvaluations": await agent_evaluations(),
         "reconciliationRuns": await reconciliation_runs(),
         "usageEvents": await usage_events(),
-        "outputCounts": await output_counts(),
+        "outputCounts": await output_counts(project_id=project_id),
     }

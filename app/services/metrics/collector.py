@@ -8,7 +8,7 @@ Series names (storage.py series/file names, one JSON list each):
 - "metrics-agent-evaluations" -> list[AgentEvaluation]
 - "metrics-reconciliation-runs" -> list[ReconciliationRun]
 - "metrics-usage-events" -> list[UsageEvent]   (one entry per day, upserted)
-- "metrics-output-counts" -> list[OutputCount] (one entry per type per day, upserted)
+- "metrics-output-counts" -> list[OutputCount] (one entry per type+project per day, upserted)
 - "metrics-raw-events" -> list[RawMetricEvent] (one entry per individual event,
   written alongside the aggregates above — backs HU-010's drill-down requirement)
 """
@@ -89,24 +89,48 @@ async def record_evaluation(
     return evaluation
 
 
-async def record_output(output_type: OutputType) -> OutputCount:
-    """Increments today's counter for a given output type (HU/spec/plan/acta/
-    evaluacion/reconciliacion) — P0 metric, independent counter per type."""
+async def record_output(
+    output_type: OutputType,
+    project_id: str | None = None,
+    agent_name: str | None = None,
+    count: int = 1,
+) -> OutputCount:
+    """Increments today's counter for a given output type, scoped to a
+    project + agent when known — P0 metric, independent counter per
+    (type, project_id, date) bucket, not just per type (2026-08-14: the
+    Dashboard needs per-project output stats, not one global total).
+
+    `count` lets one call record several outputs at once (e.g. N PRs found
+    in a single repo digest) without N separate calls."""
     storage = get_storage()
     today = _today_iso()
     counts = storage.read_series(_OUTPUT_SERIES)
 
     for row in counts:
-        if row.get("type") == output_type and row.get("date", "").startswith(today):
-            row["count"] = row.get("count", 0) + 1
+        if (
+            row.get("type") == output_type
+            and row.get("project_id") == project_id
+            and row.get("date", "").startswith(today)
+        ):
+            row["count"] = row.get("count", 0) + count
+            if agent_name and not row.get("agent_name"):
+                row["agent_name"] = agent_name
             storage.write_series(_OUTPUT_SERIES, counts)
-            _record_raw_event("output_count", None, {"type": output_type, "date": today})
+            _record_raw_event(
+                "output_count",
+                agent_name,
+                {"type": output_type, "project_id": project_id, "date": today, "count": count},
+            )
             return OutputCount(**row)
 
-    record = OutputCount(type=output_type, count=1)
+    record = OutputCount(type=output_type, count=count, project_id=project_id, agent_name=agent_name)
     counts.append(record.model_dump(mode="json"))
     storage.write_series(_OUTPUT_SERIES, counts)
-    _record_raw_event("output_count", None, {"type": output_type, "date": today})
+    _record_raw_event(
+        "output_count",
+        agent_name,
+        {"type": output_type, "project_id": project_id, "date": today, "count": count},
+    )
     return record
 
 
@@ -193,8 +217,11 @@ def read_usage_events() -> list[dict]:
     return get_storage().read_series(_USAGE_SERIES)
 
 
-def read_output_counts() -> list[dict]:
-    return get_storage().read_series(_OUTPUT_SERIES)
+def read_output_counts(project_id: str | None = None) -> list[dict]:
+    counts = get_storage().read_series(_OUTPUT_SERIES)
+    if project_id is not None:
+        counts = [row for row in counts if row.get("project_id") == project_id]
+    return counts
 
 
 def read_raw_events(
