@@ -24,7 +24,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
-Provider = Literal["github", "bitbucket", "google"]
+Provider = Literal["github", "bitbucket", "google", "basecamp"]
 
 
 def _now_iso() -> str:

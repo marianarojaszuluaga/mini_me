@@ -98,6 +98,11 @@ class Settings(BaseSettings):
     BITBUCKET_OAUTH_CLIENT_SECRET: str | None = None
     GOOGLE_OAUTH_CLIENT_ID: str | None = None
     GOOGLE_OAUTH_CLIENT_SECRET: str | None = None
+    # Basecamp 5 (bc-api) — registered at launchpad.37signals.com/integrations,
+    # 2026-08-14. See app/routers/oauth.py's Basecamp-specific notes (no
+    # `scope` concept, account_id resolved via /authorization.json).
+    BASECAMP_OAUTH_CLIENT_ID: str | None = None
+    BASECAMP_OAUTH_CLIENT_SECRET: str | None = None
     # Public URL of THIS backend (not the frontend) — used to build the
     # OAuth callback redirect_uri sent to each provider. Defaults to local
     # dev; must be the real deployed backend URL in production.

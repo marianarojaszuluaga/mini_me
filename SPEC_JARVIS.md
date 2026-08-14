@@ -714,23 +714,40 @@ filesystem/Redis intercambiable, así que la migración no debería tocar lógic
   `code` real por un token vía `httpx`, resuelve la identidad real de la cuenta, y hace upsert de
   un `AuthProfile` con `auth_method="oauth"`). `AuthProfile` ahora separa `access_token`/
   `refresh_token` (nunca expuestos por `GET /auth-profiles` — `to_public_dict()` los excluye) del
-  `token_ref` del formulario manual, que sigue existiendo como fallback (ej. Basecamp, que no tiene
-  OAuth App). Los adaptadores de GitHub/Bitbucket ahora resuelven el token real de un
-  `AuthProfile` OAuth en vez de solo leer una env var por nombre.
+  `token_ref` del formulario manual, que sigue existiendo como fallback para cualquier proveedor
+  sin OAuth App configurado. Los adaptadores de GitHub/Bitbucket ahora resuelven el token real de
+  un `AuthProfile` OAuth en vez de solo leer una env var por nombre.
   **Verificado en vivo real** (no solo `py_compile`): con `GITHUB_OAUTH_CLIENT_ID/SECRET` sin
   configurar (todavía no los tenemos), el botón real "Conectar con GitHub" del dashboard navega de
   verdad a `http://localhost:3001/auth-profiles/oauth/github/start` y el backend responde un `501`
   real y explícito (`"OAuth App for 'github' is not configured yet..."`) — no un éxito fingido.
   `app_key` inválido → `403` real. `GET /auth-profiles` confirmado sin `access_token`/
   `refresh_token` en el JSON de respuesta.
+  **Basecamp agregado como 4to proveedor (2026-08-14)**, mismo patrón real de Authorization Code —
+  Mariana pasó la doc real de `bc-api` (github.com/basecamp/bc-api). Basecamp usa OAuth de
+  37signals Launchpad, distinto de un OAuth2 genérico en dos puntos: `type=web_server` es
+  obligatorio tanto en el redirect de autorización como en el intercambio de token (no es parte
+  del estándar, es específico de 37signals), y no hay concepto de `scope` — en su lugar, hace
+  falta un paso extra real, `GET https://launchpad.37signals.com/authorization.json`, para
+  resolver el `account_id` que toda llamada futura a la API de Basecamp necesita
+  (`https://3.basecampapi.com/{account_id}/...`), eligiendo la cuenta con `product == "bc3"`. Ese
+  `account_id` se guarda en el campo `scope` del `AuthProfile` (`"account_id:{id}"`) — no hay un
+  campo dedicado y es el único lugar real donde ese valor pertenece. Verificado en vivo: con
+  `BASECAMP_OAUTH_CLIENT_ID/SECRET` sin configurar, el botón real "Conectar con Basecamp" pega
+  contra el backend real y devuelve el mismo `501` explícito que los otros tres, no un éxito
+  fingido.
   **Acción pendiente de Mariana** (bloqueante solo para probar el flujo completo, no para el
-  código): registrar 3 OAuth Apps reales — GitHub OAuth App, Bitbucket OAuth consumer, Google
-  OAuth 2.0 Client — cada uno con su callback apuntando a
-  `{BACKEND_PUBLIC_URL}/auth-profiles/oauth/{provider}/callback` (`BACKEND_PUBLIC_URL` nueva en
-  `Settings`, hoy `http://localhost:3001` por default) y pasarme los 6 valores
-  (`GITHUB_OAUTH_CLIENT_ID/SECRET`, `BITBUCKET_OAUTH_CLIENT_ID/SECRET`,
-  `GOOGLE_OAUTH_CLIENT_ID/SECRET`) para conectarlos y volver a verificar en vivo con un login real,
-  igual que se hizo con la key de DeepSeek.
+  código): registrar 4 OAuth Apps reales — GitHub OAuth App, Bitbucket OAuth consumer, Google
+  OAuth 2.0 Client, y un Basecamp integration en launchpad.37signals.com/integrations — cada uno
+  con su callback apuntando a `{BACKEND_PUBLIC_URL}/auth-profiles/oauth/{provider}/callback`
+  (`BACKEND_PUBLIC_URL` en `Settings`, hoy `http://localhost:3001` por default) y pasarme los 8
+  valores (`GITHUB_OAUTH_CLIENT_ID/SECRET`, `BITBUCKET_OAUTH_CLIENT_ID/SECRET`,
+  `GOOGLE_OAUTH_CLIENT_ID/SECRET`, `BASECAMP_OAUTH_CLIENT_ID/SECRET`) para conectarlos y volver a
+  verificar en vivo con un login real, igual que se hizo con la key de DeepSeek.
+  **Nota sobre sprints/estadísticas de proyecto (§2, Dashboard)**: esto conecta la IDENTIDAD
+  (Auth Profile con `account_id` real) pero todavía no un adaptador que lea proyectos/to-dos/
+  sprints de la API de Basecamp — ese es un paso separado, pendiente, una vez que haya una cuenta
+  real conectada para probar contra.
 - ~~Retención de conversaciones del chat~~ — **Reinterpretado y resuelto (2026-08-14).** Mariana
   pidió, en vez de una política de expiración: "obligame a comenzar y terminar de forma digital
   en el programa" — el chat ahora fuerza un inicio y un cierre deliberados, en vez de dejar

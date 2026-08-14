@@ -86,6 +86,17 @@ _PROVIDER_CONFIGS: dict[str, _ProviderConfig] = {
         scope="openid email profile",
         extra_authorize_params={"access_type": "offline", "prompt": "consent"},
     ),
+    # Basecamp 5 (bc-api) — 37signals' Launchpad OAuth, per
+    # https://github.com/basecamp/bc-api/blob/master/sections/authentication.md.
+    # `type=web_server` is required on BOTH the authorize redirect and the
+    # token exchange (37signals-specific — not part of plain OAuth2). There
+    # is no `scope` param in this flow; access is whatever the account grants.
+    "basecamp": _ProviderConfig(
+        authorize_url="https://launchpad.37signals.com/authorization/new",
+        token_url="https://launchpad.37signals.com/authorization/token",
+        scope="",
+        extra_authorize_params={"type": "web_server"},
+    ),
 }
 
 
@@ -95,6 +106,7 @@ def _client_credentials(provider: str) -> tuple[str, str]:
         "github": (settings.GITHUB_OAUTH_CLIENT_ID, settings.GITHUB_OAUTH_CLIENT_SECRET),
         "bitbucket": (settings.BITBUCKET_OAUTH_CLIENT_ID, settings.BITBUCKET_OAUTH_CLIENT_SECRET),
         "google": (settings.GOOGLE_OAUTH_CLIENT_ID, settings.GOOGLE_OAUTH_CLIENT_SECRET),
+        "basecamp": (settings.BASECAMP_OAUTH_CLIENT_ID, settings.BASECAMP_OAUTH_CLIENT_SECRET),
     }[provider]
     if not client_id or not client_secret:
         raise HTTPException(
@@ -143,12 +155,35 @@ async def _exchange_code(provider: str, code: str) -> dict[str, Any]:
         "code": code,
         "redirect_uri": _redirect_uri(provider),
         "grant_type": "authorization_code",
+        **config.extra_authorize_params,  # basecamp needs type=web_server here too
     }
     async with httpx.AsyncClient(timeout=15.0) as client:
         response = await client.post(config.token_url, data=payload, headers={"Accept": "application/json"})
     if response.status_code >= 400:
         raise HTTPException(status_code=502, detail=f"OAuth token exchange failed ({provider}): {response.text}")
     return response.json()
+
+
+async def _fetch_basecamp_identity(access_token: str) -> tuple[str, str]:
+    """Basecamp has no /user endpoint — per bc-api's auth docs, the real
+    identity + the account_id every subsequent API call needs (the base URL
+    is https://3.basecampapi.com/{account_id}/...) both come from
+    GET /authorization.json. Picks the account with product == "bc3"
+    (Basecamp 5/4) — an org with only Basecamp Classic accounts would have
+    none, surfaced as a real 400 rather than silently picking the wrong one."""
+    async with httpx.AsyncClient(timeout=15.0) as client:
+        resp = await client.get(
+            "https://launchpad.37signals.com/authorization.json",
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
+    resp.raise_for_status()
+    data = resp.json()
+    email = data.get("identity", {}).get("email_address", "unknown")
+    bc3_accounts = [a for a in data.get("accounts", []) if a.get("product") == "bc3"]
+    if not bc3_accounts:
+        raise HTTPException(status_code=400, detail="No Basecamp 4/5 account found for this identity")
+    account_id = str(bc3_accounts[0]["id"])
+    return email, account_id
 
 
 async def _fetch_account(provider: str, access_token: str) -> str:
@@ -199,13 +234,22 @@ async def oauth_callback(
     if not access_token:
         return RedirectResponse(url=f"{frontend_integrations_url}&status=error&reason=no_access_token")
 
-    account = await _fetch_account(provider, access_token)
     config = _PROVIDER_CONFIGS[provider]
+    if provider == "basecamp":
+        # No `scope` in Basecamp's OAuth response — the account_id every
+        # future API call needs (https://3.basecampapi.com/{account_id}/...)
+        # is stored in `scope` instead, since AuthProfile has no dedicated
+        # field for it and this is the one place a real value belongs.
+        account, account_id = await _fetch_basecamp_identity(access_token)
+        scope = f"account_id:{account_id}"
+    else:
+        account = await _fetch_account(provider, access_token)
+        scope = token_response.get("scope") or config.scope
 
     auth_profiles.upsert_oauth_profile(
         provider=provider,
         account=account,
-        scope=token_response.get("scope") or config.scope,
+        scope=scope,
         access_token=access_token,
         refresh_token=token_response.get("refresh_token"),
         token_expires_at=None,

@@ -5,11 +5,14 @@ import DrillDown from "../CommandCenter/DrillDown.jsx";
 const STORAGE_KEY = "ORQ_APP_KEY";
 
 // Providers with a real OAuth App wired up server-side (app/routers/oauth.py).
-// "basecamp" has no OAuth App registered yet — stays manual-only below.
+// Basecamp joined 2026-08-14 (37signals Launchpad OAuth) — the manual form
+// below stays as a fallback for any provider whose OAuth App isn't
+// configured yet, not specifically for Basecamp anymore.
 const OAUTH_PROVIDERS = [
   { id: "github", label: "GitHub" },
   { id: "bitbucket", label: "Bitbucket" },
-  { id: "google", label: "Google (SSO)" }
+  { id: "google", label: "Google (SSO)" },
+  { id: "basecamp", label: "Basecamp" }
 ];
 
 function defaultApi() {
