@@ -112,6 +112,18 @@
   --ds-black: #000;
   --ds-white: #fff;
 
+  /* Configurable accent (2026-08-14, Mariana: "quiero poder cambiar el color
+     principal al verde más oscuro de la paleta" + "que esté en una rueda de
+     config"). Default = --ds-green-900. The Settings modal overwrites
+     --accent-h/s/l inline on :root — never hardcode a color where --accent
+     belongs (that hardcoding, in .btn-primary below, was the actual root
+     cause of "el UI está super inconsistente"). */
+  --accent-h: 133;
+  --accent-s: 50%;
+  --accent-l: 32%;
+  --accent: var(--accent-h), var(--accent-s), var(--accent-l);
+  --accent-soft: var(--ds-green-100);
+
   /* paleta categorica (fija, invariante al tema — series de graficas, badges) */
   --cat-gray: #7D7D7D;
   --cat-blue: #0062D1;

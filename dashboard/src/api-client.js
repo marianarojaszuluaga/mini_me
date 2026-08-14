@@ -91,6 +91,13 @@ export default class ApiClient {
     });
   }
 
+  addRepositoryBranch(projectId, repoId, branch) {
+    return this.request(`/projects/${projectId}/repositories/${repoId}/branches`, {
+      method: "POST",
+      body: JSON.stringify({ branch })
+    });
+  }
+
   // ---- new: auth profiles ----
 
   listAuthProfiles() {
@@ -154,8 +161,8 @@ export default class ApiClient {
 
   // ---- new: metrics ----
 
-  getMetricsSummary() {
-    return this.request("/metrics/summary");
+  getMetricsSummary(projectId) {
+    return this.request(`/metrics/summary${projectId ? `?project_id=${encodeURIComponent(projectId)}` : ""}`);
   }
 
   getAgentEvaluations() {

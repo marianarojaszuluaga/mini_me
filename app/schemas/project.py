@@ -141,6 +141,14 @@ class Repository(BaseModel):
     owner: str
     repo: str
     defaultBranch: str = "main"
+    # Real multi-branch monitoring, added 2026-08-14 (Mariana: "debería poder
+    # agregar... varias ramas del Repo"). defaultBranch stays for back-compat
+    # with data written before this field existed; branches is the real list
+    # a UI should read/write. NOTE: the sync adapters don't yet filter
+    # commits/PRs per-branch (list_commits_since has no branch param) — this
+    # stores the intent for real, but the cron sync still reads repo-wide
+    # activity until the adapters gain branch scoping.
+    branches: list[str] = Field(default_factory=lambda: ["main"])
     # "prod" vs "develop" — see ARCHITECTURE_JARVIS.md §9.3.
     environment: Literal["prod", "develop"] | None = None
     connectedAt: str = Field(default_factory=_now_iso)

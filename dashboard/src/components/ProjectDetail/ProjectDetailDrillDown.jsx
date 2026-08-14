@@ -232,6 +232,8 @@ function ConnectRepoForm({ api, project, authProfiles, onConnected, onCancel }) 
   const [owner, setOwner] = useState("");
   const [repo, setRepo] = useState("");
   const [environment, setEnvironment] = useState(""); // no default, per task brief
+  const [branches, setBranches] = useState(["main"]);
+  const [branchDraft, setBranchDraft] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -239,6 +241,17 @@ function ConnectRepoForm({ api, project, authProfiles, onConnected, onCancel }) 
     setAuthProfileId(id);
     const profile = authProfiles.find((p) => p.id === id);
     if (profile) setProvider(profile.provider);
+  };
+
+  const handleAddBranch = () => {
+    const value = branchDraft.trim();
+    if (!value || branches.includes(value)) return;
+    setBranches((prev) => [...prev, value]);
+    setBranchDraft("");
+  };
+
+  const handleRemoveBranch = (branch) => {
+    setBranches((prev) => prev.filter((b) => b !== branch));
   };
 
   const handleSubmit = async (e) => {
@@ -250,12 +263,16 @@ function ConnectRepoForm({ api, project, authProfiles, onConnected, onCancel }) 
     setBusy(true);
     setError("");
     try {
+      // BUG (found 2026-08-14): this used to send `accessTokenRef`, but the
+      // backend (app/routers/repositories.py) reads `auth_profile_id` — the
+      // selected Auth Profile was silently ignored on every connect.
       await api.connectRepository(project.id, {
         provider,
         owner,
         repo,
         environment,
-        accessTokenRef: authProfileId
+        auth_profile_id: authProfileId,
+        branches
       });
       onConnected();
     } catch (err) {
@@ -295,6 +312,37 @@ function ConnectRepoForm({ api, project, authProfiles, onConnected, onCancel }) 
         <option value="prod">prod</option>
         <option value="develop">develop</option>
       </select>
+
+      <div className="pd-branches-field">
+        <div className="pd-branches-list">
+          {branches.map((b) => (
+            <span key={b} className="branch-chip">
+              {b}
+              <button type="button" onClick={() => handleRemoveBranch(b)} aria-label={`Quitar ${b}`}>
+                ×
+              </button>
+            </span>
+          ))}
+        </div>
+        <div className="pd-branches-add-row">
+          <input
+            type="text"
+            placeholder="rama a monitorear (ej. develop)"
+            value={branchDraft}
+            onChange={(e) => setBranchDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleAddBranch();
+              }
+            }}
+          />
+          <button type="button" className="btn-cancel" onClick={handleAddBranch}>
+            + Agregar rama
+          </button>
+        </div>
+      </div>
+
       {error && <div className="flag">⚠️ {error}</div>}
       <div className="modal-buttons">
         <button type="button" className="btn-cancel" onClick={onCancel} disabled={busy}>
@@ -314,6 +362,20 @@ function RepositoriosSection({ api, project, onProjectUpdated }) {
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState("");
   const [retryingId, setRetryingId] = useState(null);
+  const [branchDrafts, setBranchDrafts] = useState({});
+
+  const handleAddBranchToRepo = async (repoId) => {
+    const value = (branchDrafts[repoId] || "").trim();
+    if (!value) return;
+    try {
+      await api.addRepositoryBranch(project.id, repoId, value);
+      const repos = await api.listProjectRepositories(project.id);
+      setRepositories(repos);
+      setBranchDrafts((prev) => ({ ...prev, [repoId]: "" }));
+    } catch (err) {
+      setError(err.message);
+    }
+  };
 
   useEffect(() => {
     setRepositories(project.repositories || []);
@@ -389,6 +451,30 @@ function RepositoriosSection({ api, project, onProjectUpdated }) {
                 <span className={`agent-tag ${repo.environment === "prod" ? "recon-status-red" : "recon-status-amber"}`}>
                   {repo.environment || "sin environment"}
                 </span>
+              </div>
+              <div className="pd-branches-list">
+                {(repo.branches || [repo.defaultBranch || "main"]).map((b) => (
+                  <span key={b} className="branch-chip">
+                    {b}
+                  </span>
+                ))}
+              </div>
+              <div className="pd-branches-add-row">
+                <input
+                  type="text"
+                  placeholder="+ rama a monitorear"
+                  value={branchDrafts[repo.id] || ""}
+                  onChange={(e) => setBranchDrafts((prev) => ({ ...prev, [repo.id]: e.target.value }))}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAddBranchToRepo(repo.id);
+                    }
+                  }}
+                />
+                <button type="button" className="btn-cancel" onClick={() => handleAddBranchToRepo(repo.id)}>
+                  Agregar
+                </button>
               </div>
               <div className="pd-meta">
                 Última sincronización: {repo.lastSyncAt ? new Date(repo.lastSyncAt).toLocaleString() : "nunca"}

@@ -272,21 +272,40 @@ html, body {
 }
 
 .btn-primary {
-  /* BUG-008 fix: was hardcoded rgb(39,174,96) via the legacy --success
-     token; now resolves through design-tokens.css's --ds-* scale. */
-  background: hsl(var(--ds-green-800));
+  /* 2026-08-14: was hardcoded green (--ds-green-800) and reused for every
+     action — navigation, creation, approval alike. Found to be the actual
+     root cause of "el UI está super inconsistente": Geist's real "primary"
+     is neutral (inverted text/background), green is reserved for success
+     states only (see .btn-success below, which is now the only green one). */
+  background: hsl(var(--ds-gray-1000));
   color: hsl(var(--ds-background-100));
   padding: 10px 20px;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-material-small, 6px);
   cursor: pointer;
   font-weight: 600;
-  transition: all 0.3s ease;
+  transition: filter 0.15s ease;
 }
 
 .btn-primary:hover {
-  background: hsl(var(--ds-green-900));
-  transform: scale(1.05);
+  filter: brightness(1.15);
+}
+
+/* The Jarvis CTA and other "primary interactive" moments (active nav,
+   focus rings) use the real configurable accent instead. */
+.btn-accent {
+  background: hsl(var(--accent));
+  color: hsl(var(--ds-background-100));
+  padding: 10px 20px;
+  border: none;
+  border-radius: var(--radius-material-small, 6px);
+  cursor: pointer;
+  font-weight: 650;
+  transition: filter 0.15s ease;
+}
+
+.btn-accent:hover {
+  filter: brightness(1.1);
 }
 
 .loading, .empty-state {
@@ -421,20 +440,6 @@ html, body {
   gap: 10px;
   justify-content: flex-end;
   margin-top: 20px;
-}
-
-/* BUG-007 fix: the Status panel's 3-button row (unlike the fixed-width
-   modal footers this class was written for) lives in a narrower panel and
-   was overflowing with nowrap, truncating "Integraciones". Let it wrap and
-   shrink to the panel's own width instead of forcing a scrollbar. */
-.status-panel-action-row {
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  max-width: 100%;
-}
-
-.status-panel-action-row .btn-primary {
-  white-space: normal;
 }
 
 .btn-cancel {

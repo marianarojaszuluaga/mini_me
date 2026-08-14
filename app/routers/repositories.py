@@ -85,6 +85,9 @@ async def connect_repository(
     auth_profile_id = body.get("auth_profile_id")
     environment = body.get("environment")
     default_branch = body.get("defaultBranch", "main")
+    # Real multi-branch list (2026-08-14) — falls back to [defaultBranch] so
+    # a caller that only sends the old single-branch field still works.
+    branches = body.get("branches") or [default_branch]
 
     if not provider or not owner or not repo_name:
         raise HTTPException(status_code=400, detail="provider, owner and repo are required")
@@ -131,6 +134,7 @@ async def connect_repository(
         owner=owner,
         repo=repo_name,
         defaultBranch=default_branch,
+        branches=branches,
         environment=environment,
         accessTokenRef=auth_profile.token_ref if auth_profile else None,
     )
@@ -176,3 +180,32 @@ async def disconnect_repository(project_id: str, repo_id: str) -> dict[str, Any]
     project["repositories"] = remaining
     storage.write_projects(projects)
     return {"deleted": True, "id": repo_id}
+
+
+@router.post("/projects/{project_id}/repositories/{repo_id}/branches")
+async def add_branch(
+    project_id: str,
+    repo_id: str,
+    body: dict[str, Any] = Body(...),
+) -> dict[str, Any]:
+    """Adds a branch to an already-connected repo's monitored list (2026-08-14,
+    Mariana: "poder agregar... varias ramas del Repo") — idempotent, a branch
+    already in the list is a no-op rather than a duplicate/error."""
+    branch = body.get("branch")
+    if not branch:
+        raise HTTPException(status_code=400, detail="branch is required")
+
+    storage = get_storage()
+    projects = storage.read_projects()
+    project = _find_project(projects, project_id)
+
+    repo = next((r for r in project.get("repositories", []) if r.get("id") == repo_id), None)
+    if repo is None:
+        raise HTTPException(status_code=404, detail="Repository not connected to this project")
+
+    branches = repo.setdefault("branches", [repo.get("defaultBranch", "main")])
+    if branch not in branches:
+        branches.append(branch)
+        storage.write_projects(projects)
+
+    return repo

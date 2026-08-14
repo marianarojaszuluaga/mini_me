@@ -32,6 +32,26 @@
   background: hsl(var(--ds-red-100));
 }
 
+/* Obsidian backup badge (2026-08-14) — Memoria de Mar simplificada, sin
+   categorías por tipo; esto reemplaza esa distinción con la confirmación de
+   que el respaldo real (scripts/sync_memories_to_obsidian.py, cron 3h) sigue
+   corriendo. */
+.mar-backup-badge {
+  font-size: 12px;
+  color: hsl(var(--ds-gray-800));
+  background: hsl(var(--ds-gray-100));
+  border-radius: var(--radius-material-small);
+  box-shadow: var(--shadow-border-base);
+  padding: var(--space-2x) var(--space-3x);
+}
+
+.mar-backup-badge code {
+  background: hsl(var(--ds-background-100));
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 11px;
+}
+
 .mar-group {
   display: flex;
   flex-direction: column;

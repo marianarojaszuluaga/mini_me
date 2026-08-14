@@ -10,19 +10,16 @@ function defaultApi() {
   return key ? new ApiClient(key) : null;
 }
 
-const TYPE_LABELS = {
-  understanding: "🧠 Entendimiento",
-  open_question: "❓ Pregunta abierta",
-  correction: "✏️ Corrección"
-};
-
-const TYPE_ORDER = ["understanding", "open_question", "correction"];
+// Simplified 2026-08-14 (Mariana: "Déjalo sólo como memoria") — a single
+// flat list, no type grouping/labels in the UI. `type` still travels to the
+// backend (the schema requires it) but defaults silently to "understanding"
+// since the user no longer picks it.
+const DEFAULT_TYPE = "understanding";
 
 // One entry: view mode by default, switches to an inline edit form on click.
 const MemoryEntryCard = ({ entry, onSave, onDelete }) => {
   const [editing, setEditing] = useState(false);
   const [content, setContent] = useState(entry.content);
-  const [type, setType] = useState(entry.type);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -30,7 +27,7 @@ const MemoryEntryCard = ({ entry, onSave, onDelete }) => {
     setBusy(true);
     setError("");
     try {
-      await onSave({ id: entry.id, type, content, source: entry.source });
+      await onSave({ id: entry.id, type: entry.type || DEFAULT_TYPE, content, source: entry.source });
       setEditing(false);
     } catch (err) {
       setError(err.message);
@@ -52,13 +49,6 @@ const MemoryEntryCard = ({ entry, onSave, onDelete }) => {
   if (editing) {
     return (
       <div className="mar-entry mar-entry-editing">
-        <select value={type} onChange={(e) => setType(e.target.value)}>
-          {TYPE_ORDER.map((t) => (
-            <option key={t} value={t}>
-              {TYPE_LABELS[t]}
-            </option>
-          ))}
-        </select>
         <textarea value={content} onChange={(e) => setContent(e.target.value)} rows={3} />
         {error && <div className="mar-note mar-note-error">⚠️ {error}</div>}
         <div className="mar-entry-actions">
@@ -94,7 +84,6 @@ const MemoryEntryCard = ({ entry, onSave, onDelete }) => {
 };
 
 const NewEntryForm = ({ onCreate }) => {
-  const [type, setType] = useState("understanding");
   const [content, setContent] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -105,7 +94,7 @@ const NewEntryForm = ({ onCreate }) => {
     setBusy(true);
     setError("");
     try {
-      await onCreate({ type, content, source: "manual" });
+      await onCreate({ type: DEFAULT_TYPE, content, source: "manual" });
       setContent("");
     } catch (err) {
       setError(err.message);
@@ -116,13 +105,6 @@ const NewEntryForm = ({ onCreate }) => {
   return (
     <form className="mar-new-entry" onSubmit={handleSubmit}>
       <h3 className="mar-subtitle">Agregar entrada manual</h3>
-      <select value={type} onChange={(e) => setType(e.target.value)}>
-        {TYPE_ORDER.map((t) => (
-          <option key={t} value={t}>
-            {TYPE_LABELS[t]}
-          </option>
-        ))}
-      </select>
       <textarea
         placeholder="Contenido de la entrada"
         value={content}
@@ -138,8 +120,7 @@ const NewEntryForm = ({ onCreate }) => {
   );
 };
 
-export default function MarMemoryDrillDown({ open, onClose, api: apiProp }) {
-  const api = apiProp || defaultApi();
+function MarMemoryBody({ api }) {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -161,8 +142,8 @@ export default function MarMemoryDrillDown({ open, onClose, api: apiProp }) {
   }, [api]);
 
   useEffect(() => {
-    if (open) load();
-  }, [open, load]);
+    load();
+  }, [load]);
 
   const handleSave = async (entry) => {
     const updated = await api.upsertMarMemoryEntry(entry);
@@ -182,10 +163,46 @@ export default function MarMemoryDrillDown({ open, onClose, api: apiProp }) {
     setEntries((prev) => [...prev, created]);
   };
 
-  const grouped = TYPE_ORDER.map((type) => ({
-    type,
-    items: entries.filter((e) => e.type === type)
-  }));
+  return (
+    <>
+      <div className="mar-backup-badge">
+        Respaldado automáticamente en Obsidian — carpeta{" "}
+        <code>Orquestrador 360 - Memoria de la App</code>, cada 3h
+      </div>
+
+      {loading && <div className="mar-note">Cargando memoria...</div>}
+      {error && <div className="mar-note mar-note-error">⚠️ {error}</div>}
+
+      {!loading && !error && (
+        <>
+          {entries.length === 0 ? (
+            <div className="mar-note">Sin entradas todavía.</div>
+          ) : (
+            <div className="mar-group-list">
+              {entries.map((entry) => (
+                <MemoryEntryCard key={entry.id} entry={entry} onSave={handleSave} onDelete={handleDelete} />
+              ))}
+            </div>
+          )}
+          <section className="mar-group">
+            <NewEntryForm onCreate={handleCreate} />
+          </section>
+        </>
+      )}
+    </>
+  );
+}
+
+export default function MarMemoryDrillDown({ open, onClose, api: apiProp, fullPage = false }) {
+  const api = apiProp || defaultApi();
+
+  if (fullPage) {
+    return (
+      <div className="mar-drilldown mar-drilldown-fullpage">
+        <MarMemoryBody api={api} />
+      </div>
+    );
+  }
 
   return (
     <DrillDown open={open} onClose={onClose} label="Memoria de Mar">
@@ -196,34 +213,7 @@ export default function MarMemoryDrillDown({ open, onClose, api: apiProp }) {
             Cerrar
           </button>
         </div>
-
-        {loading && <div className="mar-note">Cargando memoria...</div>}
-        {error && <div className="mar-note mar-note-error">⚠️ {error}</div>}
-
-        {!loading && !error && (
-          <>
-            {grouped.map(({ type, items }) => (
-              <section key={type} className="mar-group">
-                <h2 className="mar-group-title">
-                  {TYPE_LABELS[type]} ({items.length})
-                </h2>
-                {items.length === 0 ? (
-                  <div className="mar-note">Sin entradas todavía.</div>
-                ) : (
-                  <div className="mar-group-list">
-                    {items.map((entry) => (
-                      <MemoryEntryCard key={entry.id} entry={entry} onSave={handleSave} onDelete={handleDelete} />
-                    ))}
-                  </div>
-                )}
-              </section>
-            ))}
-
-            <section className="mar-group">
-              <NewEntryForm onCreate={handleCreate} />
-            </section>
-          </>
-        )}
+        {open && <MarMemoryBody api={api} />}
       </div>
     </DrillDown>
   );

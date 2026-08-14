@@ -38,6 +38,76 @@
   font-size: 15px;
   font-weight: 600;
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2x);
+}
+
+/* Scope badges (2026-08-14): every Dashboard section states explicitly
+   whether it's showing ONE project's data or the whole system's — Mariana:
+   "ten en cuenta que la info es por proyecto no general". */
+.scope-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 2px 8px;
+  border-radius: 100px;
+  background: hsl(var(--accent-soft, var(--ds-green-100)));
+  color: hsl(var(--accent));
+}
+
+.scope-badge-global {
+  background: hsl(var(--ds-gray-200));
+  color: hsl(var(--ds-gray-800));
+}
+
+.dash-project-picker {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2x);
+}
+
+.dash-project-picker-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: hsl(var(--ds-gray-700));
+}
+
+.dash-project-select {
+  padding: var(--space-1x) var(--space-2x);
+  border-radius: var(--radius-material-small);
+  border: none;
+  box-shadow: var(--shadow-border-base);
+  background: hsl(var(--ds-background-100));
+  color: hsl(var(--ds-gray-1000));
+  font-size: 13px;
+}
+
+.avatar-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2x);
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.agent-note {
+  font-size: 12px;
+  color: hsl(var(--ds-gray-700));
+  flex-basis: 100%;
 }
 
 .analytics-subtitle {

@@ -375,10 +375,12 @@ const ChangelogSection = ({ api, changelog, onApprove }) => {
 };
 
 // ----------------------------------------------------------------------------
-// AnalyticsDrillDown — top-level export
+// Shared body — used both as a modal (legacy) and as the full-page
+// "Dashboard" view (2026-08-14 IA redesign). Section order matches the
+// mockup Mariana approved: Estadísticas del proyecto -> Últimos agentes
+// usados + outputs -> Salud del sistema (global, badged as such).
 // ----------------------------------------------------------------------------
-export default function AnalyticsDrillDown({ open, onClose, api: apiProp }) {
-  const api = apiProp || defaultApi();
+function DashboardBody({ api, projects, projectId, onProjectIdChange }) {
   const [data, setData] = useState(null);
   const [changelog, setChangelog] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -392,22 +394,207 @@ export default function AnalyticsDrillDown({ open, onClose, api: apiProp }) {
     setLoading(true);
     setError("");
     try {
-      const [summary, changelogData] = await Promise.all([api.getMetricsSummary(), api.listChangelog()]);
+      const [summary, changelogData] = await Promise.all([
+        api.getMetricsSummary(projectId || undefined),
+        api.listChangelog()
+      ]);
       setData(summary);
       setChangelog(changelogData);
     } catch (err) {
       setError(err.message);
     }
     setLoading(false);
-  }, [api]);
+  }, [api, projectId]);
 
   useEffect(() => {
-    if (open) load();
-  }, [open, load]);
+    load();
+  }, [load]);
 
   const handleApprove = (updated) => {
     setChangelog((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
   };
+
+  const selectedProjectName = projects.find((p) => p.id === projectId)?.name || projectId;
+
+  return (
+    <div className="analytics-drilldown">
+      {projects.length > 0 && (
+        <div className="dash-project-picker">
+          <span className="dash-project-picker-label">Mostrando datos de:</span>
+          <select
+            className="dash-project-select"
+            value={projectId || ""}
+            onChange={(e) => onProjectIdChange(e.target.value)}
+          >
+            {projects.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name || p.id}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {loading && <div className="analytics-note">Cargando métricas...</div>}
+      {error && <div className="analytics-note analytics-note-error">⚠️ {error}</div>}
+
+      {data && (
+        <>
+          <section className="analytics-section">
+            <h2 className="analytics-section-title">
+              Estadísticas del proyecto
+              {selectedProjectName && <span className="scope-badge">{selectedProjectName}</span>}
+            </h2>
+            <div className="metric-grid">
+              <ExpandableMetric
+                api={api}
+                label="Gaps encontrados (este proyecto)"
+                value={data.reconciliationRuns.reduce((acc, r) => acc + (r.gaps_found || 0), 0)}
+                row={data.reconciliationRuns[data.reconciliationRuns.length - 1]}
+                eventType="reconciliation_run"
+                accent="red"
+              />
+              <ExpandableMetric
+                api={api}
+                label="Gaps cerrados (este proyecto)"
+                value={data.reconciliationRuns.reduce((acc, r) => acc + (r.gaps_closed_since_last || 0), 0)}
+                row={data.reconciliationRuns[data.reconciliationRuns.length - 1]}
+                eventType="reconciliation_run"
+                accent="green"
+              />
+            </div>
+            <div className="analytics-note">
+              Sprint abierto, status y tiempo de trabajo requieren la integración con Basecamp
+              (SPEC_JARVIS.md §11) — no implementada aún, no se inventan números aquí.
+            </div>
+          </section>
+
+          <section className="analytics-section">
+            <h2 className="analytics-section-title">
+              Últimos agentes usados
+              {selectedProjectName && <span className="scope-badge">{selectedProjectName}</span>}
+            </h2>
+            <AgentAvatarGroup agentEvaluations={data.agentEvaluations} />
+            <h3 className="analytics-subtitle"># de outputs</h3>
+            <div className="metric-grid">
+              {(() => {
+                const byType = {};
+                for (const row of data.outputCounts) {
+                  byType[row.type] = byType[row.type] || { count: 0, rows: [] };
+                  byType[row.type].count += row.count;
+                  byType[row.type].rows.push(row);
+                }
+                if (Object.keys(byType).length === 0) {
+                  return <div className="analytics-note">Sin outputs registrados todavía para este proyecto.</div>;
+                }
+                return Object.entries(byType).map(([type, agg]) => (
+                  <ExpandableMetric
+                    key={type}
+                    api={api}
+                    label={OUTPUT_TYPE_LABELS[type] || type}
+                    value={agg.count}
+                    row={agg.rows[agg.rows.length - 1]}
+                    eventType="output_count"
+                  />
+                ));
+              })()}
+            </div>
+          </section>
+
+          <section className="analytics-section">
+            <h2 className="analytics-section-title">
+              Salud del sistema
+              <span className="scope-badge scope-badge-global">Todos los proyectos</span>
+            </h2>
+            <div className="analytics-note-inline" style={{ marginBottom: 8 }}>
+              Explora la calidad de los agentes
+            </div>
+            <P1Section api={api} agentEvaluations={data.agentEvaluations} />
+          </section>
+
+          <P2Section
+            changelog={changelog}
+            outputCounts={data.outputCounts}
+            reconciliationRuns={data.reconciliationRuns}
+          />
+          <P3Section />
+          <ChangelogSection api={api} changelog={changelog} onApprove={handleApprove} />
+        </>
+      )}
+    </div>
+  );
+}
+
+const OUTPUT_TYPE_LABELS = {
+  hu: "# HU generadas",
+  spec: "Specs generadas",
+  plan: "Iteraciones de planes",
+  acta: "Actas generadas",
+  evaluacion: "Evaluaciones",
+  reconciliacion: "Reconciliaciones",
+  qa_run: "Corridas de QA",
+  pull_request: "PRs por proyecto"
+};
+
+// Real agent ids -> a stable color, so the same agent always gets the same
+// swatch. Placeholder until real per-agent photos are wired in (pendiente,
+// ver SPEC_JARVIS.md §12).
+const AGENT_COLORS = {
+  gime: "#6E56CF", gabi: "#0091FF", gaby: "#398E4A", santi: "#F5A623",
+  dani: "#DA2F35", sofi: "#0D8C7D", mafe: "#DF2670", isa: "#8E4EC6",
+  fer: "#0062D1", vale: "#DA2F35", lore: "#FF990A", gina: "#398E4A",
+  moni: "#0091FF", rena: "#6E56CF", sara: "#0D8C7D", tami: "#DF2670",
+  vane: "#8E4EC6", xime: "#0062D1", pau: "#FF990A", mila: "#398E4A",
+  diana: "#0091FF", cami: "#6E56CF"
+};
+
+function AgentAvatarGroup({ agentEvaluations }) {
+  const seen = new Map();
+  for (const row of agentEvaluations) {
+    if (!seen.has(row.agent)) seen.set(row.agent, row);
+  }
+  const agents = Array.from(seen.keys()).slice(-5);
+
+  if (agents.length === 0) {
+    return <div className="analytics-note">Sin agentes invocados todavía para este proyecto.</div>;
+  }
+
+  return (
+    <div className="avatar-group">
+      {agents.map((agent) => (
+        <div
+          key={agent}
+          className="avatar"
+          style={{ background: AGENT_COLORS[agent] || "#7D7D7D" }}
+          title={agent}
+        >
+          {agent.slice(0, 2)}
+        </div>
+      ))}
+      <div className="agent-note">
+        Placeholder de color por agente — cuando tengamos las fotos reales de cada uno, reemplazan
+        estas iniciales.
+      </div>
+    </div>
+  );
+}
+
+// ----------------------------------------------------------------------------
+// AnalyticsDrillDown — top-level export. `fullPage` renders as the
+// "Dashboard" nav view (no modal chrome); the modal path stays for any
+// caller that hasn't migrated yet.
+// ----------------------------------------------------------------------------
+export default function AnalyticsDrillDown({ open, onClose, api: apiProp, fullPage = false, projects = [] }) {
+  const api = apiProp || defaultApi();
+  const [projectId, setProjectId] = useState(projects[0]?.id || "");
+
+  useEffect(() => {
+    if (!projectId && projects.length > 0) setProjectId(projects[0].id);
+  }, [projects, projectId]);
+
+  if (fullPage) {
+    return <DashboardBody api={api} projects={projects} projectId={projectId} onProjectIdChange={setProjectId} />;
+  }
 
   return (
     <DrillDown open={open} onClose={onClose} label="Analítica completa">
@@ -418,27 +605,8 @@ export default function AnalyticsDrillDown({ open, onClose, api: apiProp }) {
             Cerrar
           </button>
         </div>
-
-        {loading && <div className="analytics-note">Cargando métricas...</div>}
-        {error && <div className="analytics-note analytics-note-error">⚠️ {error}</div>}
-
-        {data && (
-          <>
-            <P0Section
-              api={api}
-              outputCounts={data.outputCounts}
-              usageEvents={data.usageEvents}
-              reconciliationRuns={data.reconciliationRuns}
-            />
-            <P1Section api={api} agentEvaluations={data.agentEvaluations} />
-            <P2Section
-              changelog={changelog}
-              outputCounts={data.outputCounts}
-              reconciliationRuns={data.reconciliationRuns}
-            />
-            <P3Section />
-            <ChangelogSection api={api} changelog={changelog} onApprove={handleApprove} />
-          </>
+        {open && (
+          <DashboardBody api={api} projects={projects} projectId={projectId} onProjectIdChange={setProjectId} />
         )}
       </div>
     </DrillDown>
