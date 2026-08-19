@@ -12,10 +12,14 @@ dependencies = [
     "httpx>=0.27.0",
     "python-dotenv>=1.0.1",
     "apscheduler>=3.10.4",
-]
-
-[project.optional-dependencies]
-redis = [
+    # Real bug found 2026-08-19: this lived under [project.optional-dependencies]
+    # (an extra), but Vercel's build (`uv` via pyproject.toml, not requirements.txt
+    # despite the comment there) only ever installs the base dependency list — no
+    # extras are requested. That meant `from upstash_redis import Redis` always
+    # raised ModuleNotFoundError in production, silently caught by storage.py's
+    # try/except, so every deploy fell back to ephemeral filesystem storage even
+    # once the real Upstash Redis resource was connected. Moved to base deps so
+    # it's actually present at runtime.
     "upstash-redis>=1.1.0",
 ]
 

@@ -56,6 +56,7 @@ class Storage:
         redis_url, redis_token = _resolve_redis_credentials()
         self.using_kv = bool(redis_url and redis_token)
         self._redis = None
+        self.kv_init_error: str | None = None  # TEMP diagnostic, 2026-08-19
 
         if self.using_kv:
             # Real bug found 2026-08-14: a stale Vercel Marketplace Redis
@@ -77,6 +78,7 @@ class Storage:
                 self._redis = Redis(url=redis_url, token=redis_token)
             except Exception as error:  # noqa: BLE001 - a broken KV config must degrade, never crash every route
                 print(f"storage.py: Redis/KV init failed, falling back to filesystem: {error}")
+                self.kv_init_error = f"{type(error).__name__}: {error}"
                 self.using_kv = False
                 self._redis = None
 
@@ -95,7 +97,19 @@ class Storage:
         if self.using_kv and self._redis is not None:
             try:
                 value = self._redis.get(name)
-                return value or []
+                if value is None:
+                    return []
+                # Real bug found 2026-08-19: upstash_redis's client
+                # auto-serializes on .set() (Python list -> JSON string) but
+                # does NOT auto-deserialize on .get() — it returns the raw
+                # JSON string as-is. Every real read after the Redis path
+                # actually started working (once upstash-redis was moved to
+                # base deps) crashed downstream code that expected a list
+                # (iterating a string iterates characters) with an uncaught
+                # 500. Parse explicitly instead of trusting the client.
+                if isinstance(value, str):
+                    return json.loads(value)
+                return value
             except Exception as error:  # noqa: BLE001 - a flaky KV call must not 500 the whole route
                 print(f'storage.py: Redis read_list("{name}") failed: {error}')
                 return []
@@ -208,7 +222,13 @@ class Storage:
         if self.using_kv and self._redis is not None:
             try:
                 value = self._redis.get(name)
-                return value or {}
+                if value is None:
+                    return {}
+                # See _read_list's comment above — upstash_redis's client
+                # returns a raw JSON string on .get(), never auto-parsed.
+                if isinstance(value, str):
+                    return json.loads(value)
+                return value
             except Exception as error:  # noqa: BLE001 - a flaky KV call must not 500 the whole route
                 print(f'storage.py: Redis read_dict("{name}") failed: {error}')
                 return {}

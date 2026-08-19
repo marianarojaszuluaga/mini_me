@@ -744,10 +744,12 @@ filesystem/Redis intercambiable, así que la migración no debería tocar lógic
   valores (`GITHUB_OAUTH_CLIENT_ID/SECRET`, `BITBUCKET_OAUTH_CLIENT_ID/SECRET`,
   `GOOGLE_OAUTH_CLIENT_ID/SECRET`, `BASECAMP_OAUTH_CLIENT_ID/SECRET`) para conectarlos y volver a
   verificar en vivo con un login real, igual que se hizo con la key de DeepSeek.
-  **Nota sobre sprints/estadísticas de proyecto (§2, Dashboard)**: esto conecta la IDENTIDAD
-  (Auth Profile con `account_id` real) pero todavía no un adaptador que lea proyectos/to-dos/
-  sprints de la API de Basecamp — ese es un paso separado, pendiente, una vez que haya una cuenta
-  real conectada para probar contra.
+  **Nota sobre sprints/estadísticas de proyecto (§2, Dashboard) — Resuelto (Fase E, post-2026-08-14)**:
+  `app/services/basecamp_client.py`'s `get_active_sprint()` + `GET /projects/{id}/sprint`
+  (`app/routers/projects.py`) ya leen el to-do list activo real de Basecamp vía el `AuthProfile`
+  OAuth vinculado, devolviendo `501` explícito (nunca datos fabricados) si falta el link o el
+  profile. Consumido por `AnalyticsDrillDown.jsx` (tiles reales `tasks_done`/`tasks_total`, o un
+  `sprintError` explícito en vez de un número inventado).
 - ~~Retención de conversaciones del chat~~ — **Reinterpretado y resuelto (2026-08-14).** Mariana
   pidió, en vez de una política de expiración: "obligame a comenzar y terminar de forma digital
   en el programa" — el chat ahora fuerza un inicio y un cierre deliberados, en vez de dejar
@@ -804,22 +806,31 @@ filesystem/Redis intercambiable, así que la migración no debería tocar lógic
 
 ## 12. Avance de implementación (se actualiza según se construye, no solo al aprobar)
 
-**HU-011-JarvisMode (rediseño de IA) — 🟡 Mockup aprobado, código pendiente (2026-08-14).**
+**HU-011-JarvisMode (rediseño de IA) — 🟢 Implementado.**
 Mariana reportó "el UI está super inconsistente" y pidió comparar contra el sistema Geist real
-(Figma) antes de tocar código — el Dev Mode MCP Server de Figma no estaba disponible en esta
+(Figma) antes de tocar código — el Dev Mode MCP Server de Figma no estaba disponible en esa
 sesión (requiere la app de escritorio con Dev Mode habilitado), así que se usó `design-tokens.css`
 (ya extraído de Geist en una ronda anterior) como fuente de verdad en su lugar. Encontrado y
-confirmado como causa raíz de la inconsistencia: `dashboard/src/styles.css`'s `.btn-primary` está
-pintado en verde (`--ds-green-800`) y se reusa para navegación, creación y aprobación por igual —
+confirmado como causa raíz de la inconsistencia: `dashboard/src/styles.css`'s `.btn-primary` estaba
+pintado en verde (`--ds-green-800`) y se reusaba para navegación, creación y aprobación por igual —
 en Geist real el color "primary" es neutro (texto/fondo invertidos) y el verde queda solo para
-estados de éxito. Se construyó un mockup HTML autocontenido (sin React) con la IA revisada en
-esta conversación — sidebar reemplaza el banner degradado, "Hablar con Jarvis" como CTA, Proyectos
-con grid+creación+detalle, Analítica a pantalla completa, Memoria de Mar inline, iconos SVG en vez
-de emoji — y Mariana lo aprobó (tras 7 rondas de feedback iterado sobre el mismo HTML: config de
-color, reorden del Dashboard, multi-repo/ramas, CTAs de integración faltante, chats múltiples,
-etc. — ver §5 para el estado final) antes de iniciar el refactor real sobre `dashboard/src/`. Los
-criterios de aceptación completos están en la HU de arriba (§5); el refactor de
-`dashboard/src/App.jsx` y sus componentes para implementarlo de verdad todavía no se ha hecho.
+estados de éxito. Se construyó un mockup HTML autocontenido (sin React) con la IA revisada — sidebar
+reemplaza el banner degradado, "Hablar con Jarvis" como CTA, Proyectos con grid+creación+detalle,
+Analítica a pantalla completa, Memoria de Mar inline, iconos SVG en vez de emoji — aprobado tras 7
+rondas de feedback (config de color, reorden del Dashboard, multi-repo/ramas, CTAs de integración
+faltante, chats múltiples, etc.). El refactor real sobre `dashboard/src/` **ya está completo y
+verificado en vivo** (varias rondas posteriores, hasta 2026-08-19): `Sidebar.jsx` con badge de
+conteo + los 6 íconos lineales reales (`icons.jsx`, sin emoji en toda la app); `AppShell.jsx` +
+`app-shell.css` (max-width 1600px centrado, ya no se estira en monitores anchos); `ProjectsView.jsx`
+(grid + subtítulo dinámico "N bloqueados" + CTAs de integración faltante); `ProjectDetailDrillDown.jsx`
+con 3 tabs reales (Fases y agentes, Project Brain, Repositorios asociados), cada uno con tarjetas
+reales (no texto plano — se corrigió una regresión real donde una limpieza de CSS anterior había
+borrado por error los estilos de `.phase-nav-item`/`.agent-tag`); componente `Modal/Modal.jsx`
+compartido migrado a Integraciones, Configuración, Nuevo proyecto, Conectar repositorio y Vincular
+Basecamp (antes 3 implementaciones de modal distintas); tipografía de dos niveles Nunito/Inter
+agregada 2026-08-19 (Mariana: tamaños grandes en Nunito, ≤11px en Inter); chat con pestañas de
+sesión reales (ver HU-006 abajo). Los criterios de aceptación completos están en la HU de arriba
+(§5).
 
 **HU-012-JarvisMode (renombre de agentes) — 🟢 Implementado (2026-08-14).** A diferencia de
 HU-011, esto sí se implementó directamente en el backend real (Mariana: "sí reemplazalos"), no
@@ -860,15 +871,16 @@ en `openapi.json` (confirmado comparando la lista real contra §6.5 de `ARCHITEC
 
 | HU | Estado | Nota |
 |---|---|---|
-| HU-001/002-JarvisMode (multi-repo) | 🟡 Esqueleto real | Adaptadores GitHub/Bitbucket con `httpx` real (no mocks); falta ejercitarlos contra un repo real y el flujo de Auth Profiles con SSO de Google (§11). **QA 2026-08-13**: se encontraron y corrigieron 2 bugs en `connect_repository` — `environment` faltante ya no se aceptaba silenciosamente server-side (rechaza con `400`), y el mismo repo/environment ya no podía conectarse dos veces (rechaza con `409`) |
+| HU-001/002-JarvisMode (multi-repo) | 🟢 Implementado | Adaptadores GitHub/Bitbucket con `httpx` real (no mocks), CRUD completo en `app/routers/repositories.py` (conectar/listar/sync/borrar/agregar rama). Falta el flujo de Auth Profiles con SSO de Google (§11). **QA 2026-08-13**: se encontraron y corrigieron 2 bugs en `connect_repository` — `environment` faltante ya no se aceptaba silenciosamente server-side (rechaza con `400`), y el mismo repo/environment ya no podía conectarse dos veces (rechaza con `409`). **BUG-009**: `sync_one_repository`/`sync_now` ahora comparten la misma sincronización real entre connect, retry manual y el cron de 3h |
 | HU-003-JarvisMode (sync programada) | 🟢 Implementado | `app/cron/sync_scheduler.py` — `sync_now()` on-demand + `start_scheduler()` con APScheduler (`hour="7-19/3"`), corre al iniciar la app. Watermark: usa `lastSyncAt` del repo, o ventana de 24h si nunca sincronizó |
 | HU-004-JarvisMode (reconciliación) | 🟢 Implementado (matching real) | Parsea `backlog.md` + `outputs/*.md` (formato real de Gimena), unidad = Acceptance Criteria individual, busca `# @ac:HU-XXX-N` / `// @ac:HU-XXX-N` en archivos de test vía los adaptadores de repo. Sin CI conectado: estado `con_test_sin_resultado`, nunca inventa pass/fail. **QA 2026-08-13**: corregido para que un proyecto sin repos conectados devuelva `gaps:[]` con nota explícita, en vez de fabricar gaps sintéticos sobre HUs que ningún repo real respalda |
 | HU-005-JarvisMode (timeline) | 🟢 Implementado | `GET /projects/{id}/timeline` |
-| HU-006-JarvisMode (Jarvis Chat) | 🟢 Implementado | Loop agéntico completo con las 5 herramientas, versionado de sesión por límite de contexto (umbral 120k tokens, marcado para calibrar). **QA 2026-08-13**: corregidos 2 bugs — `_run_agentic_loop` no envolvía `client.messages.create` en try/except (mismo tipo de regresión que `/agents/invoke`, ahora igualado); el `ChatPanel` del dashboard nunca enviaba `purpose`, por lo que el primer mensaje de cualquier sesión nueva era rechazado con `400` desde la UI real — ambos corregidos y reverificados con curl real |
-| HU-007-JarvisMode (Memoria de Mar) | 🟢 Implementado | Dedup por similitud Jaccard (umbral 0.6, marcado para calibrar) |
+| HU-006-JarvisMode (Jarvis Chat) | 🟢 Implementado | Loop agéntico completo con las 5 herramientas, versionado de sesión por límite de contexto (umbral 120k tokens, marcado para calibrar). **QA 2026-08-13**: corregidos 2 bugs — `_run_agentic_loop` no envolvía `client.messages.create` en try/except (mismo tipo de regresión que `/agents/invoke`, ahora igualado); el `ChatPanel` del dashboard nunca enviaba `purpose`, por lo que el primer mensaje de cualquier sesión nueva era rechazado con `400` desde la UI real — ambos corregidos y reverificados con curl real. **2026-08-19**: pestañas de sesión reales agregadas — `GET /jarvis/sessions` + `GET /jarvis/sessions/{conversation_id}` listan/cargan sesiones reales; `ChatPanel.jsx` renderiza un `chat-tabs` real por sesión (no tabs client-only fingidos) |
+| HU-007-JarvisMode (Memoria de Mar) | 🟢 Implementado | Dedup por similitud Jaccard (umbral 0.6, marcado para calibrar). **2026-08-19**: `MarMemoryDrillDown.jsx` agrupa las entradas por día real (Hoy/Ayer/fecha) en vez de lista plana |
 | HU-008-JarvisMode (autoevaluación) | 🟢 Implementado | Las 4 dimensiones se disparan automáticamente en `invoke_agent_core` (usada por `/agents/{name}/invoke` **y** `/orchestrate`), envuelto en try/except propio para no tumbar la respuesta si la evaluación falla. Detector de 2 invocaciones seguidas bajas conectado a la propuesta de changelog |
 | HU-009-JarvisMode (changelog de mejoras) | 🟢 Implementado | `POST /changelog` (propuesta), `POST /changelog/{id}/approve` (aprobación manual, nunca automática), ventana antes/después simétrica, scores reales del `collector`, nunca inventados |
-| HU-010-JarvisMode (Analítica) | 🟢 Implementado | `GET /metrics/events` + cada serie agregada trae `eventIds`/`eventsAvailable`; los agregados de antes de este cambio devuelven explícitamente "sin eventos crudos disponibles" en vez de inventar un desglose. **2026-08-14**: `record_output()` conectado a invocaciones reales (antes sin callers) y `OutputCount` escopado por `project_id` — ver detalle abajo |
+| HU-010-JarvisMode (Analítica) | 🟢 Implementado | `GET /metrics/events` + cada serie agregada trae `eventIds`/`eventsAvailable`; los agregados de antes de este cambio devuelven explícitamente "sin eventos crudos disponibles" en vez de inventar un desglose. **2026-08-14**: `record_output()` conectado a invocaciones reales (antes sin callers) y `OutputCount` escopado por `project_id` — ver detalle abajo. **Post-2026-08-14**: `GET /projects/{id}/sprint` + `basecamp_client.py` agregan el sprint real de Basecamp (tareas hechas/total) al panel de Analítica, ya no solo eventos internos |
+| HU-011-JarvisMode (rediseño de IA) | 🟢 Implementado | Sidebar + AppShell + 3 tabs reales en el drill-down de proyecto + `Modal` compartido + tokens Nunito/Inter (2026-08-19) — ver detalle en §12 arriba |
 | Auth Profiles (§6.2) | 🟢 CRUD implementado | Falta resolver la investigación de SSO de Google antes de que el flujo de conexión sea real |
 | Reescritura completa a Python/FastAPI (§8.0) | 🟢 Completa (MAP + Orchestrator) | El Orchestrator (`orchestrator.js` original: `toolRegistry`, `/toolchain/execute`, `/workflows`, `/system/state`) migró bajo el prefijo `/orchestrator/*` — 9 rutas verificadas, `GET /orchestrator/tools` responde con el tool `map` real |
 
