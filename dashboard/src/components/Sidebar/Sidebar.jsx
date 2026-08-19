@@ -2,11 +2,6 @@ import React, { useState } from "react";
 import SettingsModal from "../Settings/SettingsModal.jsx";
 import "./sidebar.css";
 
-const NAV_ITEMS = [
-  { id: "chat", label: "Jarvis Chat" },
-  { id: "projects", label: "Proyectos" },
-  { id: "dashboard", label: "Dashboard" }
-];
 
 // Live platform status (2026-08-14, mockup §11): a real health probe is a
 // separate piece of infra (uptime monitor / health endpoint aggregation)
@@ -50,7 +45,7 @@ function useLiveStatus(api) {
   return status;
 }
 
-export default function Sidebar({ activeView, onNavigate, onOpenIntegrations, api }) {
+export default function Sidebar({ activeView, onNavigate, onOpenIntegrations, api, projectCount }) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const status = useLiveStatus(api);
 
@@ -70,15 +65,23 @@ export default function Sidebar({ activeView, onNavigate, onOpenIntegrations, ap
 
       <nav className="sidebar-nav">
         <div className="sidebar-nav-label">Trabajo</div>
-        {NAV_ITEMS.filter((n) => n.id !== "chat").map((item) => (
-          <button
-            key={item.id}
-            className={`sidebar-nav-item ${activeView === item.id ? "active" : ""}`}
-            onClick={() => onNavigate(item.id)}
-          >
-            {item.label}
-          </button>
-        ))}
+        <button
+          className={`sidebar-nav-item ${activeView === "projects" ? "active" : ""}`}
+          onClick={() => onNavigate("projects")}
+        >
+          Proyectos
+          {typeof projectCount === "number" && <span className="sidebar-nav-item-count">{projectCount}</span>}
+        </button>
+      </nav>
+
+      <nav className="sidebar-nav">
+        <div className="sidebar-nav-label">Analítica &amp; integraciones</div>
+        <button
+          className={`sidebar-nav-item ${activeView === "dashboard" ? "active" : ""}`}
+          onClick={() => onNavigate("dashboard")}
+        >
+          Dashboard
+        </button>
         <button className="sidebar-nav-item" onClick={onOpenIntegrations}>
           Integraciones
         </button>

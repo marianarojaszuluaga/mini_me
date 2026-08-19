@@ -33,6 +33,7 @@ export default function AppShell({ api, agents, phases }) {
         onNavigate={setView}
         onOpenIntegrations={() => setIntegrationsOpen(true)}
         api={api}
+        projectCount={projects.length}
       />
 
       <main className="app-shell-main">

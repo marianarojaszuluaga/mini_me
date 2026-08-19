@@ -1,6 +1,13 @@
 import React, { useCallback, useEffect, useState } from "react";
 import ProjectDetailDrillDown from "../ProjectDetail/ProjectDetailDrillDown.jsx";
+import Modal from "../Modal/Modal.jsx";
 import "./projects-view.css";
+
+const NEW_PROJECT_ICON = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 5v14M5 12h14" />
+  </svg>
+);
 
 function NewProjectModal({ open, onClose, onCreate }) {
   const [name, setName] = useState("");
@@ -8,8 +15,6 @@ function NewProjectModal({ open, onClose, onCreate }) {
   const [owner, setOwner] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-
-  if (!open) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,51 +33,58 @@ function NewProjectModal({ open, onClose, onCreate }) {
   };
 
   return (
-    <div className="pv-modal-backdrop" onClick={onClose}>
-      <div className="pv-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="pv-modal-header">
-          <h2>Nuevo proyecto</h2>
-          <button type="button" className="btn-cancel" onClick={onClose}>
-            Cerrar
-          </button>
-        </div>
-        <form onSubmit={handleSubmit} className="pv-modal-form">
+    <Modal open={open} onClose={onClose} title="Nuevo proyecto" icon={NEW_PROJECT_ICON}>
+      <form onSubmit={handleSubmit} className="pv-modal-form">
+        <div>
+          <label className="field-label">Nombre</label>
           <input
+            className="field-input"
             type="text"
-            placeholder="Nombre"
+            placeholder="Ej.: Rediseño App Móvil"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
           />
+        </div>
+        <div>
+          <label className="field-label">Descripción</label>
           <input
+            className="field-input"
             type="text"
-            placeholder="Descripción"
+            placeholder="Una línea sobre qué es este proyecto"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             required
           />
+        </div>
+        <div>
+          <label className="field-label">Asignado a (opcional)</label>
           <input
+            className="field-input"
             type="text"
-            placeholder="Asignado a (opcional)"
             value={owner}
             onChange={(e) => setOwner(e.target.value)}
           />
-          <div className="pv-modal-note">
-            El repositorio se conecta después, desde el detalle del proyecto — un repo siempre
-            pertenece a un proyecto, nunca queda suelto.
-          </div>
-          {error && <div className="flag">⚠️ {error}</div>}
-          <div className="modal-buttons">
-            <button type="button" className="btn-cancel" onClick={onClose} disabled={busy}>
-              Cancelar
-            </button>
-            <button type="submit" className="btn-accent" disabled={busy || !name.trim()}>
-              {busy ? "Creando..." : "Crear proyecto"}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        </div>
+        <div className="modal-note modal-note-neutral">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 9v4M12 17h.01" />
+            <circle cx="12" cy="12" r="9" />
+          </svg>
+          El repositorio se conecta después, desde el detalle del proyecto — un repo siempre
+          pertenece a un proyecto, nunca queda suelto.
+        </div>
+        {error && <div className="flag">⚠️ {error}</div>}
+        <div className="modal-actions">
+          <button type="button" className="btn-cancel" onClick={onClose} disabled={busy}>
+            Cancelar
+          </button>
+          <button type="submit" className="btn-accent" disabled={busy || !name.trim()}>
+            {busy ? "Creando..." : "Crear proyecto"}
+          </button>
+        </div>
+      </form>
+    </Modal>
   );
 }
 
@@ -151,10 +163,17 @@ export default function ProjectsView({ api, agents, phases }) {
     );
   }
 
+  const blockedCount = projects.filter((p) => semaphoreFor(p.id) === "blocked").length;
+
   return (
     <div className="pv-view">
       <div className="pv-heading">
         <h1>{loading ? "Proyectos" : `${projects.length} proyectos`}</h1>
+        {!loading && blockedCount > 0 && (
+          <p className="pv-heading-sub">
+            {blockedCount} bloqueado{blockedCount === 1 ? "" : "s"} por gaps de reconciliación sin resolver
+          </p>
+        )}
       </div>
 
       {error && <div className="flag">⚠️ {error}</div>}
@@ -172,7 +191,10 @@ export default function ProjectsView({ api, agents, phases }) {
                     <div className="pv-card-name">{project.name}</div>
                     <div className="pv-card-phase">Fase {project.currentPhase} · {project.currentStep || project.status}</div>
                   </div>
-                  <span className={`pv-pill pv-pill-${semaphore}`}>{SEMAPHORE_LABEL[semaphore]}</span>
+                  <span className={`pv-pill pv-pill-${semaphore}`}>
+                    <span className="pv-pill-dot" />
+                    {SEMAPHORE_LABEL[semaphore]}
+                  </span>
                 </div>
                 <div className="pv-card-stats">
                   <div className="pv-stat">

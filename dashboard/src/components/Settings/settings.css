@@ -1,83 +1,54 @@
-.settings-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: var(--ds-gray-alpha-700);
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 80px 24px;
-  z-index: var(--z-modal);
-}
-
-.settings-modal {
-  width: 100%;
-  max-width: 420px;
-  background: hsl(var(--ds-background-100));
-  border-radius: var(--radius-material-large);
-  box-shadow: var(--shadow-modal-elevated);
-  padding: var(--space-6x);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4x);
-}
-
-.settings-modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.settings-modal-header h2 {
-  font-size: 16px;
-  margin: 0;
-  color: hsl(var(--ds-gray-1000));
-}
+/* Modal chrome (backdrop/header/close/actions) lives in Modal/modal.css —
+   this file is only the Configuración modal's own field content (Fase F,
+   plan "UI 100% fiel al mockup"). */
 
 .settings-field {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2x);
+  gap: 8px;
 }
 
 .settings-field-label {
   font-size: 12px;
   font-weight: 600;
-  color: hsl(var(--ds-gray-800));
+  color: hsl(var(--text));
 }
 
 .settings-field-hint {
   font-size: 11px;
-  color: hsl(var(--ds-gray-700));
+  color: hsl(var(--text-3));
+  margin-top: 4px;
 }
 
 .settings-theme-toggle {
   display: flex;
   gap: 2px;
-  background: hsl(var(--ds-gray-100));
-  border-radius: var(--radius-material-small);
-  padding: 3px;
+  background: hsl(var(--bg-2));
+  border-radius: 6px;
+  padding: 2px;
 }
 
 .settings-theme-toggle button {
   flex: 1;
   border: none;
   background: transparent;
-  color: hsl(var(--ds-gray-800));
-  padding: 6px 10px;
-  border-radius: 5px;
-  font-size: 12.5px;
+  color: hsl(var(--text-2));
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-family: var(--font-sans);
+  font-size: 12px;
   cursor: pointer;
 }
 
 .settings-theme-toggle button.active {
-  background: hsl(var(--ds-background-100));
-  color: hsl(var(--ds-gray-1000));
-  box-shadow: var(--shadow-border-base);
+  background: hsl(var(--surface));
+  color: hsl(var(--text));
+  box-shadow: var(--shadow-border);
 }
 
 .settings-accent-swatches {
   display: flex;
-  gap: var(--space-2x);
+  gap: 10px;
 }
 
 .settings-accent-swatch {
@@ -90,11 +61,6 @@
 }
 
 .settings-accent-swatch.active {
-  border-color: hsl(var(--ds-gray-1000));
-}
-
-.settings-modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--space-2x);
+  border-color: hsl(var(--text));
+  box-shadow: 0 0 0 2px hsl(var(--bg)), 0 0 0 3px hsl(var(--text));
 }

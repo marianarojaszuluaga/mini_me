@@ -67,6 +67,10 @@ export default class ApiClient {
     return this.request(`/projects/${projectId}/basecamp`, { method: "DELETE" });
   }
 
+  getProjectSprint(projectId) {
+    return this.request(`/projects/${projectId}/sprint`);
+  }
+
   invokeAgent(agentName, projectId, input, context) {
     return this.request(`/agents/${agentName}/invoke`, {
       method: "POST",

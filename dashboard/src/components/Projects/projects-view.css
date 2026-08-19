@@ -1,53 +1,63 @@
 .pv-view {
-  padding: var(--space-6x);
+  padding: 28px 32px 40px;
   overflow-y: auto;
   height: 100%;
   box-sizing: border-box;
+}
+
+.pv-heading {
+  margin-bottom: 22px;
 }
 
 .pv-heading h1 {
   font-size: 19px;
   font-weight: 700;
   letter-spacing: -0.015em;
-  margin: 0 0 var(--space-4x);
-  color: hsl(var(--ds-gray-1000));
+  margin: 0;
+  color: hsl(var(--text));
+}
+
+.pv-heading-sub {
+  font-size: 13px;
+  color: hsl(var(--text-3));
+  margin: 3px 0 0;
 }
 
 .pv-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: var(--space-3x);
+  gap: 14px;
 }
 
 .pv-card {
-  background: hsl(var(--ds-background-100));
-  box-shadow: var(--shadow-border-base);
-  border-radius: var(--radius-material-medium);
-  padding: var(--space-4x);
+  background: hsl(var(--surface));
+  box-shadow: var(--shadow-border);
+  border-radius: 12px;
+  padding: 16px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: var(--space-2x);
+  gap: 10px;
   text-align: left;
   border: none;
   font-family: var(--font-sans);
 }
 
 .pv-card:hover {
-  box-shadow: 0 0 0 1px hsl(var(--ds-gray-700));
+  box-shadow: 0 0 0 1px hsl(var(--text-3));
 }
 
 .pv-card-new {
-  border: 1.5px dashed hsl(var(--ds-gray-500));
+  border: 1.5px dashed hsl(var(--border-strong));
   box-shadow: none;
   background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: hsl(var(--ds-gray-700));
-  min-height: 110px;
+  color: hsl(var(--text-3));
+  min-height: 128px;
   font-weight: 600;
-  font-size: 13.5px;
+  font-size: 13px;
 }
 
 .pv-card-new:hover {
@@ -60,27 +70,27 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: var(--space-2x);
+  gap: 8px;
 }
 
 .pv-card-name {
   font-size: 14.5px;
   font-weight: 650;
-  color: hsl(var(--ds-gray-1000));
+  color: hsl(var(--text));
 }
 
 .pv-card-phase {
   font-size: 12px;
-  color: hsl(var(--ds-gray-700));
+  color: hsl(var(--text-3));
   margin-top: 2px;
 }
 
 .pv-card-stats {
   display: flex;
-  gap: var(--space-4x);
+  gap: 14px;
   margin-top: auto;
-  padding-top: var(--space-2x);
-  border-top: 1px solid hsl(var(--ds-gray-300));
+  padding-top: 10px;
+  border-top: 1px solid hsl(var(--border));
 }
 
 .pv-stat {
@@ -91,12 +101,13 @@
 .pv-stat-value {
   font-size: 15px;
   font-weight: 650;
-  color: hsl(var(--ds-gray-1000));
+  font-variant-numeric: tabular-nums;
+  color: hsl(var(--text));
 }
 
 .pv-stat-label {
   font-size: 10.5px;
-  color: hsl(var(--ds-gray-700));
+  color: hsl(var(--text-3));
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
@@ -104,19 +115,31 @@
 .pv-pill {
   display: inline-flex;
   align-items: center;
+  gap: 4px;
   font-size: 11px;
   font-weight: 600;
-  padding: 2px 8px;
+  padding: 2px 7px;
   border-radius: 100px;
   flex-shrink: 0;
 }
 
-.pv-pill-blocked { background: hsl(var(--ds-red-100)); color: hsl(var(--ds-red-900)); }
-.pv-pill-attention { background: hsl(var(--ds-amber-100)); color: hsl(var(--ds-amber-900)); }
-.pv-pill-on-track { background: hsl(var(--ds-green-100)); color: hsl(var(--ds-green-900)); }
+.pv-pill-blocked { background: hsl(var(--red-soft)); color: hsl(var(--red)); }
+.pv-pill-blocked .pv-pill-dot { background: hsl(var(--red)); }
+
+.pv-pill-attention { background: hsl(var(--amber-soft)); color: hsl(var(--amber)); }
+.pv-pill-attention .pv-pill-dot { background: hsl(var(--amber)); }
+
+.pv-pill-on-track { background: hsl(var(--green-soft)); color: hsl(var(--green)); }
+.pv-pill-on-track .pv-pill-dot { background: hsl(var(--green)); }
+
+.pv-pill-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
 
 .pv-detail-wrap {
-  padding: var(--space-6x);
+  padding: 28px 32px 40px;
   overflow-y: auto;
   height: 100%;
   box-sizing: border-box;
@@ -125,74 +148,59 @@
 .pv-back-link {
   display: flex;
   align-items: center;
-  gap: var(--space-1x);
+  gap: 6px;
   background: none;
   border: none;
-  color: hsl(var(--ds-gray-800));
+  color: hsl(var(--text-2));
   font-size: 13px;
   cursor: pointer;
-  padding: 0 0 var(--space-3x);
+  padding: 4px 6px 4px 0;
   font-family: var(--font-sans);
 }
 
 .pv-back-link:hover {
-  color: hsl(var(--ds-gray-1000));
+  color: hsl(var(--text));
 }
 
-/* New-project modal */
-.pv-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: var(--ds-gray-alpha-700);
+/* Estado vacío del detalle: CTAs en vez de secciones sin datos (mockup
+   .empty-integrations-cta / .eic-item) */
+.pv-empty-cta-list {
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 80px 24px;
-  z-index: var(--z-modal);
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
 }
 
-.pv-modal {
-  width: 100%;
-  max-width: 440px;
-  background: hsl(var(--ds-background-100));
-  border-radius: var(--radius-material-large);
-  box-shadow: var(--shadow-modal-elevated);
-  padding: var(--space-6x);
-}
-
-.pv-modal-header {
+.pv-eic-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--space-4x);
+  gap: 16px;
+  padding: 16px;
+  border-radius: 10px;
+  border: 1.5px dashed hsl(var(--border-strong));
 }
 
-.pv-modal-header h2 {
-  font-size: 16px;
-  margin: 0;
-  color: hsl(var(--ds-gray-1000));
+.pv-eic-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
+.pv-eic-text strong {
+  font-size: 13.5px;
+  color: hsl(var(--text));
+}
+
+.pv-eic-text span {
+  font-size: 12px;
+  color: hsl(var(--text-3));
+}
+
+/* New-project modal: backdrop/header/close/actions come from Modal/modal.css
+   (Fase F) — this is just the form's internal layout. */
 .pv-modal-form {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3x);
-}
-
-.pv-modal-form input {
-  padding: var(--space-2x) var(--space-3x);
-  border-radius: var(--radius-material-small);
-  border: none;
-  box-shadow: var(--shadow-border-base);
-  background: hsl(var(--ds-background-100));
-  color: hsl(var(--ds-gray-1000));
-  font-size: 13px;
-}
-
-.pv-modal-note {
-  font-size: 11.5px;
-  color: hsl(var(--ds-gray-700));
-  background: hsl(var(--ds-gray-100));
-  border-radius: var(--radius-material-small);
-  padding: var(--space-2x);
+  gap: 14px;
 }

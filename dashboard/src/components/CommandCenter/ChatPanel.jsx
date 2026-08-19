@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import ApiClient from "../../api-client.js";
+import "./command-center.css";
 
 // Same key App.jsx uses to persist the app API key (localStorage) — ChatPanel
 // isn't handed an `api` instance as a prop today (CommandCenterLayout is
@@ -39,12 +40,80 @@ function SourceList({ sources }) {
   );
 }
 
+// Real system-wide reconciliation alerts + gap total for the status rail's
+// "Sistema" group — same computation AnalyticsDrillDown already uses
+// (reconciliationRuns[].gaps_found), never a fabricated number.
+function useSystemRailData(api) {
+  const [reconciliationRuns, setReconciliationRuns] = useState([]);
+
+  useEffect(() => {
+    if (!api) return;
+    api
+      .getMetricsSummary()
+      .then((summary) => setReconciliationRuns(summary.reconciliationRuns || []))
+      .catch(() => setReconciliationRuns([]));
+  }, [api]);
+
+  const gapsTotal = reconciliationRuns.reduce((acc, r) => acc + (r.gaps_found || 0), 0);
+  const alerts = reconciliationRuns.filter((r) => (r.gaps_found || 0) > 0).slice(-5);
+  return { gapsTotal, alerts };
+}
+
+function StatusRail({ api, purpose, turnCount, tokenCount }) {
+  const { gapsTotal, alerts } = useSystemRailData(api);
+  return (
+    <aside className="chat-status-rail">
+      <div className="rail-group session">
+        <div className="rail-group-label">Esta conversación</div>
+        <div className="rail-group-sub">{purpose}</div>
+        <div className="rail-metric-grid">
+          <div className="rail-card">
+            <div className="rail-metric-value">{turnCount}</div>
+            <div className="rail-metric-label">Turnos</div>
+          </div>
+          <div className="rail-card">
+            <div className="rail-metric-value">{tokenCount > 0 ? tokenCount.toLocaleString("es") : "0"}</div>
+            <div className="rail-metric-label">Tokens usados</div>
+          </div>
+        </div>
+      </div>
+      <div className="rail-group">
+        <div className="rail-group-label">Sistema (todos los proyectos)</div>
+        <div className="rail-metric-grid" style={{ marginBottom: 14 }}>
+          <div className="rail-card">
+            <div className="rail-metric-value rail-metric-empty">—</div>
+            <div className="rail-metric-label">Uso hoy</div>
+          </div>
+          <div className="rail-card">
+            <div className="rail-metric-value">{gapsTotal}</div>
+            <div className="rail-metric-label">Gaps totales</div>
+          </div>
+        </div>
+        <div className="rail-section-label">Alertas de reconciliación</div>
+        <div className="rail-alert-list">
+          {alerts.length === 0 && <div className="rail-alert-text">Sin alertas abiertas.</div>}
+          {alerts.map((run, i) => (
+            <div key={i} className="rail-alert-row">
+              <span className="pill pill-red">
+                <span className="pill-dot" />
+                {run.gaps_found} gaps
+              </span>
+              <span className="rail-alert-text">{run.project_id || run.project_name || "—"}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </aside>
+  );
+}
+
 export default function ChatPanel({ api: apiProp } = {}) {
   const [messages, setMessages] = useState([]); // { id, role: 'user'|'jarvis', text, sources?, declaredUnknown? }
   const [input, setInput] = useState("");
   const [conversationId, setConversationId] = useState(null);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState("");
+  const [tokenTotal, setTokenTotal] = useState(0);
   // SPEC_JARVIS.md §11: sessions must start and end deliberately in the UI,
   // not implicitly on the first/last message. `purposeDraft` is the pending
   // "why are you opening this session" answer required before any message
@@ -81,6 +150,7 @@ export default function ChatPanel({ api: apiProp } = {}) {
     setConversationId(null);
     setPendingPurpose(purpose);
     setPurposeDraft("");
+    setTokenTotal(0);
   };
 
   const handleEndSession = async () => {
@@ -142,6 +212,8 @@ export default function ChatPanel({ api: apiProp } = {}) {
           declaredUnknown
         }
       ]);
+      const turnTokens = (turn.input_tokens ?? turn.inputTokens ?? 0) + (turn.output_tokens ?? turn.outputTokens ?? 0);
+      setTokenTotal((prev) => prev + turnTokens);
     } catch (err) {
       setError(err.message || "Error al enviar el mensaje a Jarvis.");
     } finally {
@@ -198,44 +270,60 @@ export default function ChatPanel({ api: apiProp } = {}) {
     );
   }
 
+  const turnCount = messages.filter((m) => m.role === "jarvis").length;
+
   return (
     <div className="chat-panel">
       <div className="chat-panel-toolbar">
-        <span className="chat-panel-purpose">Propósito: {pendingPurpose || "—"}</span>
+        <span className="chat-panel-purpose">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 2a5 5 0 015 5v3a5 5 0 01-10 0V7a5 5 0 015-5z" />
+            <path d="M19 10v2a7 7 0 01-14 0v-2M12 19v3" />
+          </svg>
+          Propósito: {pendingPurpose || "—"}
+        </span>
         <button
           type="button"
           className="chat-end-button"
           onClick={handleEndSession}
           disabled={!conversationId || isEndingSession}
         >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="5" y="5" width="14" height="14" rx="2" />
+          </svg>
           {isEndingSession ? "Terminando..." : "Terminar sesión"}
         </button>
       </div>
-      <div className="chat-history" ref={scrollRef}>
-        {messages.length === 0 && (
-          <div className="chat-empty-state">Pregúntale algo a Jarvis sobre tus proyectos.</div>
-        )}
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`chat-message chat-message-${message.role}`}
-          >
-            <div className="chat-message-author">
-              {message.role === "user" ? "Tú" : "Jarvis"}
+
+      <div className="chat-body">
+        <div className="chat-history" ref={scrollRef}>
+          {messages.length === 0 && (
+            <div className="chat-empty-state">Pregúntale algo a Jarvis sobre tus proyectos.</div>
+          )}
+          {messages.map((message) => (
+            <div
+              key={message.id}
+              className={`chat-message chat-message-${message.role}`}
+            >
+              <div className="chat-message-author">
+                {message.role === "user" ? "Tú" : "Jarvis"}
+              </div>
+              <div className="chat-message-text">{message.text}</div>
+              {message.role === "jarvis" && message.declaredUnknown && (
+                <div className="chat-message-unknown">Jarvis indicó que no tiene información suficiente.</div>
+              )}
+              {message.role === "jarvis" && <SourceList sources={message.sources} />}
             </div>
-            <div className="chat-message-text">{message.text}</div>
-            {message.role === "jarvis" && message.declaredUnknown && (
-              <div className="chat-message-unknown">Jarvis indicó que no tiene información suficiente.</div>
-            )}
-            {message.role === "jarvis" && <SourceList sources={message.sources} />}
-          </div>
-        ))}
-        {isSending && (
-          <div className="chat-message chat-message-jarvis chat-message-typing">
-            <div className="chat-message-author">Jarvis</div>
-            <div className="chat-message-text">escribiendo...</div>
-          </div>
-        )}
+          ))}
+          {isSending && (
+            <div className="chat-message chat-message-jarvis chat-message-typing">
+              <div className="chat-message-author">Jarvis</div>
+              <div className="chat-message-text">escribiendo...</div>
+            </div>
+          )}
+        </div>
+
+        <StatusRail api={apiRef.current} purpose={pendingPurpose || "—"} turnCount={turnCount} tokenCount={tokenTotal} />
       </div>
 
       {error && <div className="flag">⚠️ {error}</div>}
@@ -256,6 +344,9 @@ export default function ChatPanel({ api: apiProp } = {}) {
           onClick={handleSend}
           disabled={isSending || !input.trim()}
         >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+          </svg>
           Enviar
         </button>
       </div>

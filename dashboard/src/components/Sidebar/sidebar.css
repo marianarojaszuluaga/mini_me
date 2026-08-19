@@ -1,10 +1,10 @@
 .sidebar {
-  background: hsl(var(--ds-background-100));
-  border-right: 1px solid hsl(var(--ds-gray-300));
+  background: hsl(var(--sidebar-bg));
+  border-right: 1px solid hsl(var(--border));
   display: flex;
   flex-direction: column;
-  padding: var(--space-4x) var(--space-3x);
-  gap: var(--space-1x);
+  padding: 18px 12px;
+  gap: 4px;
   height: 100vh;
   box-sizing: border-box;
 }
@@ -12,18 +12,18 @@
 .sidebar-brand {
   display: flex;
   align-items: center;
-  gap: var(--space-2x);
-  padding: var(--space-1x) var(--space-2x) var(--space-4x);
-  margin-bottom: var(--space-1x);
-  border-bottom: 1px solid hsl(var(--ds-gray-300));
+  gap: 10px;
+  padding: 4px 8px 18px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid hsl(var(--border));
 }
 
 .sidebar-brand-mark {
   width: 30px;
   height: 30px;
   border-radius: 8px;
-  background: hsl(var(--ds-gray-1000));
-  color: hsl(var(--ds-background-100));
+  background: hsl(var(--text));
+  color: hsl(var(--bg));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -36,23 +36,23 @@
   font-weight: 700;
   letter-spacing: -0.015em;
   line-height: 1.2;
-  color: hsl(var(--ds-gray-1000));
+  color: hsl(var(--text));
 }
 
 .sidebar-brand-sub {
   font-size: 11px;
-  color: hsl(var(--ds-gray-700));
+  color: hsl(var(--text-3));
   margin-top: 1px;
 }
 
 .sidebar-cta {
   width: 100%;
-  margin: var(--space-3x) 0 var(--space-4x);
+  margin: 14px 0 18px;
   font-size: 13.5px;
 }
 
 .sidebar-nav {
-  margin-top: var(--space-1x);
+  margin-top: 6px;
 }
 
 .sidebar-nav-label {
@@ -60,18 +60,18 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: hsl(var(--ds-gray-700));
-  padding: 0 var(--space-2x);
-  margin-bottom: var(--space-1x);
+  color: hsl(var(--text-3));
+  padding: 0 10px;
+  margin-bottom: 6px;
 }
 
 .sidebar-nav-item {
   display: flex;
   align-items: center;
-  gap: var(--space-2x);
-  padding: 7px var(--space-2x);
+  gap: 10px;
+  padding: 7px 10px;
   border-radius: 8px;
-  color: hsl(var(--ds-gray-800));
+  color: hsl(var(--text-2));
   font-size: 13.5px;
   font-weight: 500;
   cursor: pointer;
@@ -83,8 +83,8 @@
 }
 
 .sidebar-nav-item:hover {
-  background: hsl(var(--ds-gray-100));
-  color: hsl(var(--ds-gray-1000));
+  background: hsl(var(--text) / 0.05);
+  color: hsl(var(--text));
 }
 
 .sidebar-nav-item.active {
@@ -92,24 +92,31 @@
   color: hsl(var(--accent));
 }
 
+.sidebar-nav-item-count {
+  margin-left: auto;
+  font-size: 11px;
+  color: hsl(var(--text-3));
+  font-variant-numeric: tabular-nums;
+}
+
 .sidebar-nav-standalone {
   margin-top: auto;
-  padding-top: var(--space-2x);
+  padding-top: 8px;
 }
 
 .sidebar-footer {
-  padding-top: var(--space-2x);
-  border-top: 1px solid hsl(var(--ds-gray-300));
+  padding-top: 12px;
+  border-top: 1px solid hsl(var(--border));
   display: flex;
   flex-direction: column;
-  gap: var(--space-1x);
+  gap: 10px;
 }
 
 .sidebar-status-row {
   display: flex;
   align-items: center;
-  gap: var(--space-2x);
-  padding: 2px var(--space-2x);
+  gap: 8px;
+  padding: 2px 10px;
 }
 
 .sidebar-status-dot {
@@ -120,33 +127,34 @@
 }
 
 .sidebar-status-dot-ok {
-  background: hsl(var(--ds-green-800));
-  box-shadow: 0 0 0 3px hsl(var(--ds-green-800) / 0.18);
+  background: hsl(var(--green));
+  box-shadow: 0 0 0 3px hsl(var(--green) / 0.18);
 }
 
 .sidebar-status-dot-warn {
-  background: hsl(var(--ds-amber-800));
-  box-shadow: 0 0 0 3px hsl(var(--ds-amber-800) / 0.18);
+  background: hsl(var(--amber));
+  box-shadow: 0 0 0 3px hsl(var(--amber) / 0.18);
 }
 
 .sidebar-status-dot-down {
-  background: hsl(var(--ds-red-800));
-  box-shadow: 0 0 0 3px hsl(var(--ds-red-800) / 0.18);
+  background: hsl(var(--red));
+  box-shadow: 0 0 0 3px hsl(var(--red) / 0.18);
 }
 
 .sidebar-status-text {
   font-size: 12px;
-  color: hsl(var(--ds-gray-800));
+  color: hsl(var(--text-2));
 }
 
 .sidebar-settings-row {
   display: flex;
   align-items: center;
-  padding: 6px var(--space-2x);
+  gap: 8px;
+  padding: 6px 10px;
   border-radius: 8px;
   border: none;
   background: transparent;
-  color: hsl(var(--ds-gray-700));
+  color: hsl(var(--text-2));
   font-size: 12px;
   cursor: pointer;
   text-align: left;
@@ -154,6 +162,6 @@
 }
 
 .sidebar-settings-row:hover {
-  background: hsl(var(--ds-gray-100));
-  color: hsl(var(--ds-gray-1000));
+  background: hsl(var(--text) / 0.05);
+  color: hsl(var(--text));
 }
