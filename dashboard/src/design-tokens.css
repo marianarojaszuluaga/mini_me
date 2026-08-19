@@ -120,9 +120,37 @@
      cause of "el UI está super inconsistente"). */
   --accent-h: 133;
   --accent-s: 50%;
-  --accent-l: 32%;
+  --accent-l: 28%;
   --accent: var(--accent-h), var(--accent-s), var(--accent-l);
-  --accent-soft: var(--ds-green-100);
+  --accent-ink: 0, 0%, 100%;
+  --accent-soft: 120, 60%, 95%;
+
+  /* Tokens semánticos exactos del mockup acordado ("Mar en internet —
+     Rediseño Geist v2") — viven junto a --ds-* en vez de aproximarse a un
+     paso de la escala genérica de grises. Esto es lo que consumen
+     sidebar.css / command-center.css / projects-view.css / analytics.css
+     para bordes, superficies y sombras. */
+  --bg: 0, 0%, 100%;
+  --bg-2: 0, 0%, 98%;
+  --surface: 0, 0%, 100%;
+  --border: 0, 0%, 90%;
+  --border-strong: 0, 0%, 82%;
+  --text: 0, 0%, 9%;
+  --text-2: 0, 0%, 40%;
+  --text-3: 0, 0%, 56%;
+  --blue: 212, 100%, 48%;
+  --blue-soft: 212, 100%, 96%;
+  --green: 131, 41%, 40%;
+  --green-soft: 120, 60%, 95%;
+  --amber: 35, 100%, 45%;
+  --amber-soft: 44, 100%, 92%;
+  --red: 358, 70%, 52%;
+  --red-soft: 0, 100%, 96%;
+  --purple: 272, 51%, 44%;
+  --shadow-border: 0 0 0 1px hsl(0 0% 0% / 0.08);
+  --shadow-card: 0 1px 2px hsl(0 0% 0% / 0.04), 0 2px 8px -2px hsl(0 0% 0% / 0.06);
+  --shadow-modal: 0 0 0 1px hsl(0 0% 0% / 0.08), 0 24px 48px -12px hsl(0 0% 0% / 0.25);
+  --sidebar-bg: 0, 0%, 100%;
 
   /* paleta categorica (fija, invariante al tema — series de graficas, badges) */
   --cat-gray: #7D7D7D;
@@ -135,7 +163,7 @@
   --cat-teal: #0D8C7D;
 
   /* ---- typography ---- */
-  --font-sans: "Inter", GeistSans, "GeistSans Fallback", -apple-system, sans-serif;
+  --font-sans: "Geist", "Inter", -apple-system, sans-serif;
   --font-mono: "Geist Mono", Menlo, Monaco, monospace;
 
   /* ---- spacing (base 4px) ---- */
@@ -316,6 +344,30 @@
     --shadow-xl: 0px 1px 1px #00000005, 0px 4px 8px -4px #0000000a, 0px 16px 24px -8px #0000000f;
     --shadow-2xl: 0px 1px 1px #00000005, 0px 8px 16px -4px #0000000a, 0px 24px 32px -8px #0000000f;
     --shadow-modal-elevated: 0 0 0 1px var(--ds-gray-alpha-400), 0px 32px 72px -12px #0000000f, 0px 8px 32px -12px #00000014, 0px 8px 24px -12px #0000001f;
+
+    --bg: 0, 0%, 4%;
+    --bg-2: 0, 0%, 6.5%;
+    --surface: 0, 0%, 7%;
+    --border: 0, 0%, 16%;
+    --border-strong: 0, 0%, 24%;
+    --text: 0, 0%, 93%;
+    --text-2: 0, 0%, 66%;
+    --text-3: 0, 0%, 50%;
+    --accent-l: 45%;
+    --accent-soft: 136, 50%, 11%;
+    --blue: 210, 100%, 62%;
+    --blue-soft: 213, 71%, 16%;
+    --green: 131, 43%, 57%;
+    --green-soft: 136, 50%, 11%;
+    --amber: 39, 90%, 55%;
+    --amber-soft: 35, 100%, 12%;
+    --red: 358, 100%, 69%;
+    --red-soft: 357, 46%, 14%;
+    --purple: 272, 51%, 60%;
+    --shadow-border: 0 0 0 1px hsl(0 0% 100% / 0.12);
+    --shadow-card: 0 1px 2px hsl(0 0% 0% / 0.4), 0 2px 8px -2px hsl(0 0% 0% / 0.5);
+    --shadow-modal: 0 0 0 1px hsl(0 0% 100% / 0.14), 0 24px 48px -12px hsl(0 0% 0% / 0.6);
+    --sidebar-bg: 0, 0%, 6%;
   }
 }
 
@@ -433,4 +485,28 @@
   --shadow-xl: 0px 1px 1px #00000005, 0px 4px 8px -4px #0000000a, 0px 16px 24px -8px #0000000f;
   --shadow-2xl: 0px 1px 1px #00000005, 0px 8px 16px -4px #0000000a, 0px 24px 32px -8px #0000000f;
   --shadow-modal-elevated: 0 0 0 1px var(--ds-gray-alpha-400), 0px 32px 72px -12px #0000000f, 0px 8px 32px -12px #00000014, 0px 8px 24px -12px #0000001f;
+
+  --bg: 0, 0%, 4%;
+  --bg-2: 0, 0%, 6.5%;
+  --surface: 0, 0%, 7%;
+  --border: 0, 0%, 16%;
+  --border-strong: 0, 0%, 24%;
+  --text: 0, 0%, 93%;
+  --text-2: 0, 0%, 66%;
+  --text-3: 0, 0%, 50%;
+  --accent-l: 45%;
+  --accent-soft: 136, 50%, 11%;
+  --blue: 210, 100%, 62%;
+  --blue-soft: 213, 71%, 16%;
+  --green: 131, 43%, 57%;
+  --green-soft: 136, 50%, 11%;
+  --amber: 39, 90%, 55%;
+  --amber-soft: 35, 100%, 12%;
+  --red: 358, 100%, 69%;
+  --red-soft: 357, 46%, 14%;
+  --purple: 272, 51%, 60%;
+  --shadow-border: 0 0 0 1px hsl(0 0% 100% / 0.12);
+  --shadow-card: 0 1px 2px hsl(0 0% 0% / 0.4), 0 2px 8px -2px hsl(0 0% 0% / 0.5);
+  --shadow-modal: 0 0 0 1px hsl(0 0% 100% / 0.14), 0 24px 48px -12px hsl(0 0% 0% / 0.6);
+  --sidebar-bg: 0, 0%, 6%;
 }

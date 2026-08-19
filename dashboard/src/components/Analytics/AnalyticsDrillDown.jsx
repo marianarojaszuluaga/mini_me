@@ -394,6 +394,11 @@ function DashboardBody({ api, projects, projectId, onProjectIdChange }) {
   const [changelog, setChangelog] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  // Real Basecamp sprint (Fase E) — null while loading/unavailable; a
+  // missing link or missing Auth Profile is a real, distinct state from "no
+  // sprint data yet", surfaced via `sprintError` instead of showing 0/0.
+  const [sprint, setSprint] = useState(null);
+  const [sprintError, setSprintError] = useState("");
 
   const load = useCallback(async () => {
     if (!api) {
@@ -419,11 +424,26 @@ function DashboardBody({ api, projects, projectId, onProjectIdChange }) {
     load();
   }, [load]);
 
+  useEffect(() => {
+    if (!api || !projectId) {
+      setSprint(null);
+      setSprintError("");
+      return;
+    }
+    setSprint(null);
+    setSprintError("");
+    api
+      .getProjectSprint(projectId)
+      .then(setSprint)
+      .catch((err) => setSprintError(err.message));
+  }, [api, projectId]);
+
   const handleApprove = (updated) => {
     setChangelog((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
   };
 
-  const selectedProjectName = projects.find((p) => p.id === projectId)?.name || projectId;
+  const selectedProject = projects.find((p) => p.id === projectId);
+  const selectedProjectName = selectedProject?.name || projectId;
 
   return (
     <div className="analytics-drilldown">
@@ -472,10 +492,29 @@ function DashboardBody({ api, projects, projectId, onProjectIdChange }) {
                 accent="green"
               />
             </div>
-            <div className="analytics-note">
-              Sprint abierto, status y tiempo de trabajo requieren la integración con Basecamp
-              (SPEC_JARVIS.md §11) — no implementada aún, no se inventan números aquí.
+            <div className="analytics-grid" style={{ marginTop: 12 }}>
+              <div className="tile">
+                <div className="metric-value">
+                  {sprint ? `${sprint.tasks_done}/${sprint.tasks_total}` : <span className="metric-value metric-empty">—</span>}
+                </div>
+                <div className="metric-label">Tareas de sprint</div>
+              </div>
+              <div className="tile">
+                <div className="metric-value" style={{ fontSize: 16 }}>
+                  {selectedProject ? SEMAPHORE_LABEL_ES[selectedProject.status] || selectedProject.status : "—"}
+                </div>
+                <div className="metric-label">Status del proyecto</div>
+              </div>
+              <div className="tile">
+                <div className="metric-value metric-empty">—</div>
+                <div className="metric-label">Tiempo de trabajo (7 días)</div>
+              </div>
             </div>
+            {sprintError && (
+              <div className="analytics-note-inline" style={{ marginTop: 8 }}>
+                Tareas de sprint: {sprintError}
+              </div>
+            )}
           </section>
 
           <section className="analytics-section">
@@ -533,6 +572,13 @@ function DashboardBody({ api, projects, projectId, onProjectIdChange }) {
     </div>
   );
 }
+
+const SEMAPHORE_LABEL_ES = {
+  active: "En curso",
+  paused: "Pausado",
+  done: "Completado",
+  archived: "Archivado"
+};
 
 const OUTPUT_TYPE_LABELS = {
   hu: "# HU generadas",

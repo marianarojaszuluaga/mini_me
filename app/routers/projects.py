@@ -19,8 +19,10 @@ from fastapi import APIRouter, Body, Depends, HTTPException
 from app.core.config import Settings, get_settings
 from app.core.security import authenticate_token
 from app.core.storage import get_storage
+from app.schemas.auth_profile import AuthProfile
 from app.schemas.project import ProjectCreateRequest
 from app.services import agent_registry
+from app.services.basecamp_client import BasecampError, get_active_sprint
 
 router = APIRouter(dependencies=[Depends(authenticate_token)])
 
@@ -153,6 +155,47 @@ async def unlink_basecamp_project(project_id: str) -> dict[str, Any]:
     project["basecamp"] = None
     storage.write_projects(projects)
     return project
+
+
+@router.get("/projects/{project_id}/sprint")
+async def get_project_sprint(project_id: str) -> dict[str, Any]:
+    """Real sprint (active Basecamp to-do list) for a linked project — Fase E
+    of the mockup-fidelity plan. 501 if there's nothing real to read yet
+    (no Basecamp link, or no matching Basecamp Auth Profile with a real
+    OAuth token) — never a fabricated sprint."""
+    storage = get_storage()
+    projects = storage.read_projects()
+    project = next((p for p in projects if p.get("id") == project_id), None)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    basecamp = project.get("basecamp")
+    if not basecamp:
+        raise HTTPException(status_code=501, detail="Este proyecto no tiene un proyecto de Basecamp vinculado.")
+
+    account_id = str(basecamp["account_id"])
+    profiles = storage.read_auth_profiles()
+    profile_dict = next(
+        (
+            p
+            for p in profiles
+            if p.get("provider") == "basecamp" and p.get("scope") == f"account_id:{account_id}"
+        ),
+        None,
+    )
+    if not profile_dict:
+        raise HTTPException(
+            status_code=501,
+            detail=f"No hay un Auth Profile de Basecamp conectado para la cuenta {account_id}.",
+        )
+
+    auth_profile = AuthProfile(**profile_dict)
+    try:
+        sprint = await get_active_sprint(auth_profile, account_id, str(basecamp["project_id"]))
+    except BasecampError as error:
+        raise HTTPException(status_code=502, detail=str(error)) from error
+
+    return sprint
 
 
 async def _ingest_event(

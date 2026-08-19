@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import "../CommandCenter/command-center.css";
 
 /**
  * ProjectDetailDrillDown — "Detalle de Proyecto" (SPEC_JARVIS.md §2).
@@ -438,9 +439,19 @@ function RepositoriosSection({ api, project, onProjectUpdated }) {
 
       {error && <div className="flag">⚠️ {error}</div>}
 
-      {repositories.length === 0 ? (
-        <div className="empty-state">Sin repositorios conectados todavía.</div>
-      ) : (
+      {repositories.length === 0 && !showForm ? (
+        <div className="pv-empty-cta-list">
+          <div className="pv-eic-item">
+            <div className="pv-eic-text">
+              <strong>Sin repositorio conectado</strong>
+              <span>La reconciliación no puede verificar código sin al menos un repo.</span>
+            </div>
+            <button className="btn-primary" onClick={handleOpenForm}>
+              Integrar repo
+            </button>
+          </div>
+        </div>
+      ) : repositories.length === 0 ? null : (
         <div className="pd-repo-list">
           {repositories.map((repo) => (
             <div key={repo.id} className="pd-repo-item">
@@ -594,6 +605,39 @@ function TimelineSection({ api, project }) {
 // "Ver en Basecamp" URL.
 // ---------------------------------------------------------------------------
 
+function BasecampSprintCard({ api, project }) {
+  const [sprint, setSprint] = useState(null);
+  const [sprintError, setSprintError] = useState("");
+
+  useEffect(() => {
+    api
+      .getProjectSprint(project.id)
+      .then(setSprint)
+      .catch((err) => setSprintError(err.message));
+  }, [api, project.id]);
+
+  if (sprintError) {
+    return <div className="pd-meta">Sprint: {sprintError}</div>;
+  }
+  if (!sprint) return null;
+
+  const pct = sprint.tasks_total > 0 ? Math.round((sprint.tasks_done / sprint.tasks_total) * 100) : 0;
+
+  return (
+    <div className="sprint-card" style={{ marginTop: 12 }}>
+      <div className="sprint-card-top">
+        <span className="sprint-name">{sprint.name}</span>
+      </div>
+      <div className="sprint-bar">
+        <div className="sprint-bar-fill" style={{ width: `${pct}%` }} />
+      </div>
+      <div className="sprint-tasks">
+        {sprint.tasks_done} de {sprint.tasks_total} tareas completadas
+      </div>
+    </div>
+  );
+}
+
 function BasecampSection({ api, project, onProjectUpdated }) {
   const existing = project.basecamp;
   const [accountId, setAccountId] = useState(existing?.account_id || "");
@@ -641,9 +685,17 @@ function BasecampSection({ api, project, onProjectUpdated }) {
           >
             https://3.basecamp.com/{existing.account_id}/projects/{existing.project_id}
           </a>
+          <BasecampSprintCard api={api} project={project} />
         </div>
       ) : (
-        <div className="empty-state">Sin proyecto de Basecamp vinculado todavía.</div>
+        <div className="pv-empty-cta-list">
+          <div className="pv-eic-item">
+            <div className="pv-eic-text">
+              <strong>Sin Basecamp vinculado</strong>
+              <span>Sin esto no se puede mostrar el sprint abierto ni el link a tareas.</span>
+            </div>
+          </div>
+        </div>
       )}
 
       {error && <div className="flag">⚠️ {error}</div>}
@@ -665,7 +717,7 @@ function BasecampSection({ api, project, onProjectUpdated }) {
         />
         <div className="modal-buttons">
           {existing && (
-            <button type="button" className="btn-cancel" onClick={handleUnlink} disabled={busy}>
+            <button type="button" className="btn-danger" onClick={handleUnlink} disabled={busy}>
               Desvincular
             </button>
           )}
