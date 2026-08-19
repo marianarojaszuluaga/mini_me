@@ -33,7 +33,7 @@ export default function AppShell({ api, agents, phases }) {
         onNavigate={setView}
         onOpenIntegrations={() => setIntegrationsOpen(true)}
         api={api}
-        projectCount={projects.length}
+        projectCount={projects.filter((p) => p.status !== "archived").length}
       />
 
       <main className="app-shell-main">
@@ -41,7 +41,7 @@ export default function AppShell({ api, agents, phases }) {
         {view === "projects" && <ProjectsView api={api} agents={agents} phases={phases} />}
         {view === "dashboard" && (
           <div className="app-shell-page">
-            <AnalyticsDrillDown api={api} fullPage projects={projects} />
+            <AnalyticsDrillDown api={api} fullPage projects={projects.filter((p) => p.status !== "archived")} />
           </div>
         )}
         {view === "mar" && (

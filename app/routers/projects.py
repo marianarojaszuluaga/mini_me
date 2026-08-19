@@ -120,6 +120,24 @@ async def create_project(body: ProjectCreateRequest) -> dict[str, Any]:
     return new_project
 
 
+@router.delete("/projects/{project_id}", status_code=200)
+async def delete_project(project_id: str) -> dict[str, Any]:
+    """Soft delete (Mariana, 2026-08-19): sets status="archived" instead of
+    removing the record — real data is never dropped, and this is
+    reversible (re-activate by setting status back to "active" via a
+    future un-archive action). The frontend gates this behind a real
+    confirmation modal (type-to-confirm the project name) and filters
+    archived projects out of the main Proyectos grid."""
+    storage = get_storage()
+    projects = storage.read_projects()
+    project = next((p for p in projects if p.get("id") == project_id), None)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    project["status"] = "archived"
+    storage.write_projects(projects)
+    return project
+
+
 @router.put("/projects/{project_id}/basecamp")
 async def link_basecamp_project(project_id: str, body: dict[str, Any] = Body(...)) -> dict[str, Any]:
     """Links (or re-links) this project to a real Basecamp project —

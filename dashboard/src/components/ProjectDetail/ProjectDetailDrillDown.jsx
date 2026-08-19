@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Modal from "../Modal/Modal.jsx";
+import DestructiveActionModal from "../Modal/DestructiveActionModal.jsx";
 import { AlertIcon, CheckIcon } from "../icons.jsx";
 import "../CommandCenter/command-center.css";
 
@@ -788,9 +789,16 @@ function BasecampSection({ api, project, onProjectUpdated }) {
 // Main component
 // ---------------------------------------------------------------------------
 
-export default function ProjectDetailDrillDown({ api, project, agents = [], phases = [], onProjectUpdated }) {
+const ARCHIVE_ICON = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 3h16a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1zm3 5v9h2V8H7zm4 3v6h2v-6h-2zm4-2v8h2V9h-2z" />
+  </svg>
+);
+
+export default function ProjectDetailDrillDown({ api, project, agents = [], phases = [], onProjectUpdated, onProjectArchived }) {
   const [activeSection, setActiveSection] = useState(SECTIONS[0].id);
   const [currentProject, setCurrentProject] = useState(project);
+  const [showArchiveModal, setShowArchiveModal] = useState(false);
 
   useEffect(() => {
     setCurrentProject(project);
@@ -799,6 +807,12 @@ export default function ProjectDetailDrillDown({ api, project, agents = [], phas
   const handleProjectUpdated = (fresh) => {
     setCurrentProject(fresh);
     onProjectUpdated?.(fresh);
+  };
+
+  const handleArchive = async () => {
+    const fresh = await api.deleteProject(currentProject.id);
+    setShowArchiveModal(false);
+    onProjectArchived?.(fresh);
   };
 
   if (!currentProject) {
@@ -810,7 +824,31 @@ export default function ProjectDetailDrillDown({ api, project, agents = [], phas
       <div className="pd-header">
         <h2>{currentProject.name}</h2>
         <span className={`status-badge status-${currentProject.status}`}>{currentProject.status}</span>
+        {currentProject.status !== "archived" && (
+          <button className="btn-danger pd-archive-btn" onClick={() => setShowArchiveModal(true)}>
+            Eliminar proyecto
+          </button>
+        )}
       </div>
+
+      <DestructiveActionModal
+        open={showArchiveModal}
+        onClose={() => setShowArchiveModal(false)}
+        title="Eliminar proyecto"
+        icon={ARCHIVE_ICON}
+        description={
+          <>
+            Vas a eliminar <strong>{currentProject.name}</strong> de la vista de Proyectos. No se
+            borran sus datos — queda archivado y se puede recuperar. Sus repositorios/Basecamp
+            vinculados dejan de sincronizarse mientras esté archivado.
+          </>
+        }
+        verificationPhrase={currentProject.name}
+        verificationLabel="nombre del proyecto"
+        confirmLabel="Eliminar proyecto"
+        bandText={`Eliminar ${currentProject.name} lo archiva y lo saca de la vista de Proyectos — puede recuperarse después, no borra datos.`}
+        onConfirm={handleArchive}
+      />
 
       <div className="pd-tabs">
         {SECTIONS.map((section) => (

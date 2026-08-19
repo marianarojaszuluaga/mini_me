@@ -454,10 +454,18 @@
 .pd-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4x);
+  gap: var(--space-3x);
   margin-bottom: var(--space-4x);
   font-family: var(--font-sans);
+}
+
+.pd-header h2 {
+  margin-right: auto;
+}
+
+.pd-archive-btn {
+  font-size: 12.5px;
+  padding: 6px 12px;
 }
 
 .pd-tabs {

@@ -31,6 +31,7 @@ export default class ApiClient {
       // so users only ever saw the generic fallback message.
       throw new Error(body.detail || body.error || `${path} failed (${response.status})`);
     }
+    if (response.status === 204) return null;
     return response.json();
   }
 
@@ -54,6 +55,10 @@ export default class ApiClient {
 
   createProject(data) {
     return this.request("/projects", { method: "POST", body: JSON.stringify(data) });
+  }
+
+  deleteProject(projectId) {
+    return this.request(`/projects/${projectId}`, { method: "DELETE" });
   }
 
   linkBasecampProject(projectId, accountId, basecampProjectId) {

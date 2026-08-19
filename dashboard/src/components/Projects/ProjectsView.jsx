@@ -159,17 +159,24 @@ export default function ProjectsView({ api, agents, phases }) {
             setSelectedProject(fresh);
             load();
           }}
+          onProjectArchived={() => {
+            setSelectedProject(null);
+            load();
+          }}
         />
       </div>
     );
   }
 
-  const blockedCount = projects.filter((p) => semaphoreFor(p.id) === "blocked").length;
+  // Soft-deleted ("Eliminar proyecto") projects are archived, not removed —
+  // real data stays, they just drop out of the active Proyectos grid.
+  const visibleProjects = projects.filter((p) => p.status !== "archived");
+  const blockedCount = visibleProjects.filter((p) => semaphoreFor(p.id) === "blocked").length;
 
   return (
     <div className="pv-view">
       <div className="pv-heading">
-        <h1>{loading ? "Proyectos" : `${projects.length} proyectos`}</h1>
+        <h1>{loading ? "Proyectos" : `${visibleProjects.length} proyectos`}</h1>
         {!loading && blockedCount > 0 && (
           <p className="pv-heading-sub">
             {blockedCount} bloqueado{blockedCount === 1 ? "" : "s"} por gaps de reconciliación sin resolver
@@ -182,7 +189,7 @@ export default function ProjectsView({ api, agents, phases }) {
         <div className="loading">Cargando proyectos...</div>
       ) : (
         <div className="pv-grid">
-          {projects.map((project) => {
+          {visibleProjects.map((project) => {
             const brain = project.memory?.projectBrain || {};
             const semaphore = semaphoreFor(project.id);
             return (
