@@ -37,7 +37,7 @@ export default function AppShell({ api, agents, phases }) {
       />
 
       <main className="app-shell-main">
-        {view === "chat" && <ChatPanel api={api} />}
+        {view === "chat" && <ChatPanel api={api} projects={projects} />}
         {view === "projects" && <ProjectsView api={api} agents={agents} phases={phases} />}
         {view === "dashboard" && (
           <div className="app-shell-page">

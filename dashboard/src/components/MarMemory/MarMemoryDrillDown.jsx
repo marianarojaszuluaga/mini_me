@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import DrillDown from "../CommandCenter/DrillDown.jsx";
 import ApiClient from "../../api-client.js";
+import { BrainIcon, AlertIcon } from "../icons.jsx";
 import "./mar-memory.css";
 
 const STORAGE_KEY = "ORQ_APP_KEY";
@@ -15,6 +16,35 @@ function defaultApi() {
 // backend (the schema requires it) but defaults silently to "understanding"
 // since the user no longer picks it.
 const DEFAULT_TYPE = "understanding";
+
+// Groups entries by real calendar day (Hoy / Ayer / fecha) — Mariana:
+// "el drill down de memoria [necesita] una estructura más organizada/agrupada"
+// (2026-08-19). Order is newest-first, entries within a day keep their
+// original (creation) order.
+function groupEntriesByDay(entries) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  const groups = new Map();
+  for (const entry of entries) {
+    const created = entry.createdAt ? new Date(entry.createdAt) : null;
+    let label;
+    if (!created || Number.isNaN(created.getTime())) {
+      label = "Sin fecha";
+    } else {
+      const day = new Date(created);
+      day.setHours(0, 0, 0, 0);
+      if (day.getTime() === today.getTime()) label = "Hoy";
+      else if (day.getTime() === yesterday.getTime()) label = "Ayer";
+      else label = day.toLocaleDateString("es", { day: "numeric", month: "long", year: "numeric" });
+    }
+    if (!groups.has(label)) groups.set(label, []);
+    groups.get(label).push(entry);
+  }
+  return Array.from(groups.entries());
+}
 
 // One entry: view mode by default, switches to an inline edit form on click.
 const MemoryEntryCard = ({ entry, onSave, onDelete }) => {
@@ -50,7 +80,7 @@ const MemoryEntryCard = ({ entry, onSave, onDelete }) => {
     return (
       <div className="mar-entry mar-entry-editing">
         <textarea value={content} onChange={(e) => setContent(e.target.value)} rows={3} />
-        {error && <div className="mar-note mar-note-error">⚠️ {error}</div>}
+        {error && <div className="mar-note mar-note-error">{AlertIcon} {error}</div>}
         <div className="mar-entry-actions">
           <button type="button" className="btn-cancel" onClick={() => setEditing(false)} disabled={busy}>
             Cancelar
@@ -70,7 +100,7 @@ const MemoryEntryCard = ({ entry, onSave, onDelete }) => {
         <span>{entry.source === "manual" ? "manual" : "desde chat"}</span>
         <span>{entry.createdAt ? new Date(entry.createdAt).toLocaleString() : ""}</span>
       </div>
-      {error && <div className="mar-note mar-note-error">⚠️ {error}</div>}
+      {error && <div className="mar-note mar-note-error">{AlertIcon} {error}</div>}
       <div className="mar-entry-actions">
         <button type="button" className="btn-cancel" onClick={() => setEditing(true)} disabled={busy}>
           Editar
@@ -112,7 +142,7 @@ const NewEntryForm = ({ onCreate }) => {
         rows={3}
         required
       />
-      {error && <div className="mar-note mar-note-error">⚠️ {error}</div>}
+      {error && <div className="mar-note mar-note-error">{AlertIcon} {error}</div>}
       <button type="submit" className="btn-primary" disabled={busy || !content.trim()}>
         {busy ? "Agregando..." : "+ Agregar"}
       </button>
@@ -171,18 +201,25 @@ function MarMemoryBody({ api }) {
       </div>
 
       {loading && <div className="mar-note">Cargando memoria...</div>}
-      {error && <div className="mar-note mar-note-error">⚠️ {error}</div>}
+      {error && <div className="mar-note mar-note-error">{AlertIcon} {error}</div>}
 
       {!loading && !error && (
         <>
           {entries.length === 0 ? (
             <div className="mar-note">Sin entradas todavía.</div>
           ) : (
-            <div className="mar-group-list">
-              {entries.map((entry) => (
-                <MemoryEntryCard key={entry.id} entry={entry} onSave={handleSave} onDelete={handleDelete} />
-              ))}
-            </div>
+            groupEntriesByDay(
+              [...entries].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+            ).map(([label, groupEntries]) => (
+              <section key={label} className="mar-group">
+                <h3 className="mar-group-title">{label}</h3>
+                <div className="mar-group-list">
+                  {groupEntries.map((entry) => (
+                    <MemoryEntryCard key={entry.id} entry={entry} onSave={handleSave} onDelete={handleDelete} />
+                  ))}
+                </div>
+              </section>
+            ))
           )}
           <section className="mar-group">
             <NewEntryForm onCreate={handleCreate} />
@@ -208,7 +245,9 @@ export default function MarMemoryDrillDown({ open, onClose, api: apiProp, fullPa
     <DrillDown open={open} onClose={onClose} label="Memoria de Mar">
       <div className="mar-drilldown">
         <div className="mar-header">
-          <h1>🧠 Memoria de Mar</h1>
+          <h1>
+            <span className="mar-header-icon">{BrainIcon}</span> Memoria de Mar
+          </h1>
           <button type="button" className="btn-cancel" onClick={onClose}>
             Cerrar
           </button>

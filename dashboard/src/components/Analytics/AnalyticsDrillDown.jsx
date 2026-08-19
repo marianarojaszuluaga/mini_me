@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import DrillDown from "../CommandCenter/DrillDown.jsx";
 import ApiClient from "../../api-client.js";
+import { AlertIcon } from "../icons.jsx";
 import "./analytics.css";
 
 // Real per-agent photos (2026-08-14, Mariana). One file per agent id, e.g.
@@ -60,7 +61,7 @@ const RawEventsPanel = ({ api, row, eventType }) => {
     return <div className="analytics-note">{row.note || "sin eventos crudos disponibles"}</div>;
   }
   if (state.loading) return <div className="analytics-note">Cargando eventos...</div>;
-  if (state.error) return <div className="analytics-note analytics-note-error">⚠️ {state.error}</div>;
+  if (state.error) return <div className="analytics-note analytics-note-error">{AlertIcon} {state.error}</div>;
   if (state.events.length === 0) {
     return <div className="analytics-note">Sin eventos crudos encontrados para este dato.</div>;
   }
@@ -357,7 +358,7 @@ const ChangelogSection = ({ api, changelog, onApprove }) => {
   return (
     <section className="analytics-section analytics-section-changelog">
       <h2 className="analytics-section-title">Changelog de mejoras del sistema</h2>
-      {error && <div className="analytics-note analytics-note-error">⚠️ {error}</div>}
+      {error && <div className="analytics-note analytics-note-error">{AlertIcon} {error}</div>}
       {changelog.length === 0 && <div className="analytics-note">Sin propuestas de mejora todavía.</div>}
       {changelog.map((entry) => (
         <div key={entry.id} className="changelog-entry">
@@ -465,7 +466,7 @@ function DashboardBody({ api, projects, projectId, onProjectIdChange }) {
       )}
 
       {loading && <div className="analytics-note">Cargando métricas...</div>}
-      {error && <div className="analytics-note analytics-note-error">⚠️ {error}</div>}
+      {error && <div className="analytics-note analytics-note-error">{AlertIcon} {error}</div>}
 
       {data && (
         <>

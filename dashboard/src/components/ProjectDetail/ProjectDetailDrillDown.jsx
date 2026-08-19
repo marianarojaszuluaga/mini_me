@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
+import Modal from "../Modal/Modal.jsx";
+import { AlertIcon, CheckIcon } from "../icons.jsx";
 import "../CommandCenter/command-center.css";
+
+const REPO_ICON = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 2v4M15 2v4M6 10h12a1 1 0 011 1v3a5 5 0 01-5 5h-4a5 5 0 01-5-5v-3a1 1 0 011-1z" />
+  </svg>
+);
 
 /**
  * ProjectDetailDrillDown — "Detalle de Proyecto" (SPEC_JARVIS.md §2).
@@ -149,8 +157,8 @@ function ReconciliationSubsection({ api, project, onProjectUpdated }) {
           Última corrida: {new Date(reconciliation.lastRunAt).toLocaleString()}
         </div>
       )}
-      {reconciliation.note && <div className="flag">⚠️ {reconciliation.note}</div>}
-      {error && <div className="flag">⚠️ {error}</div>}
+      {reconciliation.note && <div className="flag">{AlertIcon} {reconciliation.note}</div>}
+      {error && <div className="flag">{AlertIcon} {error}</div>}
 
       {!reconciliation.gaps || reconciliation.gaps.length === 0 ? (
         <div className="empty-state">
@@ -284,77 +292,93 @@ function ConnectRepoForm({ api, project, authProfiles, onConnected, onCancel }) 
   };
 
   return (
-    <form onSubmit={handleSubmit} className="pd-connect-repo-form">
-      <select value={authProfileId} onChange={(e) => handleAuthProfileChange(e.target.value)} required>
-        {authProfiles.map((p) => (
-          <option key={p.id} value={p.id}>
-            {/* BUG-017 fix: label legible (cuenta — alcance), no el id crudo */}
-            {p.account} — {p.scope ? p.scope : p.provider}
-          </option>
-        ))}
-      </select>
-      <input
-        type="text"
-        placeholder="owner"
-        value={owner}
-        onChange={(e) => setOwner(e.target.value)}
-        required
-      />
-      <input
-        type="text"
-        placeholder="repo"
-        value={repo}
-        onChange={(e) => setRepo(e.target.value)}
-        required
-      />
-      <select value={environment} onChange={(e) => setEnvironment(e.target.value)} required>
-        <option value="" disabled>
-          Environment (obligatorio)
-        </option>
-        <option value="prod">prod</option>
-        <option value="develop">develop</option>
-      </select>
-
-      <div className="pd-branches-field">
-        <div className="pd-branches-list">
-          {branches.map((b) => (
-            <span key={b} className="branch-chip">
-              {b}
-              <button type="button" onClick={() => handleRemoveBranch(b)} aria-label={`Quitar ${b}`}>
-                ×
-              </button>
-            </span>
-          ))}
+    <Modal open onClose={onCancel} title="Conectar repositorio" icon={REPO_ICON}>
+      <form onSubmit={handleSubmit} className="pd-connect-repo-form">
+        <div>
+          <label className="field-label">Auth Profile</label>
+          <select className="field-select" value={authProfileId} onChange={(e) => handleAuthProfileChange(e.target.value)} required>
+            {authProfiles.map((p) => (
+              <option key={p.id} value={p.id}>
+                {/* BUG-017 fix: label legible (cuenta — alcance), no el id crudo */}
+                {p.account} — {p.scope ? p.scope : p.provider}
+              </option>
+            ))}
+          </select>
         </div>
-        <div className="pd-branches-add-row">
+        <div>
+          <label className="field-label">Repositorio</label>
           <input
+            className="field-input"
             type="text"
-            placeholder="rama a monitorear (ej. develop)"
-            value={branchDraft}
-            onChange={(e) => setBranchDraft(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                handleAddBranch();
-              }
-            }}
+            placeholder="owner"
+            value={owner}
+            onChange={(e) => setOwner(e.target.value)}
+            required
+            style={{ marginBottom: 8 }}
           />
-          <button type="button" className="btn-cancel" onClick={handleAddBranch}>
-            + Agregar rama
+          <input
+            className="field-input"
+            type="text"
+            placeholder="repo"
+            value={repo}
+            onChange={(e) => setRepo(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label className="field-label">Ambiente</label>
+          <select className="field-select" value={environment} onChange={(e) => setEnvironment(e.target.value)} required>
+            <option value="" disabled>
+              Environment (obligatorio)
+            </option>
+            <option value="prod">prod</option>
+            <option value="develop">develop</option>
+          </select>
+        </div>
+
+        <div className="pd-branches-field">
+          <label className="field-label">Ramas a monitorear</label>
+          <div className="pd-branches-list">
+            {branches.map((b) => (
+              <span key={b} className="branch-chip">
+                {b}
+                <button type="button" onClick={() => handleRemoveBranch(b)} aria-label={`Quitar ${b}`}>
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+          <div className="pd-branches-add-row">
+            <input
+              className="field-input"
+              type="text"
+              placeholder="rama a monitorear (ej. develop)"
+              value={branchDraft}
+              onChange={(e) => setBranchDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleAddBranch();
+                }
+              }}
+            />
+            <button type="button" className="btn-secondary" onClick={handleAddBranch}>
+              + Agregar
+            </button>
+          </div>
+        </div>
+
+        {error && <div className="flag">{AlertIcon} {error}</div>}
+        <div className="modal-actions">
+          <button type="button" className="btn-cancel" onClick={onCancel} disabled={busy}>
+            Cancelar
+          </button>
+          <button type="submit" className="btn-success" disabled={busy}>
+            {busy ? "Conectando..." : "Conectar"}
           </button>
         </div>
-      </div>
-
-      {error && <div className="flag">⚠️ {error}</div>}
-      <div className="modal-buttons">
-        <button type="button" className="btn-cancel" onClick={onCancel} disabled={busy}>
-          Cancelar
-        </button>
-        <button type="submit" className="btn-success" disabled={busy}>
-          {busy ? "Conectando..." : "Conectar"}
-        </button>
-      </div>
-    </form>
+      </form>
+    </Modal>
   );
 }
 
@@ -430,16 +454,15 @@ function RepositoriosSection({ api, project, onProjectUpdated }) {
     <div className="pd-subsection">
       <div className="pd-subsection-header">
         <h3>Repositorios ({repositories.length})</h3>
-        {!showForm && (
-          <button className="btn-primary" onClick={handleOpenForm}>
-            + Conectar repo
-          </button>
-        )}
+        <button className="btn-primary" onClick={handleOpenForm}>
+          {REPO_ICON}
+          Agregar repositorio
+        </button>
       </div>
 
-      {error && <div className="flag">⚠️ {error}</div>}
+      {error && <div className="flag">{AlertIcon} {error}</div>}
 
-      {repositories.length === 0 && !showForm ? (
+      {repositories.length === 0 ? (
         <div className="pv-empty-cta-list">
           <div className="pv-eic-item">
             <div className="pv-eic-text">
@@ -496,7 +519,7 @@ function RepositoriosSection({ api, project, onProjectUpdated }) {
                     nunca fabricados en el front) */}
                 {repo.syncStatus === "error" ? (
                   <span className="pd-sync-status-row">
-                    <span className="recon-status-pill recon-status-red">⚠️ Error de sincronización</span>
+                    <span className="recon-status-pill recon-status-red">{AlertIcon} Error de sincronización</span>
                     {repo.lastError && <span className="pd-sync-error-detail">{repo.lastError}</span>}
                     <button
                       type="button"
@@ -508,7 +531,9 @@ function RepositoriosSection({ api, project, onProjectUpdated }) {
                     </button>
                   </span>
                 ) : repo.syncStatus === "synced" ? (
-                  <span className="recon-status-pill recon-status-green">✓ Sincronizado</span>
+                  <span className="recon-status-pill recon-status-green recon-status-pill-icon">
+                    {CheckIcon} Sincronizado
+                  </span>
                 ) : (
                   <span className="recon-status-pill recon-status-amber">Sin sincronizar todavía</span>
                 )}
@@ -520,7 +545,7 @@ function RepositoriosSection({ api, project, onProjectUpdated }) {
 
       {showForm && authProfiles !== null && authProfiles.length === 0 && (
         <div className="flag">
-          ⚠️ No hay ningún Auth Profile creado todavía. Crea uno primero (sección de Auth Profiles)
+          {AlertIcon} No hay ningún Auth Profile creado todavía. Crea uno primero (sección de Auth Profiles)
           antes de poder conectar un repositorio.
           <div className="modal-buttons">
             <button type="button" className="btn-cancel" onClick={() => setShowForm(false)}>
@@ -568,7 +593,7 @@ function TimelineSection({ api, project }) {
     };
   }, [api, project.id]);
 
-  if (error) return <div className="flag">⚠️ {error}</div>;
+  if (error) return <div className="flag">{AlertIcon} {error}</div>;
   if (timeline === null) return <div className="loading">Cargando timeline...</div>;
 
   const activities = timeline.activities || [];
@@ -644,6 +669,7 @@ function BasecampSection({ api, project, onProjectUpdated }) {
   const [basecampProjectId, setBasecampProjectId] = useState(existing?.project_id || "");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [showForm, setShowForm] = useState(false);
 
   const handleLink = async (e) => {
     e.preventDefault();
@@ -652,6 +678,7 @@ function BasecampSection({ api, project, onProjectUpdated }) {
     try {
       const fresh = await api.linkBasecampProject(project.id, accountId, basecampProjectId);
       onProjectUpdated?.(fresh);
+      setShowForm(false);
     } catch (err) {
       setError(err.message);
     }
@@ -666,15 +693,28 @@ function BasecampSection({ api, project, onProjectUpdated }) {
       setAccountId("");
       setBasecampProjectId("");
       onProjectUpdated?.(fresh);
+      setShowForm(false);
     } catch (err) {
       setError(err.message);
     }
     setBusy(false);
   };
 
+  const icon = (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 3h16a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1z" />
+    </svg>
+  );
+
   return (
     <div className="pd-subsection">
-      <h3>Basecamp</h3>
+      <div className="pd-subsection-header">
+        <h3>Basecamp</h3>
+        <button className="btn-primary" onClick={() => setShowForm(true)}>
+          {existing ? "Editar" : "Vincular Basecamp"}
+        </button>
+      </div>
+
       {existing ? (
         <div className="pd-meta">
           Vinculado a{" "}
@@ -694,38 +734,52 @@ function BasecampSection({ api, project, onProjectUpdated }) {
               <strong>Sin Basecamp vinculado</strong>
               <span>Sin esto no se puede mostrar el sprint abierto ni el link a tareas.</span>
             </div>
+            <button className="btn-primary" onClick={() => setShowForm(true)}>
+              Integrar Basecamp
+            </button>
           </div>
         </div>
       )}
 
-      {error && <div className="flag">⚠️ {error}</div>}
-
-      <form onSubmit={handleLink} className="pd-connect-repo-form">
-        <input
-          type="text"
-          placeholder="account_id (ej. 5172885)"
-          value={accountId}
-          onChange={(e) => setAccountId(e.target.value)}
-          required
-        />
-        <input
-          type="text"
-          placeholder="project_id (ej. 44382327)"
-          value={basecampProjectId}
-          onChange={(e) => setBasecampProjectId(e.target.value)}
-          required
-        />
-        <div className="modal-buttons">
-          {existing && (
-            <button type="button" className="btn-danger" onClick={handleUnlink} disabled={busy}>
-              Desvincular
-            </button>
-          )}
-          <button type="submit" className="btn-success" disabled={busy}>
-            {busy ? "Guardando..." : existing ? "Actualizar" : "Vincular"}
-          </button>
-        </div>
-      </form>
+      {showForm && (
+        <Modal open onClose={() => setShowForm(false)} title="Vincular Basecamp" icon={icon}>
+          <form onSubmit={handleLink} className="pd-connect-repo-form">
+            <div>
+              <label className="field-label">account_id</label>
+              <input
+                className="field-input"
+                type="text"
+                placeholder="ej. 5172885"
+                value={accountId}
+                onChange={(e) => setAccountId(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <label className="field-label">project_id</label>
+              <input
+                className="field-input"
+                type="text"
+                placeholder="ej. 44382327"
+                value={basecampProjectId}
+                onChange={(e) => setBasecampProjectId(e.target.value)}
+                required
+              />
+            </div>
+            {error && <div className="flag">{AlertIcon} {error}</div>}
+            <div className="modal-actions">
+              {existing && (
+                <button type="button" className="btn-danger" onClick={handleUnlink} disabled={busy}>
+                  Desvincular
+                </button>
+              )}
+              <button type="submit" className="btn-success" disabled={busy}>
+                {busy ? "Guardando..." : existing ? "Actualizar" : "Vincular"}
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
     </div>
   );
 }
@@ -754,7 +808,7 @@ export default function ProjectDetailDrillDown({ api, project, agents = [], phas
   return (
     <div className="pd-drilldown">
       <div className="pd-header">
-        <h2>📁 {currentProject.name}</h2>
+        <h2>{currentProject.name}</h2>
         <span className={`status-badge status-${currentProject.status}`}>{currentProject.status}</span>
       </div>
 

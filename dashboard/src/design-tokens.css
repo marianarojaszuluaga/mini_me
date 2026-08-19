@@ -163,7 +163,13 @@
   --cat-teal: #0D8C7D;
 
   /* ---- typography ---- */
-  --font-sans: "Geist", "Inter", -apple-system, sans-serif;
+  /* Two-tier type system (Mariana, 2026-08-19): --font-sans (Nunito) for
+     main/emphasis sizes — body 14px, metric values 22px, headings; sidebar
+     nav (13.5px) also reads as "main" text, not a label, so it stays here
+     too. --font-sans-small (Inter) is for anything 11px or smaller — nav
+     labels, meta text, uppercase captions, pill/badge text. */
+  --font-sans: "Nunito", -apple-system, sans-serif;
+  --font-sans-small: "Inter", -apple-system, sans-serif;
   --font-mono: "Geist Mono", Menlo, Monaco, monospace;
 
   /* ---- spacing (base 4px) ---- */

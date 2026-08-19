@@ -10,6 +10,7 @@
 import React, { useState, useEffect } from "react";
 import "./styles.css";
 import ApiClient from "./api-client.js";
+import { BrandIcon, AlertIcon } from "./components/icons.jsx";
 import AppShell from "./components/AppShell.jsx";
 import { applyStoredAppearance } from "./components/Settings/SettingsModal.jsx";
 
@@ -56,7 +57,9 @@ export default function App() {
     return (
       <div className="login-container">
         <div className="login-card">
-          <h1>🎯 Mar en internet</h1>
+          <h1>
+            <span className="login-brand-icon">{BrandIcon}</span> Mar en internet
+          </h1>
           <p>Ingresa la App API Key (no tu clave de Anthropic)</p>
           <form onSubmit={handleLogin}>
             <input
@@ -68,7 +71,7 @@ export default function App() {
             />
             <button type="submit">Iniciar Sesión</button>
           </form>
-          {loginError && <div className="flag">⚠️ {loginError}</div>}
+          {loginError && <div className="flag">{AlertIcon} {loginError}</div>}
         </div>
       </div>
     );

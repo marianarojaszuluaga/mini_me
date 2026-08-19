@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import ApiClient from "../../api-client.js";
+import { AlertIcon } from "../icons.jsx";
 import "./command-center.css";
 
 // Same key App.jsx uses to persist the app API key (localStorage) — ChatPanel
@@ -107,7 +108,32 @@ function StatusRail({ api, purpose, turnCount, tokenCount }) {
   );
 }
 
-export default function ChatPanel({ api: apiProp } = {}) {
+// Turns a full ChatSession's `turns` (role_user_message + assistant_message
+// pairs, snake_case from the backend) back into the flat message list the
+// UI renders — used when switching into an existing tab.
+function turnsToMessages(turns) {
+  const messages = [];
+  for (const turn of turns || []) {
+    messages.push({ id: `${turn.id}-u`, role: "user", text: turn.role_user_message ?? turn.roleUserMessage ?? "" });
+    messages.push({
+      id: turn.id,
+      role: "jarvis",
+      text: turn.assistant_message ?? turn.assistantMessage ?? "",
+      sources: turn.sources_cited ?? turn.sourcesCited ?? [],
+      declaredUnknown: turn.declared_unknown ?? turn.declaredUnknown ?? false
+    });
+  }
+  return messages;
+}
+
+function sessionTokenTotal(turns) {
+  return (turns || []).reduce(
+    (acc, t) => acc + (t.input_tokens ?? t.inputTokens ?? 0) + (t.output_tokens ?? t.outputTokens ?? 0),
+    0
+  );
+}
+
+export default function ChatPanel({ api: apiProp, projects = [] } = {}) {
   const [messages, setMessages] = useState([]); // { id, role: 'user'|'jarvis', text, sources?, declaredUnknown? }
   const [input, setInput] = useState("");
   const [conversationId, setConversationId] = useState(null);
@@ -121,8 +147,13 @@ export default function ChatPanel({ api: apiProp } = {}) {
   // forcing a fresh purpose (and thus a fresh conversation_id) to continue.
   const [purposeDraft, setPurposeDraft] = useState("");
   const [pendingPurpose, setPendingPurpose] = useState(null);
+  const [pendingProjectId, setPendingProjectId] = useState("");
   const [isEndingSession, setIsEndingSession] = useState(false);
   const [sessionEnded, setSessionEnded] = useState(false);
+  // Real chat-tabs bar (mockup fidelity, 2026-08-19): open sessions listed
+  // via GET /jarvis/sessions, switching tabs loads that session's real
+  // turns via GET /jarvis/sessions/{id} — never a client-only fake tab.
+  const [sessions, setSessions] = useState([]);
   const scrollRef = useRef(null);
   const apiRef = useRef(null);
 
@@ -133,11 +164,51 @@ export default function ChatPanel({ api: apiProp } = {}) {
     apiRef.current = new ApiClient(appKey);
   }
 
+  const loadSessions = () => {
+    apiRef.current
+      .listChatSessions("open")
+      .then(setSessions)
+      .catch(() => setSessions([]));
+  };
+
+  useEffect(() => {
+    loadSessions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, isSending]);
+
+  const projectName = (projectId) => projects.find((p) => p.id === projectId)?.name || projectId;
+
+  const handleNewTab = () => {
+    setSessionEnded(false);
+    setMessages([]);
+    setConversationId(null);
+    setPendingPurpose(null);
+    setPurposeDraft("");
+    setPendingProjectId("");
+    setTokenTotal(0);
+    setError("");
+  };
+
+  const handleSwitchTab = async (session) => {
+    setError("");
+    try {
+      const full = await apiRef.current.getChatSession(session.id);
+      setConversationId(full.id);
+      setPendingPurpose(full.purpose);
+      setPendingProjectId(full.project_id ?? full.projectId ?? "");
+      setMessages(turnsToMessages(full.turns));
+      setTokenTotal(sessionTokenTotal(full.turns));
+      setSessionEnded(false);
+    } catch (err) {
+      setError(err.message || "No se pudo cargar esa conversación.");
+    }
+  };
 
   const handleStartSession = () => {
     const purpose = purposeDraft.trim();
@@ -162,6 +233,7 @@ export default function ChatPanel({ api: apiProp } = {}) {
       setSessionEnded(true);
       setConversationId(null);
       setPendingPurpose(null);
+      loadSessions();
     } catch (err) {
       setError(err.message || "Error al terminar la sesión.");
     } finally {
@@ -186,7 +258,8 @@ export default function ChatPanel({ api: apiProp } = {}) {
       // same session must NOT resend it, since session_manager treats
       // conversation_id + purpose as "open a new one".
       const purpose = conversationId ? undefined : pendingPurpose;
-      const response = await apiRef.current.sendChatMessage(conversationId, text, purpose);
+      const isNewSession = !conversationId;
+      const response = await apiRef.current.sendChatMessage(conversationId, text, purpose, pendingProjectId);
       // Shape per app/schemas/chat.py ChatTurnResponse: { conversationId, version,
       // turn: { assistantMessage, sourcesCited, declaredUnknown }, sessionStatus,
       // newConversationId }. The FastAPI models are snake_case in Python but the
@@ -214,6 +287,7 @@ export default function ChatPanel({ api: apiProp } = {}) {
       ]);
       const turnTokens = (turn.input_tokens ?? turn.inputTokens ?? 0) + (turn.output_tokens ?? turn.outputTokens ?? 0);
       setTokenTotal((prev) => prev + turnTokens);
+      if (isNewSession) loadSessions();
     } catch (err) {
       setError(err.message || "Error al enviar el mensaje a Jarvis.");
     } finally {
@@ -235,11 +309,37 @@ export default function ChatPanel({ api: apiProp } = {}) {
     }
   };
 
+  const isNewTabActive = !conversationId;
+  const tabsBar = (
+    <div className="chat-tabs">
+      {sessions.map((session) => (
+        <button
+          key={session.id}
+          className={`chat-tab ${session.id === conversationId ? "active" : ""}`}
+          onClick={() => handleSwitchTab(session)}
+        >
+          {session.project_id && <span className="chat-tab-project">{projectName(session.project_id)}</span>}
+          {session.purpose}
+        </button>
+      ))}
+      <button
+        className={`chat-tab chat-tab-new ${isNewTabActive ? "active" : ""}`}
+        onClick={handleNewTab}
+        title="Nueva conversación"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+      </button>
+    </div>
+  );
+
   // No active/pending session yet, or the previous one was explicitly ended
   // — force naming a purpose before any message can go out.
   if (!conversationId && pendingPurpose === null) {
     return (
       <div className="chat-panel">
+        {tabsBar}
         <div className="chat-history chat-history-empty">
           <div className="chat-empty-state">
             {sessionEnded
@@ -247,7 +347,20 @@ export default function ChatPanel({ api: apiProp } = {}) {
               : "Antes de empezar, dale un propósito a esta conversación con Jarvis."}
           </div>
         </div>
-        {error && <div className="flag">⚠️ {error}</div>}
+        {error && <div className="flag">{AlertIcon} {error}</div>}
+        {projects.length > 0 && (
+          <div className="chat-project-picker">
+            <label>Proyecto (opcional)</label>
+            <select value={pendingProjectId} onChange={(e) => setPendingProjectId(e.target.value)}>
+              <option value="">Sin proyecto puntual</option>
+              {projects.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name || p.id}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         <div className="chat-input-row">
           <textarea
             className="chat-input"
@@ -274,6 +387,7 @@ export default function ChatPanel({ api: apiProp } = {}) {
 
   return (
     <div className="chat-panel">
+      {tabsBar}
       <div className="chat-panel-toolbar">
         <span className="chat-panel-purpose">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -326,7 +440,7 @@ export default function ChatPanel({ api: apiProp } = {}) {
         <StatusRail api={apiRef.current} purpose={pendingPurpose || "—"} turnCount={turnCount} tokenCount={tokenTotal} />
       </div>
 
-      {error && <div className="flag">⚠️ {error}</div>}
+      {error && <div className="flag">{AlertIcon} {error}</div>}
 
       <div className="chat-input-row">
         <textarea

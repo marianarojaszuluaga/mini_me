@@ -1,8 +1,14 @@
+/* Cap the app at a standard desktop width instead of stretching
+   edge-to-edge on ultra-wide monitors — the app-shell centers itself and
+   the page background (design-tokens --bg-2) shows through the gutters. */
 .app-shell {
   display: grid;
   grid-template-columns: 232px 1fr;
   height: 100vh;
   min-height: 640px;
+  max-width: 1600px;
+  margin: 0 auto;
+  box-shadow: var(--shadow-border);
 }
 
 .app-shell-main {

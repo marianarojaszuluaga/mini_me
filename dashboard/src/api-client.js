@@ -141,7 +141,7 @@ export default class ApiClient {
 
   // ---- new: jarvis chat ----
 
-  sendChatMessage(conversationId, message, purpose) {
+  sendChatMessage(conversationId, message, purpose, projectId) {
     // BUG-004 fix: app/schemas/chat.py::ChatRequest is snake_case with no
     // alias_generator, and `purpose` is mandatory for a brand-new session
     // (session_manager.open_or_resume raises 400 "purpose is required"
@@ -151,13 +151,21 @@ export default class ApiClient {
       body: JSON.stringify({
         conversation_id: conversationId,
         message,
-        ...(conversationId ? {} : { purpose })
+        ...(conversationId ? {} : { purpose, project_id: projectId || undefined })
       })
     });
   }
 
   closeChatSession(conversationId) {
     return this.request(`/jarvis/chat/${conversationId}/close`, { method: "POST" });
+  }
+
+  listChatSessions(status = "open") {
+    return this.request(`/jarvis/sessions?status=${encodeURIComponent(status)}`);
+  }
+
+  getChatSession(conversationId) {
+    return this.request(`/jarvis/sessions/${conversationId}`);
   }
 
   // ---- new: Mar memory ----

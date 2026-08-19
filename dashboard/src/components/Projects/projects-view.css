@@ -106,7 +106,7 @@
 }
 
 .pv-stat-label {
-  font-size: 10.5px;
+  font-size: 10.5px; font-family: var(--font-sans-small);
   color: hsl(var(--text-3));
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -116,7 +116,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
+  font-size: 11px; font-family: var(--font-sans-small);
   font-weight: 600;
   padding: 2px 7px;
   border-radius: 100px;

@@ -41,11 +41,25 @@ html, body {
 }
 
 .login-card h1 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 19px;
   font-weight: 700;
   letter-spacing: -0.015em;
   margin-bottom: var(--space-1x);
   color: hsl(var(--ds-gray-1000));
+}
+
+.login-brand-icon {
+  display: inline-flex;
+  width: 22px;
+  height: 22px;
+}
+
+.login-brand-icon svg {
+  width: 100%;
+  height: 100%;
 }
 
 .login-card p {
@@ -105,7 +119,7 @@ html, body {
 .status-badge {
   display: inline-flex;
   align-items: center;
-  font-size: 11px;
+  font-size: 11px; font-family: var(--font-sans-small);
   font-weight: 600;
   padding: 2px 8px;
   border-radius: 100px;
@@ -124,6 +138,9 @@ html, body {
      root cause of "el UI está super inconsistente": Geist's real "primary"
      is neutral (inverted text/background), green is reserved for success
      states only (see .btn-success below, which is now the only green one). */
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   background: hsl(var(--ds-gray-1000));
   color: hsl(var(--ds-background-100));
   padding: 10px 20px;
@@ -134,6 +151,11 @@ html, body {
   transition: filter 0.15s ease;
 }
 
+.btn-primary svg {
+  width: 15px;
+  height: 15px;
+}
+
 .btn-primary:hover {
   filter: brightness(1.15);
 }
@@ -141,6 +163,9 @@ html, body {
 /* The Jarvis CTA and other "primary interactive" moments (active nav,
    focus rings) use the real configurable accent instead. */
 .btn-accent {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   background: hsl(var(--accent));
   color: hsl(var(--ds-background-100));
   padding: 10px 20px;
@@ -276,12 +301,22 @@ html, body {
 }
 
 .flag {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
   font-size: 12px;
-  color: hsl(var(--ds-gray-800));
+  color: hsl(var(--red, var(--ds-red-900)));
+}
+
+.flag svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  margin-top: 1px;
 }
 
 .flag-success {
-  color: hsl(var(--ds-green-900));
+  color: hsl(var(--green, var(--ds-green-900)));
 }
 
 .btn-secondary {
@@ -318,7 +353,7 @@ html, body {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
+  font-size: 11px; font-family: var(--font-sans-small);
   font-weight: 600;
   padding: 2px 7px;
   border-radius: 100px;

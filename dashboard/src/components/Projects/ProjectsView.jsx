@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import ProjectDetailDrillDown from "../ProjectDetail/ProjectDetailDrillDown.jsx";
 import Modal from "../Modal/Modal.jsx";
+import { AlertIcon } from "../icons.jsx";
 import "./projects-view.css";
 
 const NEW_PROJECT_ICON = (
@@ -74,7 +75,7 @@ function NewProjectModal({ open, onClose, onCreate }) {
           El repositorio se conecta después, desde el detalle del proyecto — un repo siempre
           pertenece a un proyecto, nunca queda suelto.
         </div>
-        {error && <div className="flag">⚠️ {error}</div>}
+        {error && <div className="flag">{AlertIcon} {error}</div>}
         <div className="modal-actions">
           <button type="button" className="btn-cancel" onClick={onClose} disabled={busy}>
             Cancelar
@@ -176,7 +177,7 @@ export default function ProjectsView({ api, agents, phases }) {
         )}
       </div>
 
-      {error && <div className="flag">⚠️ {error}</div>}
+      {error && <div className="flag">{AlertIcon} {error}</div>}
       {loading ? (
         <div className="loading">Cargando proyectos...</div>
       ) : (

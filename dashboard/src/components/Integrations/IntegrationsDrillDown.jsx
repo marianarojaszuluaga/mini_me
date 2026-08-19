@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ApiClient from "../../api-client.js";
 import Modal from "../Modal/Modal.jsx";
+import { AlertIcon, CheckIcon } from "../icons.jsx";
 
 const STORAGE_KEY = "ORQ_APP_KEY";
 
@@ -163,13 +164,13 @@ export default function IntegrationsDrillDown({ open, onClose, api: apiProp }) {
     <Modal open={open} onClose={onClose} title="Integraciones" icon={icon}>
       {oauthResult?.status === "success" && (
         <div className="flag flag-success">
-          ✅ Conectado: {oauthResult.provider} — {oauthResult.account}
+          {CheckIcon} Conectado: {oauthResult.provider} — {oauthResult.account}
         </div>
       )}
       {oauthResult?.status === "error" && (
-        <div className="flag">⚠️ No se pudo conectar ({oauthResult.reason || "error desconocido"}).</div>
+        <div className="flag">{AlertIcon} No se pudo conectar ({oauthResult.reason || "error desconocido"}).</div>
       )}
-      {error && <div className="flag">⚠️ {error}</div>}
+      {error && <div className="flag">{AlertIcon} {error}</div>}
 
       <div className="rail-section-label" style={{ marginBottom: 0 }}>
         Conectar con OAuth real

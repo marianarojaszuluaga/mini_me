@@ -23,7 +23,7 @@ from typing import Any
 import anthropic
 from anthropic import AsyncAnthropic
 from anthropic.types import MessageParam
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.core.config import Settings, get_settings
 from app.core.security import authenticate_token
@@ -182,6 +182,36 @@ def _build_sources(tool_calls: list[ToolCallRecord]) -> list[SourceCitation]:
 def _declared_unknown(final_text: str) -> bool:
     lowered = final_text.lower()
     return any(marker in lowered for marker in _UNKNOWN_MARKERS)
+
+
+@router.get("/jarvis/sessions")
+async def list_jarvis_sessions(status: str | None = Query(default="open")) -> list[dict[str, Any]]:
+    """Real session list for the Chat view's tab bar (Fase C/mockup fidelity,
+    2026-08-19) — lightweight (no turns) since the tab bar only needs
+    id/purpose/project_id to render. GET /jarvis/sessions/{id} below returns
+    the full session (with turns) for switching into a tab."""
+    sessions = get_storage().read_chat_sessions()
+    if status:
+        sessions = [s for s in sessions if s.get("status") == status]
+    sessions.sort(key=lambda s: s.get("opened_at", ""), reverse=True)
+    return [
+        {
+            "id": s.get("id"),
+            "purpose": s.get("purpose"),
+            "project_id": s.get("project_id"),
+            "version": s.get("version", 1),
+            "status": s.get("status"),
+        }
+        for s in sessions
+    ]
+
+
+@router.get("/jarvis/sessions/{conversation_id}", response_model=ChatSession)
+async def get_jarvis_session(conversation_id: str) -> ChatSession:
+    session = session_manager.get_session(conversation_id)
+    if session is None:
+        raise HTTPException(status_code=404, detail=f"Unknown conversation_id: {conversation_id}")
+    return session
 
 
 @router.post("/jarvis/chat", response_model=ChatTurnResponse)

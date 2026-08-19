@@ -99,7 +99,7 @@
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-size: 11px;
+  font-size: 11px; font-family: var(--font-sans-small);
   font-weight: 700;
   flex-shrink: 0;
 }
@@ -156,8 +156,10 @@
   overflow: hidden;
 }
 
-.metric-tile-red { box-shadow: var(--shadow-border-base), inset 3px 0 0 hsl(var(--ds-red-700)); }
-.metric-tile-green { box-shadow: var(--shadow-border-base), inset 3px 0 0 hsl(var(--ds-green-700)); }
+/* Semantic weight lives on the number itself (mockup pattern: colored text on
+   a neutral tile), not on the card as a colored stripe/background. */
+.metric-tile-red .metric-tile-value { color: hsl(var(--red)); }
+.metric-tile-green .metric-tile-value { color: hsl(var(--green)); }
 
 .metric-tile-trigger {
   all: unset;
@@ -190,7 +192,7 @@
 }
 
 .metric-tile-hint {
-  font-size: 11px;
+  font-size: 11px; font-family: var(--font-sans-small);
   color: hsl(var(--ds-blue-800));
   margin-top: var(--space-2x);
 }
@@ -211,7 +213,7 @@
 
 .analytics-raw-event {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 11px; font-family: var(--font-sans-small);
   background: hsl(var(--ds-background-100));
   border-radius: var(--radius-base);
   padding: var(--space-2x);
@@ -336,7 +338,7 @@
 }
 
 .changelog-status {
-  font-size: 11px;
+  font-size: 11px; font-family: var(--font-sans-small);
   text-transform: uppercase;
   padding: 2px var(--space-2x);
   border-radius: var(--radius-base);
