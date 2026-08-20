@@ -69,8 +69,28 @@ class _ProviderConfig:
         self.extra_authorize_params = extra_authorize_params or {}
 
 
+
+# Route-provider key -> real underlying provider used for API calls
+# (_fetch_account, etc). Two GitHub OAuth Apps can be connected at once
+# (personal account + Imagine org, 2026-08-20) — each is its own route/
+# button/Auth Profile, but both talk to the same real GitHub API.
+_REAL_PROVIDER: dict[str, str] = {
+    "github_personal": "github",
+    "github_imagine": "github",
+}
+
+
+def _real_provider(route_provider: str) -> str:
+    return _REAL_PROVIDER.get(route_provider, route_provider)
+
+
 _PROVIDER_CONFIGS: dict[str, _ProviderConfig] = {
-    "github": _ProviderConfig(
+    "github_personal": _ProviderConfig(
+        authorize_url="https://github.com/login/oauth/authorize",
+        token_url="https://github.com/login/oauth/access_token",
+        scope="repo read:org",
+    ),
+    "github_imagine": _ProviderConfig(
         authorize_url="https://github.com/login/oauth/authorize",
         token_url="https://github.com/login/oauth/access_token",
         scope="repo read:org",
@@ -103,7 +123,8 @@ _PROVIDER_CONFIGS: dict[str, _ProviderConfig] = {
 def _client_credentials(provider: str) -> tuple[str, str]:
     settings = get_settings()
     client_id, client_secret = {
-        "github": (settings.GITHUB_OAUTH_CLIENT_ID, settings.GITHUB_OAUTH_CLIENT_SECRET),
+        "github_personal": (settings.GITHUB_PERSONAL_OAUTH_CLIENT_ID, settings.GITHUB_PERSONAL_OAUTH_CLIENT_SECRET),
+        "github_imagine": (settings.GITHUB_IMAGINE_OAUTH_CLIENT_ID, settings.GITHUB_IMAGINE_OAUTH_CLIENT_SECRET),
         "bitbucket": (settings.BITBUCKET_OAUTH_CLIENT_ID, settings.BITBUCKET_OAUTH_CLIENT_SECRET),
         "google": (settings.GOOGLE_OAUTH_CLIENT_ID, settings.GOOGLE_OAUTH_CLIENT_SECRET),
         "basecamp": (settings.BASECAMP_OAUTH_CLIENT_ID, settings.BASECAMP_OAUTH_CLIENT_SECRET),
@@ -235,7 +256,8 @@ async def oauth_callback(
         return RedirectResponse(url=f"{frontend_integrations_url}&status=error&reason=no_access_token")
 
     config = _PROVIDER_CONFIGS[provider]
-    if provider == "basecamp":
+    real_provider = _real_provider(provider)
+    if real_provider == "basecamp":
         # No `scope` in Basecamp's OAuth response — the account_id every
         # future API call needs (https://3.basecampapi.com/{account_id}/...)
         # is stored in `scope` instead, since AuthProfile has no dedicated
@@ -243,11 +265,18 @@ async def oauth_callback(
         account, account_id = await _fetch_basecamp_identity(access_token)
         scope = f"account_id:{account_id}"
     else:
-        account = await _fetch_account(provider, access_token)
+        account = await _fetch_account(real_provider, access_token)
         scope = token_response.get("scope") or config.scope
+        # Two GitHub OAuth Apps can be connected at once (personal + Imagine
+        # org, 2026-08-20) — both create a provider="github" AuthProfile, so
+        # tag which app registered it in `scope` (the only free-text field
+        # available) so the two are distinguishable in the Auth Profiles list.
+        if provider in ("github_personal", "github_imagine"):
+            tag = "personal" if provider == "github_personal" else "imagine"
+            scope = f"{scope} ({tag})"
 
     auth_profiles.upsert_oauth_profile(
-        provider=provider,
+        provider=real_provider,
         account=account,
         scope=scope,
         access_token=access_token,
@@ -255,4 +284,6 @@ async def oauth_callback(
         token_expires_at=None,
     )
 
-    return RedirectResponse(url=f"{frontend_integrations_url}&status=success&provider={provider}&account={account}")
+    return RedirectResponse(
+        url=f"{frontend_integrations_url}&status=success&provider={real_provider}&account={account}"
+    )

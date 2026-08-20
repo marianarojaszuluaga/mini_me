@@ -94,6 +94,15 @@ class Settings(BaseSettings):
     # pattern as DEEPSEEK_API_KEY.
     GITHUB_OAUTH_CLIENT_ID: str | None = None
     GITHUB_OAUTH_CLIENT_SECRET: str | None = None
+    # Two real GitHub OAuth Apps at once (Mariana, 2026-08-20): one registered
+    # under her personal account, one under the Imagine org — both need to be
+    # connectable simultaneously (routers/oauth.py exposes them as the
+    # separate route-providers "github_personal"/"github_imagine", both
+    # against the same real GitHub API, just different app credentials).
+    GITHUB_PERSONAL_OAUTH_CLIENT_ID: str | None = None
+    GITHUB_PERSONAL_OAUTH_CLIENT_SECRET: str | None = None
+    GITHUB_IMAGINE_OAUTH_CLIENT_ID: str | None = None
+    GITHUB_IMAGINE_OAUTH_CLIENT_SECRET: str | None = None
     BITBUCKET_OAUTH_CLIENT_ID: str | None = None
     BITBUCKET_OAUTH_CLIENT_SECRET: str | None = None
     GOOGLE_OAUTH_CLIENT_ID: str | None = None
