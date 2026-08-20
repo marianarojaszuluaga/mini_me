@@ -992,3 +992,39 @@ estaba leyendo del archivo filtrado. Mariana: "no debería ser así" — corregi
 6. Cualquier archivo temporal de diagnóstico agregado a un router (ver `storage.py`'s
    `kv_init_error`, 2026-08-19) que exponga presencia/ausencia de env vars debe removerse del
    endpoint público apenas termine el debugging — dejar solo lo mínimo necesario internamente.
+
+---
+
+## 14. Bugs reales encontrados por Mariana en uso real (2026-08-20) — documentados, arreglo pendiente
+
+Reportados desde el chat de Jarvis en producción, con captura del panel de estado real. Documentados
+aquí primero (a pedido de Mariana: "Documentalos y luego los arreglamos") antes de tocar código.
+
+**BUG-018 — Panel de estado del chat no se actualiza en tiempo real.** `StatusRail` (`ChatPanel.jsx`,
+`useSystemRailData`) llama `api.getMetricsSummary()` una sola vez en un `useEffect` con dependencia
+`[api]` — nunca hay un intervalo ni un refetch tras enviar un mensaje o correr una reconciliación.
+Los números de "Sistema (todos los proyectos)" (Gaps totales, Alertas de reconciliación) quedan
+congelados en lo que había al momento de abrir esa pestaña de chat, aunque el sistema cambie
+mientras la conversación sigue abierta. Fix esperado: refrescar tras cada turno enviado (mismo punto
+donde ya se actualiza `tokenTotal`), y/o un intervalo corto, igual al patrón que `useLiveStatus`
+(sidebar) ya usa para el estado "Operativo/Caído" (`setInterval` de 30s).
+
+**BUG-019 — Reconciliación no explica el error ni cómo resolverlo.** `ReconciliationSubsection`
+(`ProjectDetailDrillDown.jsx`) solo muestra `huId` + pill de estado (`sin_test`, etc.) +
+`acceptanceCriterion`/`reason`/`testRef` crudos — nunca una explicación en lenguaje llano de qué
+significa cada estado ni qué acción tomar. Por ejemplo, `sin_test` no le dice a la usuaria que hace
+falta un test con el marcador `# @ac:HU-XXX-N` / `// @ac:HU-XXX-N` en el repo conectado (la
+convención real que usa `app/services/brain/reconciliation.py` para encontrar evidencia) — esa
+convención solo vive en este spec, invisible desde la UI. Fix esperado: un mensaje de ayuda por
+estado (`sin_test` → qué marcador agregar y dónde; `con_test_sin_resultado` → falta conectar CI;
+`no_reconciliable` → la HU no tiene criterios de aceptación parseables) directamente en la tarjeta
+del gap, no solo en este documento.
+
+**BUG-020 — Jarvis no puede responder preguntas sobre sus propias capacidades.** El system prompt
+que arma `_build_system_prompt` (`app/routers/jarvis_chat.py`) solo incluye Memoria de Mar +
+proyectos activos — nunca describe las 5 herramientas reales que Jarvis sí tiene
+(`read_project_brain`, `read_timeline`, `read_reconciliation`, `invoke_agent`, `write_mar_memory`,
+ver `app/services/jarvis_chat/tools.py`) ni qué puede/no puede hacer con ellas. Si se le pregunta
+"¿qué puedes hacer?", Jarvis no tiene esa información en su contexto real — cualquier respuesta que
+dé sobre sus propias capacidades no está fundamentada en el sistema real. Fix esperado: agregar una
+sección al system prompt describiendo las herramientas reales disponibles y su propósito.
