@@ -953,3 +953,42 @@ inexistente devolvió `syncStatus:"error"` con el mensaje real de GitHub (`404 N
 "Reintentar" repitió la misma llamada real. Confirmado también visualmente en el navegador: pill
 "⚠️ Error de sincronización" con el mensaje real + botón "Reintentar", y "Sin sincronizar todavía"
 para repos conectados antes de este fix (default `syncStatus="never"`, no fabricado).
+
+---
+
+## 13. Reglas de seguridad — secretos y despliegue (nunca debe quedar nada expuesto)
+
+**Origen (2026-08-20)**: se encontró que `vercel --prod` desde la CLI sube el directorio de
+trabajo local **tal cual**, sin respetar `.gitignore` — solo respeta `.vercelignore`. Como nunca
+existió un `.vercelignore`, cada deploy manual de este proyecto subió el `.env` local real
+(secretos de OAuth, API keys) directo al artefacto de deployment. Esto pasó desapercibido porque
+`pydantic-settings` lee ese `.env` en runtime vía `python-dotenv` — Basecamp OAuth "funcionaba" en
+producción sin tener sus credenciales configuradas como env vars reales de Vercel, porque las
+estaba leyendo del archivo filtrado. Mariana: "no debería ser así" — corregido con
+`.vercelignore` (excluye `.env`/`.env.*`) + las credenciales reales movidas a env vars de Vercel.
+
+**Reglas permanentes a partir de acá**:
+
+1. **Todo secreto real (API key, OAuth client secret, token) vive SOLO como variable de entorno
+   de la plataforma de despliegue** (`vercel env add`), nunca en un archivo que se suba al
+   repo o al deployment — ni siquiera "temporalmente".
+2. **`.gitignore` protege contra commits; `.vercelignore` protege contra `vercel --prod` desde
+   CLI — son mecanismos distintos y ambos hacen falta.** Antes de cualquier deploy manual por
+   CLI (no solo el primero), confirmar que `.vercelignore` sigue excluyendo `.env`/`.env.*`.
+3. **Antes de registrar un OAuth App nuevo (GitHub/Bitbucket/Google/Basecamp/etc.)**, verificar
+   que el `redirect_uri`/`Callback URL` apunte al backend real de producción
+   (`https://backmar-in-theinternet.vercel.app/auth-profiles/oauth/{provider}/callback`), no a
+   `localhost` ni al frontend — error real encontrado y corregido en esta misma sesión con
+   `BACKEND_PUBLIC_URL` faltante en producción (el redirect_uri generado apuntaba a
+   `localhost:3001` hasta que se agregó esa env var).
+4. **Nunca asumir que algo "funciona" en producción es evidencia de que está bien configurado.**
+   El caso de Basecamp probó lo contrario — funcionaba por una fuga, no por una configuración
+   correcta. Verificar SIEMPRE la fuente real del dato/credencial (`vercel env ls production`),
+   no solo el comportamiento observado.
+5. **Antes de dar por cerrada una integración OAuth**, confirmar en `vercel env ls production`
+   que sus 2 variables (`{PROVIDER}_OAUTH_CLIENT_ID`/`_SECRET`) existen ahí — si no aparecen,
+   no está realmente configurada aunque el código responda `307` (podría estar leyendo un
+   `.env` filtrado, como pasó acá).
+6. Cualquier archivo temporal de diagnóstico agregado a un router (ver `storage.py`'s
+   `kv_init_error`, 2026-08-19) que exponga presencia/ausencia de env vars debe removerse del
+   endpoint público apenas termine el debugging — dejar solo lo mínimo necesario internamente.

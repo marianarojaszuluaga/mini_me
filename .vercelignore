@@ -1,0 +1,19 @@
+# Real security fix (2026-08-20): `vercel --prod` from the CLI uploads the
+# local working directory as-is — it does NOT respect .gitignore. Every
+# manual deploy this project has ever made bundled the real local `.env`
+# (real OAuth secrets, API keys) straight into the deployment artifact,
+# where pydantic-settings' dotenv loader picked it up silently — that's
+# why Basecamp OAuth "worked" in production despite never having its
+# credentials set as real Vercel environment variables. Never remove this
+# line; all real secrets belong in Vercel env vars (`vercel env add`),
+# never in a file that gets uploaded.
+.env
+.env.*
+!.env.example
+!.env.example.python
+
+# Local-only artifacts, never needed in the deployed function.
+.venv/
+__pycache__/
+*.pyc
+node_modules/
