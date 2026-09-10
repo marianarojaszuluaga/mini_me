@@ -14,16 +14,20 @@
   gap: 4px;
 }
 .landing-lang-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   padding: 4px 10px;
   font-size: 12px;
   border-radius: 6px;
-  border: 1px solid #ccc;
+  border: 1px solid hsl(var(--border));
   background: transparent;
+  color: hsl(var(--text-2));
   cursor: pointer;
 }
 .landing-lang-option.active {
-  background: #4f46e5;
-  color: #fff;
+  background: hsl(var(--accent));
+  color: hsl(var(--accent-ink));
   border-color: transparent;
 }
 
@@ -35,8 +39,15 @@
   width: 48px;
   margin: 0 auto 16px;
 }
+.landing-hero h1,
+.landing-features h2,
+.landing-feature-card h3,
+.landing-access-card h2 {
+  font-family: "Montserrat", var(--font-sans, sans-serif);
+}
 .landing-hero h1 {
   font-size: 2.5rem;
+  font-weight: 800;
   margin: 0 0 8px;
 }
 .landing-tagline {
@@ -61,7 +72,17 @@
 .landing-feature-card {
   padding: 16px;
   border-radius: 10px;
-  border: 1px solid rgba(127, 127, 127, 0.25);
+  border: 1px solid hsl(var(--border));
+}
+.landing-feature-icon {
+  width: 28px;
+  height: 28px;
+  margin-bottom: 10px;
+  color: hsl(var(--accent));
+}
+.landing-feature-icon svg {
+  width: 100%;
+  height: 100%;
 }
 .landing-feature-card h3 {
   margin: 0 0 8px;
@@ -83,7 +104,7 @@
   max-width: 360px;
   padding: 24px;
   border-radius: 12px;
-  border: 1px solid rgba(127, 127, 127, 0.25);
+  border: 1px solid hsl(var(--border));
 }
 .landing-access-card form {
   display: flex;
@@ -98,18 +119,21 @@
   font-size: 0.95rem;
 }
 .landing-access-card input {
-  border: 1px solid rgba(127, 127, 127, 0.4);
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--bg));
+  color: hsl(var(--text));
 }
 .landing-access-card button[type="submit"] {
-  background: #4f46e5;
-  color: #fff;
+  background: hsl(var(--accent));
+  color: hsl(var(--accent-ink));
   border: none;
   cursor: pointer;
 }
 .landing-google-btn {
   width: 100%;
   background: transparent;
-  border: 1px solid rgba(127, 127, 127, 0.4);
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--text-2));
   cursor: pointer;
   margin-bottom: 8px;
 }

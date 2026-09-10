@@ -1,7 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { BrandIcon, AlertIcon } from "../components/icons.jsx";
+import { BrandIcon, AlertIcon, IntegrationsIcon, AgentsIcon, ChatIcon, QaIcon } from "../components/icons.jsx";
 import "./landing.css";
+
+const FEATURE_ICONS = {
+  integrations: IntegrationsIcon,
+  agents: AgentsIcon,
+  chat: ChatIcon,
+  qa: QaIcon,
+};
+
+const LANG_FLAGS = { es: "🇪🇸", en: "🇺🇸" };
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001";
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID || "";
@@ -132,8 +141,9 @@ export default function Landing({ onAuthenticated, onUseAppKey, externalError })
             className={`landing-lang-option ${currentLang === lng ? "active" : ""}`}
             onClick={() => i18n.changeLanguage(lng)}
             type="button"
+            aria-label={lng.toUpperCase()}
           >
-            {lng.toUpperCase()}
+            <span aria-hidden="true">{LANG_FLAGS[lng]}</span> {lng.toUpperCase()}
           </button>
         ))}
       </div>
@@ -149,6 +159,7 @@ export default function Landing({ onAuthenticated, onUseAppKey, externalError })
         <div className="landing-features-grid">
           {["integrations", "agents", "chat", "qa"].map((key) => (
             <div className="landing-feature-card" key={key}>
+              <div className="landing-feature-icon">{FEATURE_ICONS[key]}</div>
               <h3>{t(`landing.features.${key}.title`)}</h3>
               <p>{t(`landing.features.${key}.body`)}</p>
             </div>

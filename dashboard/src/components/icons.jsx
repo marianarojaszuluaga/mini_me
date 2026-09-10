@@ -40,3 +40,32 @@ export const CheckIcon = (
     <path d="M20 6L9 17l-5-5" />
   </svg>
 );
+
+// Same paths as Sidebar's ICONS.integrations/chat (kept in sync manually —
+// Sidebar's copy stays inline since it's part of a larger local ICONS map).
+export const IntegrationsIcon = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 2v4M15 2v4M6 10h12a1 1 0 011 1v3a5 5 0 01-5 5h-4a5 5 0 01-5-5v-3a1 1 0 011-1zM8 19v1a2 2 0 002 2h4a2 2 0 002-2v-1" />
+  </svg>
+);
+
+export const ChatIcon = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+  </svg>
+);
+
+export const AgentsIcon = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
+  </svg>
+);
+
+export const QaIcon = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z" />
+    <path d="M9 12l2 2 4-4" />
+  </svg>
+);
