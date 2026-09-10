@@ -37,6 +37,14 @@ export default class ApiClient {
 
   // ---- existing (kept identical to preserve current behavior) ----
 
+  // Multi-usuario (2026-09-10): solo devuelve datos si el token actual es un
+  // JWT de usuario emitido por /auth/login|/auth/google — un App API Key
+  // "avanzado" no tiene /auth/me y esto rechaza con 401, manejado por quien
+  // llama (Sidebar) para ocultar la sección de cuenta en ese caso.
+  getMe() {
+    return this.request("/auth/me");
+  }
+
   getPhases() {
     return this.request("/phases");
   }

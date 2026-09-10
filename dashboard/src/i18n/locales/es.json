@@ -47,7 +47,8 @@
     "integrations": "Integraciones",
     "marMemory": "Memoria de Mar",
     "settings": "Configuración",
-    "language": "Idioma"
+    "language": "Idioma",
+    "logout": "Cerrar sesión"
   },
   "projects": {
     "modal": {

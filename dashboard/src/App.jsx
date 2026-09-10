@@ -60,6 +60,13 @@ export default function App() {
     setAuthenticated(true);
   };
 
+  const logout = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    setAppKey("");
+    setLoginError("");
+    setAuthenticated(false);
+  };
+
   if (!authenticated) {
     return (
       <Landing
@@ -74,5 +81,5 @@ export default function App() {
     return <div className="loading">Cargando...</div>;
   }
 
-  return <AppShell api={api} agents={agents} phases={phases} />;
+  return <AppShell api={api} agents={agents} phases={phases} onLogout={logout} />;
 }

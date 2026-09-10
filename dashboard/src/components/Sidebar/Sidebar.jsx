@@ -118,9 +118,36 @@ function useLiveStatus(api) {
   return status;
 }
 
-export default function Sidebar({ activeView, onNavigate, onOpenIntegrations, api, projectCount }) {
+// Cuenta del usuario logueado (2026-09-10). getMe() solo responde si el
+// token actual es un JWT de /auth/login|/auth/google — con un App API Key
+// "avanzado" (sin cuenta de usuario real detrás) esto falla en silencio y
+// la sección de cuenta simplemente no se muestra, en vez de romper el resto
+// del sidebar.
+function useCurrentUser(api) {
+  const [user, setUser] = useState(null);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    api
+      .getMe()
+      .then((data) => {
+        if (!cancelled) setUser(data);
+      })
+      .catch(() => {
+        if (!cancelled) setUser(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [api]);
+
+  return user;
+}
+
+export default function Sidebar({ activeView, onNavigate, onOpenIntegrations, onLogout, api, projectCount }) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const status = useLiveStatus(api);
+  const user = useCurrentUser(api);
   const { t } = useTranslation();
 
   return (
@@ -185,6 +212,14 @@ export default function Sidebar({ activeView, onNavigate, onOpenIntegrations, ap
       </div>
 
       <div className="sidebar-footer">
+        {user && (
+          <div className="sidebar-account">
+            <div className="sidebar-account-email" title={user.email}>{user.email}</div>
+            <button className="sidebar-account-logout" onClick={onLogout} type="button">
+              {t("sidebar.logout")}
+            </button>
+          </div>
+        )}
         <LanguageSwitch />
         <div className="sidebar-status-row">
           <span className={`sidebar-status-dot sidebar-status-dot-${status.state}`} />

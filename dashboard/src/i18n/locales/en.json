@@ -47,7 +47,8 @@
     "integrations": "Integrations",
     "marMemory": "Mar's Memory",
     "settings": "Settings",
-    "language": "Language"
+    "language": "Language",
+    "logout": "Log out"
   },
   "projects": {
     "modal": {

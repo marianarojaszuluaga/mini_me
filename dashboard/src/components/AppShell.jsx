@@ -15,7 +15,7 @@ import "./app-shell.css";
  * views (Jarvis Chat / Proyectos / Dashboard / Memoria de Mar), with
  * Integraciones staying a modal (deliberate — see §2's rationale).
  */
-export default function AppShell({ api, agents, phases }) {
+export default function AppShell({ api, agents, phases, onLogout }) {
   const [view, setView] = useState("chat");
   const [integrationsOpen, setIntegrationsOpen] = useState(false);
   const [projects, setProjects] = useState([]);
@@ -36,6 +36,7 @@ export default function AppShell({ api, agents, phases }) {
         activeView={view}
         onNavigate={setView}
         onOpenIntegrations={() => setIntegrationsOpen(true)}
+        onLogout={onLogout}
         api={api}
         projectCount={projects.filter((p) => p.status !== "archived").length}
       />
