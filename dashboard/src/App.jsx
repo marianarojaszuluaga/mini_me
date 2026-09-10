@@ -10,8 +10,8 @@
 import React, { useState, useEffect } from "react";
 import "./styles.css";
 import ApiClient from "./api-client.js";
-import { BrandIcon, AlertIcon } from "./components/icons.jsx";
 import AppShell from "./components/AppShell.jsx";
+import Landing from "./pages/Landing.jsx";
 import { applyStoredAppearance } from "./components/Settings/SettingsModal.jsx";
 
 const STORAGE_KEY = "ORQ_APP_KEY";
@@ -38,7 +38,14 @@ export default function App() {
         setAgents(agentsData);
       } catch (error) {
         console.error("Error loading initial data:", error);
-        setLoginError(error.message);
+        // Multi-usuario (2026-09-09): a user JWT from /auth/login only
+        // authorizes /projects and /repositories today (see
+        // PLAN-i18n-multiusuario.md) — /agents and /phases still require the
+        // shared APP_API_KEYS token, so a JWT-only login surfaces here as a
+        // 401/403 on this initial load rather than silently half-working.
+        setLoginError(
+          `${error.message} — si iniciaste sesión con email/contraseña, todavía necesitás tu App API Key para el resto de la app (usá la opción avanzada).`
+        );
         setAuthenticated(false);
         localStorage.removeItem(STORAGE_KEY);
       }
@@ -46,34 +53,20 @@ export default function App() {
     })();
   }, [authenticated]);
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    localStorage.setItem(STORAGE_KEY, appKey);
+  const enterWithToken = (token) => {
+    localStorage.setItem(STORAGE_KEY, token);
+    setAppKey(token);
     setLoginError("");
     setAuthenticated(true);
   };
 
   if (!authenticated) {
     return (
-      <div className="login-container">
-        <div className="login-card">
-          <h1>
-            <span className="login-brand-icon">{BrandIcon}</span> Mar en internet
-          </h1>
-          <p>Ingresa la App API Key (no tu clave de Anthropic)</p>
-          <form onSubmit={handleLogin}>
-            <input
-              type="password"
-              placeholder="App API Key"
-              value={appKey}
-              onChange={(e) => setAppKey(e.target.value)}
-              required
-            />
-            <button type="submit">Iniciar Sesión</button>
-          </form>
-          {loginError && <div className="flag">{AlertIcon} {loginError}</div>}
-        </div>
-      </div>
+      <Landing
+        onAuthenticated={(token) => enterWithToken(token)}
+        onUseAppKey={enterWithToken}
+        externalError={loginError}
+      />
     );
   }
 

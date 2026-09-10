@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import ApiClient from "../../api-client.js";
 import Modal from "../Modal/Modal.jsx";
 import { AlertIcon, CheckIcon } from "../icons.jsx";
@@ -22,20 +23,20 @@ const GITHUB_ICON = (
 const OAUTH_PROVIDERS = [
   {
     id: "github_personal",
-    label: "GitHub (personal)",
-    sub: "Repos + Pull Requests — tu cuenta",
+    labelKey: "integrations.providers.githubPersonal.label",
+    subKey: "integrations.providers.githubPersonal.sub",
     icon: GITHUB_ICON
   },
   {
     id: "github_imagine",
-    label: "GitHub (Imagine)",
-    sub: "Repos + Pull Requests — org Imagine",
+    labelKey: "integrations.providers.githubImagine.label",
+    subKey: "integrations.providers.githubImagine.sub",
     icon: GITHUB_ICON
   },
   {
     id: "bitbucket",
-    label: "Bitbucket",
-    sub: "Repos + Pull Requests",
+    labelKey: "integrations.providers.bitbucket.label",
+    subKey: "integrations.providers.bitbucket.sub",
     icon: (
       <svg viewBox="0 0 24 24" fill="currentColor">
         <path d="M2.5 2l3.3 20 6.2-1.3L18.3 2H2.5zm13.6 4.2l-1.6 9.9-5.8 1.2-2.5-9.8 9.9-1.3z" />
@@ -44,8 +45,8 @@ const OAUTH_PROVIDERS = [
   },
   {
     id: "google",
-    label: "Google (SSO)",
-    sub: "SSO — @imagineapps.co",
+    labelKey: "integrations.providers.google.label",
+    subKey: "integrations.providers.google.sub",
     icon: (
       <svg viewBox="0 0 24 24">
         <path fill="#4285F4" d="M22.5 12.2c0-.8-.1-1.5-.2-2.2H12v4.3h5.9c-.3 1.4-1 2.5-2.2 3.3v2.8h3.6c2.1-1.9 3.2-4.8 3.2-8.2z" />
@@ -57,8 +58,8 @@ const OAUTH_PROVIDERS = [
   },
   {
     id: "basecamp",
-    label: "Basecamp",
-    sub: "Proyectos + sprints (link a tareas)",
+    labelKey: "integrations.providers.basecamp.label",
+    subKey: "integrations.providers.basecamp.sub",
     icon: (
       <svg viewBox="0 0 24 24" fill="currentColor">
         <path d="M4 3h16a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1zm3 5v9h2V8H7zm4 3v6h2v-6h-2zm4-2v8h2V9h-2z" />
@@ -94,6 +95,7 @@ function readOAuthRedirectResult() {
  *    other drill-downs' self-contained pattern.
  */
 export default function IntegrationsDrillDown({ open, onClose, api: apiProp }) {
+  const { t } = useTranslation();
   const api = apiProp || defaultApi();
 
   const [profiles, setProfiles] = useState(null);
@@ -105,7 +107,7 @@ export default function IntegrationsDrillDown({ open, onClose, api: apiProp }) {
 
   const load = async () => {
     if (!api) {
-      setError("No hay sesión activa.");
+      setError(t("integrations.noActiveSession"));
       return;
     }
     try {
@@ -141,7 +143,7 @@ export default function IntegrationsDrillDown({ open, onClose, api: apiProp }) {
 
   const handleConnectOAuth = (providerId) => {
     if (!api) {
-      setError("No hay sesión activa.");
+      setError(t("integrations.noActiveSession"));
       return;
     }
     // Real Authorization Code flow — top-level navigation so the provider's
@@ -173,29 +175,31 @@ export default function IntegrationsDrillDown({ open, onClose, api: apiProp }) {
   );
 
   return (
-    <Modal open={open} onClose={onClose} title="Integraciones" icon={icon}>
+    <Modal open={open} onClose={onClose} title={t("integrations.title")} icon={icon}>
       {oauthResult?.status === "success" && (
         <div className="flag flag-success">
-          {CheckIcon} Conectado: {oauthResult.provider} — {oauthResult.account}
+          {CheckIcon} {t("integrations.connectedFlag", { provider: oauthResult.provider, account: oauthResult.account })}
         </div>
       )}
       {oauthResult?.status === "error" && (
-        <div className="flag">{AlertIcon} No se pudo conectar ({oauthResult.reason || "error desconocido"}).</div>
+        <div className="flag">
+          {AlertIcon} {t("integrations.connectFailedFlag", { reason: oauthResult.reason || t("integrations.unknownError") })}
+        </div>
       )}
       {error && <div className="flag">{AlertIcon} {error}</div>}
 
       <div className="rail-section-label" style={{ marginBottom: 0 }}>
-        Conectar con OAuth real
+        {t("integrations.connectWithOAuth")}
       </div>
       {OAUTH_PROVIDERS.map((p) => (
         <div key={p.id} className="oauth-row">
           <div className="oauth-row-icon">{p.icon}</div>
           <div style={{ flex: 1 }}>
-            <div className="oauth-row-label">{p.label}</div>
-            <div className="oauth-row-sub">{p.sub}</div>
+            <div className="oauth-row-label">{t(p.labelKey)}</div>
+            <div className="oauth-row-sub">{t(p.subKey)}</div>
           </div>
           <button className="btn-secondary" onClick={() => handleConnectOAuth(p.id)}>
-            Conectar
+            {t("integrations.connect")}
           </button>
         </div>
       ))}
@@ -204,24 +208,23 @@ export default function IntegrationsDrillDown({ open, onClose, api: apiProp }) {
           <path d="M12 9v4M12 17h.01" />
           <circle cx="12" cy="12" r="9" />
         </svg>
-        Si el OAuth App de un proveedor no está configurado todavía, el sistema devuelve un error
-        explícito — nunca finge una conexión exitosa.
+        {t("integrations.oauthNote")}
       </div>
 
       <div className="pd-subsection">
         <div className="pd-subsection-header">
-          <h3>Auth Profiles {profiles ? `(${profiles.length})` : ""}</h3>
+          <h3>{t("integrations.authProfiles")} {profiles ? `(${profiles.length})` : ""}</h3>
           {!showForm && (
             <button className="btn-secondary" onClick={() => setShowForm(true)}>
-              + Manual
+              {t("integrations.manualButton")}
             </button>
           )}
         </div>
 
         {profiles === null ? (
-          <div className="loading">Cargando Auth Profiles...</div>
+          <div className="loading">{t("integrations.loadingAuthProfiles")}</div>
         ) : profiles.length === 0 && !showForm ? (
-          <div className="empty-state">Sin Auth Profiles creados todavía.</div>
+          <div className="empty-state">{t("integrations.noAuthProfiles")}</div>
         ) : (
           <div className="evaluations-list">
             {(profiles || []).map((p) => (
@@ -230,9 +233,11 @@ export default function IntegrationsDrillDown({ open, onClose, api: apiProp }) {
                   <span className="eval-agent">
                     {p.provider} — {p.account}
                   </span>
-                  <span className="pd-meta">{p.auth_method === "oauth" ? "OAuth real" : "manual"}</span>
+                  <span className="pd-meta">
+                    {p.auth_method === "oauth" ? t("integrations.oauthReal") : t("integrations.manual")}
+                  </span>
                 </div>
-                {p.scope && <div className="pd-meta">Scope: {p.scope}</div>}
+                {p.scope && <div className="pd-meta">{t("integrations.scopeLabel", { scope: p.scope })}</div>}
               </div>
             ))}
           </div>
@@ -253,7 +258,7 @@ export default function IntegrationsDrillDown({ open, onClose, api: apiProp }) {
             <input
               className="field-input"
               type="text"
-              placeholder="account (email o usuario)"
+              placeholder={t("integrations.accountPlaceholder")}
               value={form.account}
               onChange={(e) => setForm({ ...form, account: e.target.value })}
               required
@@ -261,16 +266,16 @@ export default function IntegrationsDrillDown({ open, onClose, api: apiProp }) {
             <input
               className="field-input"
               type="text"
-              placeholder="scope (manual, ej: repo,read:org)"
+              placeholder={t("integrations.scopePlaceholder")}
               value={form.scope}
               onChange={(e) => setForm({ ...form, scope: e.target.value })}
             />
             <div className="modal-buttons">
               <button type="button" className="btn-cancel" onClick={() => setShowForm(false)} disabled={busy}>
-                Cancelar
+                {t("integrations.cancel")}
               </button>
               <button type="submit" className="btn-success" disabled={busy}>
-                {busy ? "Creando..." : "Crear"}
+                {busy ? t("integrations.creating") : t("integrations.create")}
               </button>
             </div>
           </form>

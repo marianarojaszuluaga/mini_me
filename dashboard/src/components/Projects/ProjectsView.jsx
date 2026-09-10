@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import ProjectDetailDrillDown from "../ProjectDetail/ProjectDetailDrillDown.jsx";
 import Modal from "../Modal/Modal.jsx";
 import { AlertIcon } from "../icons.jsx";
@@ -11,6 +12,7 @@ const NEW_PROJECT_ICON = (
 );
 
 function NewProjectModal({ open, onClose, onCreate }) {
+  const { t } = useTranslation();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [owner, setOwner] = useState("");
@@ -22,7 +24,7 @@ function NewProjectModal({ open, onClose, onCreate }) {
     setBusy(true);
     setError("");
     try {
-      await onCreate({ name, description, owner: owner || "sin asignar", phase: 1 });
+      await onCreate({ name, description, owner: owner || t("projects.defaultOwner"), phase: 1 });
       setName("");
       setDescription("");
       setOwner("");
@@ -34,32 +36,32 @@ function NewProjectModal({ open, onClose, onCreate }) {
   };
 
   return (
-    <Modal open={open} onClose={onClose} title="Nuevo proyecto" icon={NEW_PROJECT_ICON}>
+    <Modal open={open} onClose={onClose} title={t("projects.modal.title")} icon={NEW_PROJECT_ICON}>
       <form onSubmit={handleSubmit} className="pv-modal-form">
         <div>
-          <label className="field-label">Nombre</label>
+          <label className="field-label">{t("projects.fields.name")}</label>
           <input
             className="field-input"
             type="text"
-            placeholder="Ej.: Rediseño App Móvil"
+            placeholder={t("projects.fields.namePlaceholder")}
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
           />
         </div>
         <div>
-          <label className="field-label">Descripción</label>
+          <label className="field-label">{t("projects.fields.description")}</label>
           <input
             className="field-input"
             type="text"
-            placeholder="Una línea sobre qué es este proyecto"
+            placeholder={t("projects.fields.descriptionPlaceholder")}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             required
           />
         </div>
         <div>
-          <label className="field-label">Asignado a (opcional)</label>
+          <label className="field-label">{t("projects.fields.owner")}</label>
           <input
             className="field-input"
             type="text"
@@ -72,16 +74,15 @@ function NewProjectModal({ open, onClose, onCreate }) {
             <path d="M12 9v4M12 17h.01" />
             <circle cx="12" cy="12" r="9" />
           </svg>
-          El repositorio se conecta después, desde el detalle del proyecto — un repo siempre
-          pertenece a un proyecto, nunca queda suelto.
+          {t("projects.repoNote")}
         </div>
         {error && <div className="flag">{AlertIcon} {error}</div>}
         <div className="modal-actions">
           <button type="button" className="btn-cancel" onClick={onClose} disabled={busy}>
-            Cancelar
+            {t("projects.actions.cancel")}
           </button>
           <button type="submit" className="btn-accent" disabled={busy || !name.trim()}>
-            {busy ? "Creando..." : "Crear proyecto"}
+            {busy ? t("projects.actions.creating") : t("projects.actions.create")}
           </button>
         </div>
       </form>
@@ -89,9 +90,10 @@ function NewProjectModal({ open, onClose, onCreate }) {
   );
 }
 
-const SEMAPHORE_LABEL = { "on-track": "En curso", attention: "Atención", blocked: "Bloqueado" };
+const SEMAPHORE_KEY = { "on-track": "onTrack", attention: "attention", blocked: "blocked" };
 
 export default function ProjectsView({ api, agents, phases, initialProjectId, onInitialProjectConsumed }) {
+  const { t } = useTranslation();
   const [projects, setProjects] = useState([]);
   const [gapsByProject, setGapsByProject] = useState({});
   const [loading, setLoading] = useState(true);
@@ -159,7 +161,7 @@ export default function ProjectsView({ api, agents, phases, initialProjectId, on
     return (
       <div className="pv-detail-wrap">
         <button className="pv-back-link" onClick={() => setSelectedProject(null)}>
-          ← Proyectos
+          {t("projects.backLink")}
         </button>
         <ProjectDetailDrillDown
           api={api}
@@ -187,17 +189,17 @@ export default function ProjectsView({ api, agents, phases, initialProjectId, on
   return (
     <div className="pv-view">
       <div className="pv-heading">
-        <h1>{loading ? "Proyectos" : `${visibleProjects.length} proyectos`}</h1>
+        <h1>{loading ? t("projects.heading.loading") : t("projects.heading.count", { count: visibleProjects.length })}</h1>
         {!loading && blockedCount > 0 && (
           <p className="pv-heading-sub">
-            {blockedCount} bloqueado{blockedCount === 1 ? "" : "s"} por gaps de reconciliación sin resolver
+            {t("projects.heading.blockedSub", { count: blockedCount })}
           </p>
         )}
       </div>
 
       {error && <div className="flag">{AlertIcon} {error}</div>}
       {loading ? (
-        <div className="loading">Cargando proyectos...</div>
+        <div className="loading">{t("projects.loading")}</div>
       ) : (
         <div className="pv-grid">
           {visibleProjects.map((project) => {
@@ -208,32 +210,32 @@ export default function ProjectsView({ api, agents, phases, initialProjectId, on
                 <div className="pv-card-top">
                   <div>
                     <div className="pv-card-name">{project.name}</div>
-                    <div className="pv-card-phase">Fase {project.currentPhase} · {project.currentStep || project.status}</div>
+                    <div className="pv-card-phase">{t("projects.card.phase", { phase: project.currentPhase, step: project.currentStep || project.status })}</div>
                   </div>
                   <span className={`pv-pill pv-pill-${semaphore}`}>
                     <span className="pv-pill-dot" />
-                    {SEMAPHORE_LABEL[semaphore]}
+                    {t(`projects.semaphore.${SEMAPHORE_KEY[semaphore]}`)}
                   </span>
                 </div>
                 <div className="pv-card-stats">
                   <div className="pv-stat">
                     <span className="pv-stat-value">{(gapsByProject[project.id] || []).length}</span>
-                    <span className="pv-stat-label">Gaps</span>
+                    <span className="pv-stat-label">{t("projects.stats.gaps")}</span>
                   </div>
                   <div className="pv-stat">
                     <span className="pv-stat-value">{(brain.alerts || []).length}</span>
-                    <span className="pv-stat-label">Alertas</span>
+                    <span className="pv-stat-label">{t("projects.stats.alerts")}</span>
                   </div>
                   <div className="pv-stat">
                     <span className="pv-stat-value">{(brain.decisionLog || []).length}</span>
-                    <span className="pv-stat-label">Decisiones</span>
+                    <span className="pv-stat-label">{t("projects.stats.decisions")}</span>
                   </div>
                 </div>
               </div>
             );
           })}
           <button className="pv-card pv-card-new" onClick={() => setShowNewProjectModal(true)}>
-            + Nuevo proyecto
+            {t("projects.actions.new")}
           </button>
         </div>
       )}

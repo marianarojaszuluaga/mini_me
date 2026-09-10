@@ -17,11 +17,14 @@ from anthropic import AsyncAnthropic
 from fastapi import APIRouter, Body, Depends, HTTPException
 
 from app.core.config import Settings, get_settings
-from app.core.security import authenticate_token
+from app.core.security import authenticate_api_key_or_user
 from app.core.storage import get_storage
 from app.schemas.auth_profile import AuthProfile
+from app.schemas.basecamp_publication import BasecampPublication
 from app.schemas.project import BasecampMirror, ProjectCreateRequest
+from app.schemas.user import User
 from app.services import agent_registry
+from app.services.auth_service import get_current_user_optional
 from app.services.basecamp_client import (
     BasecampError,
     get_active_sprint,
@@ -30,10 +33,9 @@ from app.services.basecamp_client import (
     list_card_tables,
     list_categories,
 )
-from app.schemas.basecamp_publication import BasecampPublication
 from app.services.basecamp_publisher import _PUBLICATIONS_SERIES, _rebuild_payload, retry_publication
 
-router = APIRouter(dependencies=[Depends(authenticate_token)])
+router = APIRouter(dependencies=[Depends(authenticate_api_key_or_user)])
 
 
 def _get_anthropic_client(settings: Settings = Depends(get_settings)) -> AsyncAnthropic:
@@ -95,24 +97,65 @@ def _new_project_id() -> str:
     return f"Proyecto_{int(time.time() * 1000)}"
 
 
+def _get_owned_project(
+    projects: list[dict[str, Any]],
+    project_id: str,
+    current_user: User | None,
+) -> dict[str, Any]:
+    """Same ownership rule as GET /projects/{id}: a project with an
+    owner_user_id is only visible to that owner once a real user JWT is
+    present; API-key-only callers (current_user is None) keep seeing
+    everything, so server-to-server calls don't break."""
+    project = next((p for p in projects if p.get("id") == project_id), None)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    if current_user is not None and project.get("owner_user_id") not in (
+        None,
+        current_user.id,
+    ):
+        raise HTTPException(status_code=404, detail="Project not found")
+    return project
+
+
 @router.get("/projects")
-async def list_projects() -> list[dict[str, Any]]:
+async def list_projects(
+    current_user: User | None = Depends(get_current_user_optional),
+) -> list[dict[str, Any]]:
     storage = get_storage()
-    return storage.read_projects()
+    projects = storage.read_projects()
+    # Multi-usuario (2026-09-09): when a real user JWT is present, only that
+    # user's own projects are returned. A project with no owner_user_id
+    # (pre-migration data) is only visible to API-key-only callers, not
+    # filtered into any one user's list — see PLAN-i18n-multiusuario.md's
+    # migration seed, which backfills these for Mariana's existing data.
+    if current_user is not None:
+        projects = [p for p in projects if p.get("owner_user_id") == current_user.id]
+    return projects
 
 
 @router.get("/projects/{project_id}")
-async def get_project(project_id: str) -> dict[str, Any]:
+async def get_project(
+    project_id: str,
+    current_user: User | None = Depends(get_current_user_optional),
+) -> dict[str, Any]:
     storage = get_storage()
     projects = storage.read_projects()
     project = next((p for p in projects if p.get("id") == project_id), None)
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
+    if current_user is not None and project.get("owner_user_id") not in (
+        None,
+        current_user.id,
+    ):
+        raise HTTPException(status_code=404, detail="Project not found")
     return project
 
 
 @router.post("/projects", status_code=201)
-async def create_project(body: ProjectCreateRequest) -> dict[str, Any]:
+async def create_project(
+    body: ProjectCreateRequest,
+    current_user: User | None = Depends(get_current_user_optional),
+) -> dict[str, Any]:
     storage = get_storage()
     new_project = _new_project_record(
         id_=_new_project_id(),
@@ -121,6 +164,8 @@ async def create_project(body: ProjectCreateRequest) -> dict[str, Any]:
         description=body.description,
         phase=body.phase,
     )
+    if current_user is not None:
+        new_project["owner_user_id"] = current_user.id
 
     projects = storage.read_projects()
     projects.append(new_project)
@@ -130,7 +175,10 @@ async def create_project(body: ProjectCreateRequest) -> dict[str, Any]:
 
 
 @router.delete("/projects/{project_id}", status_code=200)
-async def delete_project(project_id: str) -> dict[str, Any]:
+async def delete_project(
+    project_id: str,
+    current_user: User | None = Depends(get_current_user_optional),
+) -> dict[str, Any]:
     """Soft delete (Mariana, 2026-08-19): sets status="archived" instead of
     removing the record — real data is never dropped, and this is
     reversible (re-activate by setting status back to "active" via a
@@ -139,16 +187,18 @@ async def delete_project(project_id: str) -> dict[str, Any]:
     archived projects out of the main Proyectos grid."""
     storage = get_storage()
     projects = storage.read_projects()
-    project = next((p for p in projects if p.get("id") == project_id), None)
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+    project = _get_owned_project(projects, project_id, current_user)
     project["status"] = "archived"
     storage.write_projects(projects)
     return project
 
 
 @router.put("/projects/{project_id}/basecamp")
-async def link_basecamp_project(project_id: str, body: dict[str, Any] = Body(...)) -> dict[str, Any]:
+async def link_basecamp_project(
+    project_id: str,
+    body: dict[str, Any] = Body(...),
+    current_user: User | None = Depends(get_current_user_optional),
+) -> dict[str, Any]:
     """Links (or re-links) this project to a real Basecamp project —
     account_id + project_id, e.g. from https://3.basecamp.com/{account_id}/
     projects/{project_id}. Real link only: does not verify access against
@@ -162,9 +212,7 @@ async def link_basecamp_project(project_id: str, body: dict[str, Any] = Body(...
 
     storage = get_storage()
     projects = storage.read_projects()
-    project = next((p for p in projects if p.get("id") == project_id), None)
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+    project = _get_owned_project(projects, project_id, current_user)
 
     project["basecamp"] = {"account_id": str(account_id), "project_id": str(project_ref)}
     storage.write_projects(projects)
@@ -172,12 +220,13 @@ async def link_basecamp_project(project_id: str, body: dict[str, Any] = Body(...
 
 
 @router.delete("/projects/{project_id}/basecamp")
-async def unlink_basecamp_project(project_id: str) -> dict[str, Any]:
+async def unlink_basecamp_project(
+    project_id: str,
+    current_user: User | None = Depends(get_current_user_optional),
+) -> dict[str, Any]:
     storage = get_storage()
     projects = storage.read_projects()
-    project = next((p for p in projects if p.get("id") == project_id), None)
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+    project = _get_owned_project(projects, project_id, current_user)
 
     project["basecamp"] = None
     storage.write_projects(projects)
@@ -231,15 +280,16 @@ async def list_basecamp_projects_for_profile(profile_id: str) -> list[dict[str, 
 
 
 @router.get("/projects/{project_id}/basecamp-card-tables")
-async def list_project_card_tables(project_id: str) -> list[dict[str, Any]]:
+async def list_project_card_tables(
+    project_id: str,
+    current_user: User | None = Depends(get_current_user_optional),
+) -> list[dict[str, Any]]:
     """Real Card Tables of the linked Basecamp project — Tarea 2 Gap 3
     corrección: nunca el todolist, siempre Card Tables reales listadas para
     que la usuaria elija una o varias."""
     storage = get_storage()
     projects = storage.read_projects()
-    project = next((p for p in projects if p.get("id") == project_id), None)
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+    project = _get_owned_project(projects, project_id, current_user)
 
     basecamp = project.get("basecamp")
     if not basecamp:
@@ -254,7 +304,11 @@ async def list_project_card_tables(project_id: str) -> list[dict[str, Any]]:
 
 
 @router.put("/projects/{project_id}/basecamp-card-tables")
-async def set_project_card_tables(project_id: str, body: dict[str, Any] = Body(...)) -> dict[str, Any]:
+async def set_project_card_tables(
+    project_id: str,
+    body: dict[str, Any] = Body(...),
+    current_user: User | None = Depends(get_current_user_optional),
+) -> dict[str, Any]:
     """Saves which Card Table(s) the usuaria elegió as the real sprint
     source — never assumed automatically."""
     card_table_ids = body.get("cardTableIds")
@@ -263,9 +317,7 @@ async def set_project_card_tables(project_id: str, body: dict[str, Any] = Body(.
 
     storage = get_storage()
     projects = storage.read_projects()
-    project = next((p for p in projects if p.get("id") == project_id), None)
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+    project = _get_owned_project(projects, project_id, current_user)
     if not project.get("basecamp"):
         raise HTTPException(status_code=501, detail="Este proyecto no tiene un proyecto de Basecamp vinculado.")
 
@@ -275,16 +327,17 @@ async def set_project_card_tables(project_id: str, body: dict[str, Any] = Body(.
 
 
 @router.get("/projects/{project_id}/basecamp-mirror")
-async def get_project_basecamp_mirror(project_id: str) -> dict[str, Any]:
+async def get_project_basecamp_mirror(
+    project_id: str,
+    current_user: User | None = Depends(get_current_user_optional),
+) -> dict[str, Any]:
     """Real espejo del proyecto de Basecamp (Tarea 2 Gap 3) — nombre/
     descripción + columnas/cards reales de las Card Tables elegidas.
     501 explícito si falta el link, el Auth Profile, o no se eligió ninguna
     Card Table todavía — nunca inventa un espejo vacío como si fuera real."""
     storage = get_storage()
     projects = storage.read_projects()
-    project = next((p for p in projects if p.get("id") == project_id), None)
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+    project = _get_owned_project(projects, project_id, current_user)
 
     basecamp = project.get("basecamp")
     if not basecamp:
@@ -323,16 +376,17 @@ async def get_project_basecamp_mirror(project_id: str) -> dict[str, Any]:
 
 
 @router.get("/projects/{project_id}/sprint")
-async def get_project_sprint(project_id: str) -> dict[str, Any]:
+async def get_project_sprint(
+    project_id: str,
+    current_user: User | None = Depends(get_current_user_optional),
+) -> dict[str, Any]:
     """Real sprint (active Basecamp to-do list) for a linked project — Fase E
     of the mockup-fidelity plan. 501 if there's nothing real to read yet
     (no Basecamp link, or no matching Basecamp Auth Profile with a real
     OAuth token) — never a fabricated sprint."""
     storage = get_storage()
     projects = storage.read_projects()
-    project = next((p for p in projects if p.get("id") == project_id), None)
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+    project = _get_owned_project(projects, project_id, current_user)
 
     basecamp = project.get("basecamp")
     if not basecamp:
@@ -373,27 +427,30 @@ _DEFAULT_PUBLISH_CONFIG = {
 
 
 @router.get("/projects/{project_id}/basecamp-publish")
-async def get_basecamp_publish_config(project_id: str) -> dict[str, Any]:
+async def get_basecamp_publish_config(
+    project_id: str,
+    current_user: User | None = Depends(get_current_user_optional),
+) -> dict[str, Any]:
     storage = get_storage()
     projects = storage.read_projects()
-    project = next((p for p in projects if p.get("id") == project_id), None)
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+    project = _get_owned_project(projects, project_id, current_user)
 
     config = (project.get("basecamp") or {}).get("publish") or {}
     return {**_DEFAULT_PUBLISH_CONFIG, **config}
 
 
 @router.put("/projects/{project_id}/basecamp-publish")
-async def set_basecamp_publish_config(project_id: str, body: dict[str, Any] = Body(...)) -> dict[str, Any]:
+async def set_basecamp_publish_config(
+    project_id: str,
+    body: dict[str, Any] = Body(...),
+    current_user: User | None = Depends(get_current_user_optional),
+) -> dict[str, Any]:
     """HU-043 E-1 — valida `category_id` contra las categorías reales del
     Message Board antes de guardar; un id inventado/de otro proyecto nunca
     se persiste en silencio."""
     storage = get_storage()
     projects = storage.read_projects()
-    project = next((p for p in projects if p.get("id") == project_id), None)
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+    project = _get_owned_project(projects, project_id, current_user)
 
     basecamp = project.get("basecamp")
     if not basecamp:
@@ -420,7 +477,11 @@ async def set_basecamp_publish_config(project_id: str, body: dict[str, Any] = Bo
 
 
 @router.get("/projects/{project_id}/sprints/{sprint_id}/publications")
-async def list_sprint_publications(project_id: str, sprint_id: str) -> list[dict[str, Any]]:
+async def list_sprint_publications(
+    project_id: str,
+    sprint_id: str,
+    current_user: User | None = Depends(get_current_user_optional),
+) -> list[dict[str, Any]]:
     """§4a — "sprint_id" acá ES el id de la Card Table ya seleccionada
     (Project.basecamp.selectedCardTableIds), no un dominio de Sprint propio
     (no existe todavía en este stack). Se anexa a projects.py en vez de un
@@ -432,9 +493,7 @@ async def list_sprint_publications(project_id: str, sprint_id: str) -> list[dict
     acá mismo antes de responder — este endpoint es el que la UI poll-ea."""
     storage = get_storage()
     projects = storage.read_projects()
-    project = next((p for p in projects if p.get("id") == project_id), None)
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+    project = _get_owned_project(projects, project_id, current_user)
 
     basecamp = project.get("basecamp") or {}
     account_id = basecamp.get("account_id")
@@ -459,7 +518,10 @@ async def list_sprint_publications(project_id: str, sprint_id: str) -> list[dict
 
 
 @router.post("/publications/{publication_id}/retry")
-async def retry_basecamp_publication(publication_id: str) -> dict[str, Any]:
+async def retry_basecamp_publication(
+    publication_id: str,
+    current_user: User | None = Depends(get_current_user_optional),
+) -> dict[str, Any]:
     """HU-045 CA-6 — idempotente: si ya está `sent`, 200 sin reintentar
     (retry_publication ya es no-op en ese caso, así que solo hace falta
     resolver auth_profile/project reales para el caso que sí reintenta)."""
@@ -473,9 +535,7 @@ async def retry_basecamp_publication(publication_id: str) -> dict[str, Any]:
         return row
 
     projects = storage.read_projects()
-    project = next((p for p in projects if p.get("id") == row.get("project_id")), None)
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+    project = _get_owned_project(projects, row.get("project_id"), current_user)
 
     basecamp = project.get("basecamp") or {}
     account_id = basecamp.get("account_id")

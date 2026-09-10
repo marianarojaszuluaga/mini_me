@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import i18n from "../../i18n/index.js";
 import { AlertIcon, CheckIcon } from "../icons.jsx";
 
 // ---------------------------------------------------------------------------
@@ -13,23 +15,25 @@ import { AlertIcon, CheckIcon } from "../icons.jsx";
 // app/services/basecamp_publisher.py a un mensaje legible. Función pura,
 // sin dependencias, exportada para poder testearla aparte.
 export function errorMessageMap(lastError) {
-  if (!lastError) return "Ocurrió un error al publicar en Basecamp.";
+  const t = i18n.t.bind(i18n);
+  if (!lastError) return t("basecamp.errors.generic");
   if (lastError.includes("Sesión de Basecamp expirada")) {
-    return "La sesión de Basecamp expiró — reconecta la cuenta desde Auth Profiles.";
+    return t("basecamp.errors.sessionExpired");
   }
   if (lastError.includes("Rate limit")) {
-    return "Basecamp está limitando las publicaciones por ahora — se reintentará automáticamente.";
+    return t("basecamp.errors.rateLimit");
   }
   if (/Basecamp respondió 5\d\d/.test(lastError)) {
-    return "Basecamp tuvo un problema temporal — se reintentará automáticamente.";
+    return t("basecamp.errors.serverError");
   }
   if (lastError.includes("rechazó el payload")) {
-    return "Basecamp rechazó la publicación — puede que la categoría o el Message Board ya no existan.";
+    return t("basecamp.errors.rejectedPayload");
   }
   return lastError;
 }
 
 export function BasecampPublishSettings({ api, project }) {
+  const { t } = useTranslation();
   const [config, setConfig] = useState(null);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -64,12 +68,12 @@ export function BasecampPublishSettings({ api, project }) {
   if (error && !config) {
     return <div className="flag">{AlertIcon} {error}</div>;
   }
-  if (!config) return <div className="loading">Cargando configuración de publicación...</div>;
+  if (!config) return <div className="loading">{t("basecamp.publishSettings.loading")}</div>;
 
   return (
     <div className="pd-subsection">
       <div className="pd-subsection-header">
-        <h3>Publicar en Message Board</h3>
+        <h3>{t("basecamp.publishSettings.title")}</h3>
       </div>
 
       <label className="basecamp-card-table-option">
@@ -78,7 +82,7 @@ export function BasecampPublishSettings({ api, project }) {
           checked={!!config.enabled}
           onChange={(e) => handleField("enabled", e.target.checked)}
         />
-        Publicar automáticamente al iniciar/cerrar sprint
+        {t("basecamp.publishSettings.enabledLabel")}
       </label>
 
       {config.enabled && (
@@ -89,7 +93,7 @@ export function BasecampPublishSettings({ api, project }) {
               checked={!!config.publish_on_start}
               onChange={(e) => handleField("publish_on_start", e.target.checked)}
             />
-            Publicar al iniciar sprint
+            {t("basecamp.publishSettings.publishOnStart")}
           </label>
           <label className="basecamp-card-table-option">
             <input
@@ -97,22 +101,22 @@ export function BasecampPublishSettings({ api, project }) {
               checked={!!config.publish_on_close}
               onChange={(e) => handleField("publish_on_close", e.target.checked)}
             />
-            Publicar al cerrar sprint
+            {t("basecamp.publishSettings.publishOnClose")}
           </label>
 
           <div>
-            <label className="field-label">Category ID (opcional)</label>
+            <label className="field-label">{t("basecamp.publishSettings.categoryIdLabel")}</label>
             <input
               className="field-select"
               type="number"
               value={config.category_id ?? ""}
               onChange={(e) => handleField("category_id", e.target.value === "" ? null : Number(e.target.value))}
-              placeholder="Sin categoría"
+              placeholder={t("basecamp.publishSettings.categoryIdPlaceholder")}
             />
           </div>
 
           <div>
-            <label className="field-label">Personas a notificar (IDs separados por coma)</label>
+            <label className="field-label">{t("basecamp.publishSettings.notifyPeopleLabel")}</label>
             <input
               className="field-select"
               type="text"
@@ -127,7 +131,7 @@ export function BasecampPublishSettings({ api, project }) {
                     .map(Number)
                 )
               }
-              placeholder="123, 456"
+              placeholder={t("basecamp.publishSettings.notifyPeoplePlaceholder")}
             />
           </div>
         </>
@@ -136,7 +140,7 @@ export function BasecampPublishSettings({ api, project }) {
       {error && <div className="flag">{AlertIcon} {error}</div>}
       <div className="modal-actions">
         <button type="button" className="btn-primary" onClick={handleSave} disabled={saving}>
-          {saving ? "Guardando..." : "Guardar"}
+          {saving ? t("basecamp.publishSettings.saving") : t("basecamp.publishSettings.save")}
         </button>
       </div>
     </div>
@@ -147,6 +151,7 @@ export function BasecampPublishSettings({ api, project }) {
 // por sprint (= Card Table id, §4a del plan), listando cada publicación de
 // ese sprint (sprint.started / sprint.closed, cada evento es su propia fila).
 export function SprintPublicationStatus({ api, project, sprintId, publishEnabled }) {
+  const { t } = useTranslation();
   const [publications, setPublications] = useState(null);
   const [error, setError] = useState("");
 
@@ -170,32 +175,36 @@ export function SprintPublicationStatus({ api, project, sprintId, publishEnabled
 
   if (!publishEnabled) return null; // HU-044 — oculto si la publicación está desactivada
   if (error) return <div className="flag">{AlertIcon} {error}</div>;
-  if (!publications) return <div className="loading">Cargando estado de publicación...</div>;
+  if (!publications) return <div className="loading">{t("basecamp.publicationStatus.loading")}</div>;
   if (publications.length === 0) return null;
 
   return (
     <div className="pd-subsection">
       <div className="pd-subsection-header">
-        <h3>Publicaciones en Basecamp</h3>
+        <h3>{t("basecamp.publicationStatus.title")}</h3>
       </div>
       {publications.map((pub) => (
         <div key={pub.id} className="basecamp-card" style={{ marginBottom: 6 }}>
-          <strong>{pub.event_type === "sprint.started" ? "Inicio" : "Cierre"}</strong>{" "}
+          <strong>
+            {pub.event_type === "sprint.started"
+              ? t("basecamp.publicationStatus.eventStart")
+              : t("basecamp.publicationStatus.eventClose")}
+          </strong>{" "}
           {pub.status === "sent" && (
             <span>
-              {CheckIcon} Publicado{" "}
-              <a href={pub.basecamp_url} target="_blank" rel="noreferrer">Ver post ↗</a>
+              {CheckIcon} {t("basecamp.publicationStatus.published")}{" "}
+              <a href={pub.basecamp_url} target="_blank" rel="noreferrer">{t("basecamp.publicationStatus.viewPost")}</a>
             </span>
           )}
           {pub.status === "pending" && (
             <span>
-              Publicando…{" "}
-              <button className="btn-secondary" disabled>Reintentar</button>
+              {t("basecamp.publicationStatus.publishing")}{" "}
+              <button className="btn-secondary" disabled>{t("basecamp.publicationStatus.retry")}</button>
             </span>
           )}
           {pub.status === "failed" && (
             <span>
-              {AlertIcon} Falló — {errorMessageMap(pub.last_error)}{" "}
+              {AlertIcon} {t("basecamp.publicationStatus.failed")} — {errorMessageMap(pub.last_error)}{" "}
               <RetryPublicationButton api={api} publicationId={pub.id} onRetried={refresh} />
             </span>
           )}
@@ -206,6 +215,7 @@ export function SprintPublicationStatus({ api, project, sprintId, publishEnabled
 }
 
 export function RetryPublicationButton({ api, publicationId, onRetried }) {
+  const { t } = useTranslation();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -224,7 +234,7 @@ export function RetryPublicationButton({ api, publicationId, onRetried }) {
   return (
     <>
       <button className="btn-primary" onClick={handleRetry} disabled={busy}>
-        {busy ? "Reintentando..." : "Reintentar"}
+        {busy ? t("basecamp.publicationStatus.retrying") : t("basecamp.publicationStatus.retry")}
       </button>
       {error && <span className="flag">{AlertIcon} {error}</span>}
     </>

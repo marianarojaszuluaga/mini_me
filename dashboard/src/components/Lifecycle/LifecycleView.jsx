@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import "./lifecycle.css";
 
 // Ciclo de vida del proyecto (2026-08-24, Mariana: "Deberíamos tenerlo como
@@ -16,18 +17,21 @@ const PHASE_ACCENTS = {
 };
 
 export default function LifecycleView({ projects, phases, onOpenProject }) {
+  const { t } = useTranslation();
   const active = (projects || []).filter((p) => p.status !== "archived");
   const orderedPhases = [...(phases || [])].sort((a, b) => a.id - b.id);
 
   return (
     <div className="lifecycle-view">
       <div className="lifecycle-header">
-        <h1>Ciclo de vida del proyecto</h1>
-        <p>En qué fase real está cada proyecto activo, de un vistazo — la misma <code>Project.currentPhase</code> que ya se actualiza cada vez que se invoca un agente real.</p>
+        <h1>{t("lifecycle.title")}</h1>
+        <p>
+          {t("lifecycle.subtitlePrefix")} <code>Project.currentPhase</code> {t("lifecycle.subtitleSuffix")}
+        </p>
       </div>
 
       {orderedPhases.length === 0 ? (
-        <div className="empty-state">Cargando fases...</div>
+        <div className="empty-state">{t("lifecycle.loadingPhases")}</div>
       ) : (
         <div className="lifecycle-board">
           {orderedPhases.map((phase) => {
@@ -38,15 +42,15 @@ export default function LifecycleView({ projects, phases, onOpenProject }) {
                   <span className="lifecycle-col-num">{phase.id}</span>
                   <div>
                     <div className="lifecycle-col-title">{phase.title}</div>
-                    <div className="lifecycle-col-count">{projectsInPhase.length} proyecto{projectsInPhase.length === 1 ? "" : "s"}</div>
+                    <div className="lifecycle-col-count">{t("lifecycle.projectCount", { count: projectsInPhase.length })}</div>
                   </div>
                 </div>
                 <div className="lifecycle-col-body">
-                  {projectsInPhase.length === 0 && <div className="lifecycle-empty">Sin proyectos acá</div>}
+                  {projectsInPhase.length === 0 && <div className="lifecycle-empty">{t("lifecycle.noProjectsHere")}</div>}
                   {projectsInPhase.map((project) => (
                     <button key={project.id} className="lifecycle-card" onClick={() => onOpenProject?.(project)}>
                       <div className="lifecycle-card-name">{project.name}</div>
-                      <div className="lifecycle-card-step">{project.currentStep || "iniciando"}</div>
+                      <div className="lifecycle-card-step">{project.currentStep || t("lifecycle.startingStep")}</div>
                     </button>
                   ))}
                 </div>

@@ -1,0 +1,380 @@
+{
+  "landing": {
+    "brand": "Mini me",
+    "tagline": "Everything in one place. Orquestrador for Strategic Operations with Jarvis Mode.",
+    "featuresTitle": "Todo conectado en un solo lugar",
+    "features": {
+      "integrations": {
+        "title": "Integraciones reales",
+        "body": "GitHub, Bitbucket, Basecamp y Google conectados de verdad — no maquetas."
+      },
+      "agents": {
+        "title": "Agentes especializados",
+        "body": "Un equipo de agentes de IA que ejecutan fases del proyecto por vos."
+      },
+      "chat": {
+        "title": "Jarvis, tu chat conversacional",
+        "body": "Preguntale por el estado real de tus proyectos, en lenguaje natural."
+      },
+      "qa": {
+        "title": "QA integrado",
+        "body": "Reconciliación automática entre lo que se dice hecho y la evidencia real."
+      }
+    },
+    "loginTitle": "Iniciar sesión",
+    "registerTitle": "Crear cuenta",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "name": "Nombre",
+    "loginButton": "Iniciar sesión",
+    "registerButton": "Crear cuenta",
+    "googleButton": "Continuar con Google",
+    "googleNotConfigured": "Google no está configurado en este servidor",
+    "googleLoading": "Cargando Google...",
+    "switchToRegister": "¿No tenés cuenta? Creá una",
+    "switchToLogin": "¿Ya tenés cuenta? Iniciá sesión",
+    "orAppKey": "¿Preferís entrar con tu App API Key?",
+    "appKeyPlaceholder": "App API Key"
+  },
+  "sidebar": {
+    "brandName": "Mar en internet",
+    "brandSub": "Mini me with her smarts and AI",
+    "talkToJarvis": "Hablar con Jarvis",
+    "work": "Trabajo",
+    "projects": "Proyectos",
+    "analytics": "Analítica & integraciones",
+    "dashboard": "Dashboard",
+    "integrations": "Integraciones",
+    "marMemory": "Memoria de Mar",
+    "settings": "Configuración",
+    "language": "Idioma"
+  },
+  "projects": {
+    "modal": {
+      "title": "Nuevo proyecto"
+    },
+    "fields": {
+      "name": "Nombre",
+      "namePlaceholder": "Ej.: Rediseño App Móvil",
+      "description": "Descripción",
+      "descriptionPlaceholder": "Una línea sobre qué es este proyecto",
+      "owner": "Asignado a (opcional)"
+    },
+    "repoNote": "El repositorio se conecta después, desde el detalle del proyecto — un repo siempre pertenece a un proyecto, nunca queda suelto.",
+    "actions": {
+      "cancel": "Cancelar",
+      "creating": "Creando...",
+      "create": "Crear proyecto",
+      "new": "+ Nuevo proyecto"
+    },
+    "defaultOwner": "sin asignar",
+    "semaphore": {
+      "onTrack": "En curso",
+      "attention": "Atención",
+      "blocked": "Bloqueado"
+    },
+    "backLink": "← Proyectos",
+    "heading": {
+      "loading": "Proyectos",
+      "count_one": "{{count}} proyecto",
+      "count_other": "{{count}} proyectos",
+      "blockedSub_one": "{{count}} bloqueado por gaps de reconciliación sin resolver",
+      "blockedSub_other": "{{count}} bloqueados por gaps de reconciliación sin resolver"
+    },
+    "loading": "Cargando proyectos...",
+    "card": {
+      "phase": "Fase {{phase}} · {{step}}"
+    },
+    "stats": {
+      "gaps": "Gaps",
+      "alerts": "Alertas",
+      "decisions": "Decisiones"
+    }
+  },
+  "settings": {
+    "title": "Configuración",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "themeLabel": "Tema",
+    "themeOptions": {
+      "auto": "Auto",
+      "light": "Claro",
+      "dark": "Oscuro"
+    },
+    "accentLabel": "Color principal",
+    "accents": {
+      "green": "Verde (default)",
+      "blue": "Azul",
+      "purple": "Púrpura",
+      "orange": "Naranja"
+    },
+    "hint": "Se guarda por usuario — la próxima vez que abras la app, arranca con esta config."
+  },
+  "integrations": {
+    "title": "Integraciones",
+    "noActiveSession": "No hay sesión activa.",
+    "connectedFlag": "Conectado: {{provider}} — {{account}}",
+    "connectFailedFlag": "No se pudo conectar ({{reason}}).",
+    "unknownError": "error desconocido",
+    "connectWithOAuth": "Conectar con OAuth real",
+    "connect": "Conectar",
+    "oauthNote": "Si el OAuth App de un proveedor no está configurado todavía, el sistema devuelve un error explícito — nunca finge una conexión exitosa.",
+    "authProfiles": "Auth Profiles",
+    "manualButton": "+ Manual",
+    "loadingAuthProfiles": "Cargando Auth Profiles...",
+    "noAuthProfiles": "Sin Auth Profiles creados todavía.",
+    "oauthReal": "OAuth real",
+    "manual": "manual",
+    "scopeLabel": "Scope: {{scope}}",
+    "accountPlaceholder": "account (email o usuario)",
+    "scopePlaceholder": "scope (manual, ej: repo,read:org)",
+    "cancel": "Cancelar",
+    "creating": "Creando...",
+    "create": "Crear",
+    "providers": {
+      "githubPersonal": {
+        "label": "GitHub (personal)",
+        "sub": "Repos + Pull Requests — tu cuenta"
+      },
+      "githubImagine": {
+        "label": "GitHub (Imagine)",
+        "sub": "Repos + Pull Requests — org Imagine"
+      },
+      "bitbucket": {
+        "label": "Bitbucket",
+        "sub": "Repos + Pull Requests"
+      },
+      "google": {
+        "label": "Google (SSO)",
+        "sub": "SSO — @imagineapps.co"
+      },
+      "basecamp": {
+        "label": "Basecamp",
+        "sub": "Proyectos + sprints (link a tareas)"
+      }
+    }
+  },
+  "marMemory": {
+    "title": "Memoria de Mar",
+    "close": "Cerrar",
+    "loading": "Cargando memoria...",
+    "empty": "Sin entradas todavía.",
+    "noApiKey": "No hay App API Key configurada.",
+    "backupBadge": {
+      "prefix": "Respaldado automáticamente en Obsidian — carpeta",
+      "folder": "Orquestrador 360 - Memoria de la App",
+      "suffix": ", cada 3h"
+    },
+    "groups": {
+      "today": "Hoy",
+      "yesterday": "Ayer",
+      "noDate": "Sin fecha"
+    },
+    "entry": {
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "saving": "Guardando...",
+      "edit": "Editar",
+      "delete": "Borrar",
+      "deleting": "Borrando...",
+      "sourceManual": "manual",
+      "sourceChat": "desde chat"
+    },
+    "newEntry": {
+      "title": "Agregar entrada manual",
+      "placeholder": "Contenido de la entrada",
+      "add": "+ Agregar",
+      "adding": "Agregando..."
+    }
+  },
+  "chat": {
+    "kindLabels": {
+      "projectBrain": "Cerebro del proyecto",
+      "timeline": "Timeline",
+      "reconciliation": "Reconciliación",
+      "agentInvocation": "Invocación de agente",
+      "marMemory": "Memoria de Mar",
+      "none": "Sin fuente"
+    },
+    "sourcesLabel": "Fuentes citadas",
+    "rail": {
+      "session": "Esta conversación",
+      "turns": "Turnos",
+      "tokensUsed": "Tokens usados",
+      "system": "Sistema (todos los proyectos)",
+      "usageToday": "Uso hoy",
+      "totalGaps": "Gaps totales",
+      "reconciliationAlerts": "Alertas de reconciliación",
+      "noAlerts": "Sin alertas abiertas.",
+      "gapsCount": "{{count}} gaps"
+    },
+    "newConversationTitle": "Nueva conversación",
+    "emptyState": {
+      "sessionEnded": "Sesión anterior terminada. Dale un propósito a la nueva conversación para empezar.",
+      "needPurpose": "Antes de empezar, dale un propósito a esta conversación con Jarvis."
+    },
+    "projectPicker": {
+      "label": "Proyecto (opcional)",
+      "none": "Sin proyecto puntual"
+    },
+    "purposePlaceholder": "Ej.: revisar el estado del sprint actual",
+    "startSession": "Iniciar sesión",
+    "purposeLabel": "Propósito: {{purpose}}",
+    "endingSession": "Terminando...",
+    "endSession": "Terminar sesión",
+    "emptyHistory": "Pregúntale algo a Jarvis sobre tus proyectos.",
+    "you": "Tú",
+    "jarvis": "Jarvis",
+    "declaredUnknown": "Jarvis indicó que no tiene información suficiente.",
+    "typing": "escribiendo...",
+    "inputPlaceholder": "Escribe tu pregunta para Jarvis...",
+    "send": "Enviar",
+    "noResponse": "(sin respuesta)",
+    "errors": {
+      "loadSession": "No se pudo cargar esa conversación.",
+      "endSession": "Error al terminar la sesión.",
+      "sendMessage": "Error al enviar el mensaje a Jarvis."
+    }
+  },
+  "analytics": {
+    "fullAnalytics": "Analítica completa",
+    "close": "Cerrar",
+    "rawEvents": {
+      "notAvailable": "sin eventos crudos disponibles",
+      "loading": "Cargando eventos...",
+      "noneFound": "Sin eventos crudos encontrados para este dato."
+    },
+    "metricTile": {
+      "hide": "ocultar eventos ▲",
+      "show": "ver eventos crudos ▼"
+    },
+    "dimensions": {
+      "eficiencia": "eficiencia",
+      "acertividad": "acertividad",
+      "formato": "formato",
+      "calidad": "calidad"
+    },
+    "p0": {
+      "title": "P0 — Lo esencial: ¿existe, se usa, encuentra desalineación real?",
+      "outputsByType": "Outputs por tipo",
+      "noOutputs": "Sin outputs registrados todavía.",
+      "usageCount": "Número de usos",
+      "agentInvocations": "Invocaciones de agente (acumulado)",
+      "chatMessages": "Mensajes de chat (acumulado)",
+      "reconciliationTitle": "Reconciliación — gaps encontrados vs. cerrados",
+      "gapsFound": "Gaps encontrados (acumulado)",
+      "gapsClosed": "Gaps cerrados desde la última corrida (acumulado)"
+    },
+    "p1": {
+      "title": "P1 — Valor, no solo actividad",
+      "acceptanceRateNote": "Tasa de aceptación por tipo de output y costo por output (tokens/USD) todavía no tienen un evento correspondiente en el backend — no se muestra un número aquí para no inventar uno.",
+      "qualityOverTime": "Calidad en el tiempo por agente (4 dimensiones, HU-008)",
+      "noEvaluations": "Sin evaluaciones registradas todavía.",
+      "evaluationsCount": "{{count}} evaluaciones",
+      "viewLatestEvaluation": "ver evaluación cruda más reciente"
+    },
+    "p2": {
+      "title": "P2 — Contexto y tendencia",
+      "beforeAfterTitle": "Antes vs. después (changelog de mejoras medido)",
+      "beforeAfterEmpty": "Ninguna entrada del changelog tiene \"después\" medido todavía — se muestra \"en progreso\", no un número inventado.",
+      "weeklyTrendTitle": "Tendencia semanal de outputs",
+      "noDataYet": "Sin datos suficientes todavía.",
+      "byProjectTitle": "Distribución de gaps de reconciliación por proyecto",
+      "byProjectEmpty": "Sin corridas de reconciliación todavía.",
+      "noDate": "sin fecha"
+    },
+    "p3": {
+      "title": "P3 — Lo más blando",
+      "note": "Tiempo ahorrado estimado (aproximado, nunca medición exacta): el backend todavía no expone un evento de baseline vs. tiempo real de invocación para calcularlo — se omite en lugar de mostrar una estimación inventada."
+    },
+    "changelog": {
+      "title": "Changelog de mejoras del sistema",
+      "empty": "Sin propuestas de mejora todavía.",
+      "reason": "Razón: {{reason}}",
+      "approving": "Aprobando...",
+      "approve": "Aprobar"
+    },
+    "dashboard": {
+      "noApiKey": "No hay App API Key configurada.",
+      "showingDataFor": "Mostrando datos de:",
+      "loadingMetrics": "Cargando métricas...",
+      "projectStats": "Estadísticas del proyecto",
+      "gapsFoundProject": "Gaps encontrados (este proyecto)",
+      "gapsClosedProject": "Gaps cerrados (este proyecto)",
+      "sprintTasks": "Tareas de sprint",
+      "projectStatus": "Status del proyecto",
+      "workTime7d": "Tiempo de trabajo (7 días)",
+      "sprintTasksError": "Tareas de sprint: {{error}}",
+      "recentAgentsUsed": "Últimos agentes usados",
+      "outputsCount": "# de outputs",
+      "noOutputsProject": "Sin outputs registrados todavía para este proyecto.",
+      "systemHealth": "Salud del sistema",
+      "allProjects": "Todos los proyectos",
+      "exploreAgentQuality": "Explora la calidad de los agentes"
+    },
+    "projectStatus": {
+      "active": "En curso",
+      "paused": "Pausado",
+      "done": "Completado",
+      "archived": "Archivado"
+    },
+    "outputTypes": {
+      "hu": "# HU generadas",
+      "spec": "Specs generadas",
+      "plan": "Iteraciones de planes",
+      "acta": "Actas generadas",
+      "evaluacion": "Evaluaciones",
+      "reconciliacion": "Reconciliaciones",
+      "qa_run": "Corridas de QA",
+      "pull_request": "PRs por proyecto"
+    },
+    "avatars": {
+      "noAgentsYet": "Sin agentes invocados todavía para este proyecto.",
+      "noPhotoYet": "Sin foto real todavía: {{agents}} — placeholder de color mientras tanto."
+    }
+  },
+  "lifecycle": {
+    "title": "Ciclo de vida del proyecto",
+    "subtitlePrefix": "En qué fase real está cada proyecto activo, de un vistazo — la misma",
+    "subtitleSuffix": "que ya se actualiza cada vez que se invoca un agente real.",
+    "loadingPhases": "Cargando fases...",
+    "projectCount_one": "{{count}} proyecto",
+    "projectCount_other": "{{count}} proyectos",
+    "noProjectsHere": "Sin proyectos acá",
+    "startingStep": "iniciando"
+  },
+  "basecamp": {
+    "errors": {
+      "generic": "Ocurrió un error al publicar en Basecamp.",
+      "sessionExpired": "La sesión de Basecamp expiró — reconecta la cuenta desde Auth Profiles.",
+      "rateLimit": "Basecamp está limitando las publicaciones por ahora — se reintentará automáticamente.",
+      "serverError": "Basecamp tuvo un problema temporal — se reintentará automáticamente.",
+      "rejectedPayload": "Basecamp rechazó la publicación — puede que la categoría o el Message Board ya no existan."
+    },
+    "publishSettings": {
+      "loading": "Cargando configuración de publicación...",
+      "title": "Publicar en Message Board",
+      "enabledLabel": "Publicar automáticamente al iniciar/cerrar sprint",
+      "publishOnStart": "Publicar al iniciar sprint",
+      "publishOnClose": "Publicar al cerrar sprint",
+      "categoryIdLabel": "Category ID (opcional)",
+      "categoryIdPlaceholder": "Sin categoría",
+      "notifyPeopleLabel": "Personas a notificar (IDs separados por coma)",
+      "notifyPeoplePlaceholder": "123, 456",
+      "saving": "Guardando...",
+      "save": "Guardar"
+    },
+    "publicationStatus": {
+      "loading": "Cargando estado de publicación...",
+      "title": "Publicaciones en Basecamp",
+      "eventStart": "Inicio",
+      "eventClose": "Cierre",
+      "published": "Publicado",
+      "viewPost": "Ver post ↗",
+      "publishing": "Publicando…",
+      "failed": "Falló",
+      "retry": "Reintentar",
+      "retrying": "Reintentando..."
+    }
+  }
+}

@@ -167,6 +167,14 @@ class Storage:
     def write_auth_profiles(self, profiles: list[dict[str, Any]]) -> None:
         self._write_list("auth-profiles", profiles)
 
+    # -- users (multi-usuario, 2026-09-09) ----------------------------------
+
+    def read_users(self) -> list[dict[str, Any]]:
+        return self._read_list("users")
+
+    def write_users(self, users: list[dict[str, Any]]) -> None:
+        self._write_list("users", users)
+
     # -- generic time-series helpers (metrics layer) ------------------------
     # Not JS-ported: new for app/services/metrics/*. Kept generic (by series
     # name) rather than one method per metric type so collector.py doesn't

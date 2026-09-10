@@ -10,3 +10,8 @@ httpx==0.28.1
 python-dotenv==1.2.2
 apscheduler==3.11.3
 upstash-redis>=1.1.0
+# Multi-usuario (2026-09-09): email+password + Google-login JWT auth.
+python-jose[cryptography]==3.5.0
+bcrypt==4.2.1
+google-auth==2.35.0
+pydantic[email]==2.13.4

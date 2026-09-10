@@ -1,0 +1,380 @@
+{
+  "landing": {
+    "brand": "Mini me",
+    "tagline": "Everything in one place. Orquestrador for Strategic Operations with Jarvis Mode.",
+    "featuresTitle": "Everything connected in one place",
+    "features": {
+      "integrations": {
+        "title": "Real integrations",
+        "body": "GitHub, Bitbucket, Basecamp and Google actually connected — no mockups."
+      },
+      "agents": {
+        "title": "Specialized agents",
+        "body": "A team of AI agents that execute project phases for you."
+      },
+      "chat": {
+        "title": "Jarvis, your conversational chat",
+        "body": "Ask about the real status of your projects, in plain language."
+      },
+      "qa": {
+        "title": "Built-in QA",
+        "body": "Automatic reconciliation between what's claimed done and the real evidence."
+      }
+    },
+    "loginTitle": "Sign in",
+    "registerTitle": "Create account",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "loginButton": "Sign in",
+    "registerButton": "Create account",
+    "googleButton": "Continue with Google",
+    "googleNotConfigured": "Google login isn't configured on this server",
+    "googleLoading": "Loading Google...",
+    "switchToRegister": "Don't have an account? Create one",
+    "switchToLogin": "Already have an account? Sign in",
+    "orAppKey": "Prefer to sign in with your App API Key?",
+    "appKeyPlaceholder": "App API Key"
+  },
+  "sidebar": {
+    "brandName": "Mar en internet",
+    "brandSub": "Mini me with her smarts and AI",
+    "talkToJarvis": "Talk to Jarvis",
+    "work": "Work",
+    "projects": "Projects",
+    "analytics": "Analytics & integrations",
+    "dashboard": "Dashboard",
+    "integrations": "Integrations",
+    "marMemory": "Mar's Memory",
+    "settings": "Settings",
+    "language": "Language"
+  },
+  "projects": {
+    "modal": {
+      "title": "New project"
+    },
+    "fields": {
+      "name": "Name",
+      "namePlaceholder": "E.g.: Mobile App Redesign",
+      "description": "Description",
+      "descriptionPlaceholder": "One line about what this project is",
+      "owner": "Assigned to (optional)"
+    },
+    "repoNote": "The repository is connected later, from the project detail — a repo always belongs to a project, it never stays unassigned.",
+    "actions": {
+      "cancel": "Cancel",
+      "creating": "Creating...",
+      "create": "Create project",
+      "new": "+ New project"
+    },
+    "defaultOwner": "unassigned",
+    "semaphore": {
+      "onTrack": "On track",
+      "attention": "Attention",
+      "blocked": "Blocked"
+    },
+    "backLink": "← Projects",
+    "heading": {
+      "loading": "Projects",
+      "count_one": "{{count}} project",
+      "count_other": "{{count}} projects",
+      "blockedSub_one": "{{count}} blocked by unresolved reconciliation gaps",
+      "blockedSub_other": "{{count}} blocked by unresolved reconciliation gaps"
+    },
+    "loading": "Loading projects...",
+    "card": {
+      "phase": "Phase {{phase}} · {{step}}"
+    },
+    "stats": {
+      "gaps": "Gaps",
+      "alerts": "Alerts",
+      "decisions": "Decisions"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "cancel": "Cancel",
+    "save": "Save",
+    "themeLabel": "Theme",
+    "themeOptions": {
+      "auto": "Auto",
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "accentLabel": "Accent color",
+    "accents": {
+      "green": "Green (default)",
+      "blue": "Blue",
+      "purple": "Purple",
+      "orange": "Orange"
+    },
+    "hint": "Saved per user — next time you open the app, it starts with this config."
+  },
+  "integrations": {
+    "title": "Integrations",
+    "noActiveSession": "No active session.",
+    "connectedFlag": "Connected: {{provider}} — {{account}}",
+    "connectFailedFlag": "Could not connect ({{reason}}).",
+    "unknownError": "unknown error",
+    "connectWithOAuth": "Connect with real OAuth",
+    "connect": "Connect",
+    "oauthNote": "If a provider's OAuth App isn't configured yet, the system returns an explicit error — it never fakes a successful connection.",
+    "authProfiles": "Auth Profiles",
+    "manualButton": "+ Manual",
+    "loadingAuthProfiles": "Loading Auth Profiles...",
+    "noAuthProfiles": "No Auth Profiles created yet.",
+    "oauthReal": "Real OAuth",
+    "manual": "manual",
+    "scopeLabel": "Scope: {{scope}}",
+    "accountPlaceholder": "account (email or username)",
+    "scopePlaceholder": "scope (manual, e.g.: repo,read:org)",
+    "cancel": "Cancel",
+    "creating": "Creating...",
+    "create": "Create",
+    "providers": {
+      "githubPersonal": {
+        "label": "GitHub (personal)",
+        "sub": "Repos + Pull Requests — your account"
+      },
+      "githubImagine": {
+        "label": "GitHub (Imagine)",
+        "sub": "Repos + Pull Requests — Imagine org"
+      },
+      "bitbucket": {
+        "label": "Bitbucket",
+        "sub": "Repos + Pull Requests"
+      },
+      "google": {
+        "label": "Google (SSO)",
+        "sub": "SSO — @imagineapps.co"
+      },
+      "basecamp": {
+        "label": "Basecamp",
+        "sub": "Projects + sprints (linked to tasks)"
+      }
+    }
+  },
+  "marMemory": {
+    "title": "Mar's Memory",
+    "close": "Close",
+    "loading": "Loading memory...",
+    "empty": "No entries yet.",
+    "noApiKey": "No App API Key configured.",
+    "backupBadge": {
+      "prefix": "Automatically backed up to Obsidian — folder",
+      "folder": "Orquestrador 360 - Memoria de la App",
+      "suffix": ", every 3h"
+    },
+    "groups": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "noDate": "No date"
+    },
+    "entry": {
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving...",
+      "edit": "Edit",
+      "delete": "Delete",
+      "deleting": "Deleting...",
+      "sourceManual": "manual",
+      "sourceChat": "from chat"
+    },
+    "newEntry": {
+      "title": "Add manual entry",
+      "placeholder": "Entry content",
+      "add": "+ Add",
+      "adding": "Adding..."
+    }
+  },
+  "chat": {
+    "kindLabels": {
+      "projectBrain": "Project brain",
+      "timeline": "Timeline",
+      "reconciliation": "Reconciliation",
+      "agentInvocation": "Agent invocation",
+      "marMemory": "Mar's Memory",
+      "none": "No source"
+    },
+    "sourcesLabel": "Cited sources",
+    "rail": {
+      "session": "This conversation",
+      "turns": "Turns",
+      "tokensUsed": "Tokens used",
+      "system": "System (all projects)",
+      "usageToday": "Usage today",
+      "totalGaps": "Total gaps",
+      "reconciliationAlerts": "Reconciliation alerts",
+      "noAlerts": "No open alerts.",
+      "gapsCount": "{{count}} gaps"
+    },
+    "newConversationTitle": "New conversation",
+    "emptyState": {
+      "sessionEnded": "Previous session ended. Give the new conversation a purpose to start.",
+      "needPurpose": "Before starting, give this conversation with Jarvis a purpose."
+    },
+    "projectPicker": {
+      "label": "Project (optional)",
+      "none": "No specific project"
+    },
+    "purposePlaceholder": "E.g.: review the current sprint status",
+    "startSession": "Start session",
+    "purposeLabel": "Purpose: {{purpose}}",
+    "endingSession": "Ending...",
+    "endSession": "End session",
+    "emptyHistory": "Ask Jarvis something about your projects.",
+    "you": "You",
+    "jarvis": "Jarvis",
+    "declaredUnknown": "Jarvis indicated it doesn't have enough information.",
+    "typing": "typing...",
+    "inputPlaceholder": "Type your question for Jarvis...",
+    "send": "Send",
+    "noResponse": "(no response)",
+    "errors": {
+      "loadSession": "Could not load that conversation.",
+      "endSession": "Error ending the session.",
+      "sendMessage": "Error sending the message to Jarvis."
+    }
+  },
+  "analytics": {
+    "fullAnalytics": "Full analytics",
+    "close": "Close",
+    "rawEvents": {
+      "notAvailable": "no raw events available",
+      "loading": "Loading events...",
+      "noneFound": "No raw events found for this data point."
+    },
+    "metricTile": {
+      "hide": "hide events ▲",
+      "show": "view raw events ▼"
+    },
+    "dimensions": {
+      "eficiencia": "efficiency",
+      "acertividad": "accuracy",
+      "formato": "format",
+      "calidad": "quality"
+    },
+    "p0": {
+      "title": "P0 — The essentials: does it exist, is it used, does it find real misalignment?",
+      "outputsByType": "Outputs by type",
+      "noOutputs": "No outputs recorded yet.",
+      "usageCount": "Number of uses",
+      "agentInvocations": "Agent invocations (cumulative)",
+      "chatMessages": "Chat messages (cumulative)",
+      "reconciliationTitle": "Reconciliation — gaps found vs. closed",
+      "gapsFound": "Gaps found (cumulative)",
+      "gapsClosed": "Gaps closed since last run (cumulative)"
+    },
+    "p1": {
+      "title": "P1 — Value, not just activity",
+      "acceptanceRateNote": "Acceptance rate by output type and cost per output (tokens/USD) don't have a corresponding event in the backend yet — no number is shown here to avoid inventing one.",
+      "qualityOverTime": "Quality over time by agent (4 dimensions, HU-008)",
+      "noEvaluations": "No evaluations recorded yet.",
+      "evaluationsCount": "{{count}} evaluations",
+      "viewLatestEvaluation": "view most recent raw evaluation"
+    },
+    "p2": {
+      "title": "P2 — Context and trend",
+      "beforeAfterTitle": "Before vs. after (measured improvement changelog)",
+      "beforeAfterEmpty": "No changelog entry has a measured \"after\" yet — \"in progress\" is shown instead of an invented number.",
+      "weeklyTrendTitle": "Weekly output trend",
+      "noDataYet": "Not enough data yet.",
+      "byProjectTitle": "Reconciliation gap distribution by project",
+      "byProjectEmpty": "No reconciliation runs yet.",
+      "noDate": "no date"
+    },
+    "p3": {
+      "title": "P3 — The softer stuff",
+      "note": "Estimated time saved (approximate, never an exact measurement): the backend doesn't yet expose a baseline vs. real invocation time event to calculate it — it's omitted rather than showing an invented estimate."
+    },
+    "changelog": {
+      "title": "System improvement changelog",
+      "empty": "No improvement proposals yet.",
+      "reason": "Reason: {{reason}}",
+      "approving": "Approving...",
+      "approve": "Approve"
+    },
+    "dashboard": {
+      "noApiKey": "No App API Key configured.",
+      "showingDataFor": "Showing data for:",
+      "loadingMetrics": "Loading metrics...",
+      "projectStats": "Project statistics",
+      "gapsFoundProject": "Gaps found (this project)",
+      "gapsClosedProject": "Gaps closed (this project)",
+      "sprintTasks": "Sprint tasks",
+      "projectStatus": "Project status",
+      "workTime7d": "Work time (7 days)",
+      "sprintTasksError": "Sprint tasks: {{error}}",
+      "recentAgentsUsed": "Recently used agents",
+      "outputsCount": "# of outputs",
+      "noOutputsProject": "No outputs recorded yet for this project.",
+      "systemHealth": "System health",
+      "allProjects": "All projects",
+      "exploreAgentQuality": "Explore agent quality"
+    },
+    "projectStatus": {
+      "active": "In progress",
+      "paused": "Paused",
+      "done": "Done",
+      "archived": "Archived"
+    },
+    "outputTypes": {
+      "hu": "# HUs generated",
+      "spec": "Specs generated",
+      "plan": "Plan iterations",
+      "acta": "Minutes generated",
+      "evaluacion": "Evaluations",
+      "reconciliacion": "Reconciliations",
+      "qa_run": "QA runs",
+      "pull_request": "PRs per project"
+    },
+    "avatars": {
+      "noAgentsYet": "No agents invoked yet for this project.",
+      "noPhotoYet": "No real photo yet: {{agents}} — color placeholder in the meantime."
+    }
+  },
+  "lifecycle": {
+    "title": "Project lifecycle",
+    "subtitlePrefix": "What real phase each active project is in, at a glance — the same",
+    "subtitleSuffix": "that already updates every time a real agent is invoked.",
+    "loadingPhases": "Loading phases...",
+    "projectCount_one": "{{count}} project",
+    "projectCount_other": "{{count}} projects",
+    "noProjectsHere": "No projects here",
+    "startingStep": "starting"
+  },
+  "basecamp": {
+    "errors": {
+      "generic": "An error occurred while publishing to Basecamp.",
+      "sessionExpired": "The Basecamp session expired — reconnect the account from Auth Profiles.",
+      "rateLimit": "Basecamp is rate-limiting publications right now — it will retry automatically.",
+      "serverError": "Basecamp had a temporary issue — it will retry automatically.",
+      "rejectedPayload": "Basecamp rejected the publication — the category or Message Board may no longer exist."
+    },
+    "publishSettings": {
+      "loading": "Loading publish settings...",
+      "title": "Publish to Message Board",
+      "enabledLabel": "Publish automatically on sprint start/close",
+      "publishOnStart": "Publish on sprint start",
+      "publishOnClose": "Publish on sprint close",
+      "categoryIdLabel": "Category ID (optional)",
+      "categoryIdPlaceholder": "No category",
+      "notifyPeopleLabel": "People to notify (comma-separated IDs)",
+      "notifyPeoplePlaceholder": "123, 456",
+      "saving": "Saving...",
+      "save": "Save"
+    },
+    "publicationStatus": {
+      "loading": "Loading publication status...",
+      "title": "Basecamp publications",
+      "eventStart": "Start",
+      "eventClose": "Close",
+      "published": "Published",
+      "viewPost": "View post ↗",
+      "publishing": "Publishing…",
+      "failed": "Failed",
+      "retry": "Retry",
+      "retrying": "Retrying..."
+    }
+  }
+}

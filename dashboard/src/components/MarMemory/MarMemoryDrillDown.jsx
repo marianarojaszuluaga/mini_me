@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import DrillDown from "../CommandCenter/DrillDown.jsx";
 import ApiClient from "../../api-client.js";
 import { BrainIcon, AlertIcon } from "../icons.jsx";
@@ -21,7 +22,7 @@ const DEFAULT_TYPE = "understanding";
 // "el drill down de memoria [necesita] una estructura más organizada/agrupada"
 // (2026-08-19). Order is newest-first, entries within a day keep their
 // original (creation) order.
-function groupEntriesByDay(entries) {
+function groupEntriesByDay(entries, t, locale) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const yesterday = new Date(today);
@@ -32,13 +33,13 @@ function groupEntriesByDay(entries) {
     const created = entry.createdAt ? new Date(entry.createdAt) : null;
     let label;
     if (!created || Number.isNaN(created.getTime())) {
-      label = "Sin fecha";
+      label = t("marMemory.groups.noDate");
     } else {
       const day = new Date(created);
       day.setHours(0, 0, 0, 0);
-      if (day.getTime() === today.getTime()) label = "Hoy";
-      else if (day.getTime() === yesterday.getTime()) label = "Ayer";
-      else label = day.toLocaleDateString("es", { day: "numeric", month: "long", year: "numeric" });
+      if (day.getTime() === today.getTime()) label = t("marMemory.groups.today");
+      else if (day.getTime() === yesterday.getTime()) label = t("marMemory.groups.yesterday");
+      else label = day.toLocaleDateString(locale, { day: "numeric", month: "long", year: "numeric" });
     }
     if (!groups.has(label)) groups.set(label, []);
     groups.get(label).push(entry);
@@ -48,6 +49,7 @@ function groupEntriesByDay(entries) {
 
 // One entry: view mode by default, switches to an inline edit form on click.
 const MemoryEntryCard = ({ entry, onSave, onDelete }) => {
+  const { t } = useTranslation();
   const [editing, setEditing] = useState(false);
   const [content, setContent] = useState(entry.content);
   const [busy, setBusy] = useState(false);
@@ -83,10 +85,10 @@ const MemoryEntryCard = ({ entry, onSave, onDelete }) => {
         {error && <div className="mar-note mar-note-error">{AlertIcon} {error}</div>}
         <div className="mar-entry-actions">
           <button type="button" className="btn-cancel" onClick={() => setEditing(false)} disabled={busy}>
-            Cancelar
+            {t("marMemory.entry.cancel")}
           </button>
           <button type="button" className="btn-success" onClick={handleSave} disabled={busy || !content.trim()}>
-            {busy ? "Guardando..." : "Guardar"}
+            {busy ? t("marMemory.entry.saving") : t("marMemory.entry.save")}
           </button>
         </div>
       </div>
@@ -97,16 +99,16 @@ const MemoryEntryCard = ({ entry, onSave, onDelete }) => {
     <div className="mar-entry">
       <div className="mar-entry-content">{entry.content}</div>
       <div className="mar-entry-meta">
-        <span>{entry.source === "manual" ? "manual" : "desde chat"}</span>
+        <span>{entry.source === "manual" ? t("marMemory.entry.sourceManual") : t("marMemory.entry.sourceChat")}</span>
         <span>{entry.createdAt ? new Date(entry.createdAt).toLocaleString() : ""}</span>
       </div>
       {error && <div className="mar-note mar-note-error">{AlertIcon} {error}</div>}
       <div className="mar-entry-actions">
         <button type="button" className="btn-cancel" onClick={() => setEditing(true)} disabled={busy}>
-          Editar
+          {t("marMemory.entry.edit")}
         </button>
         <button type="button" className="btn-danger" onClick={handleDelete} disabled={busy}>
-          {busy ? "Borrando..." : "Borrar"}
+          {busy ? t("marMemory.entry.deleting") : t("marMemory.entry.delete")}
         </button>
       </div>
     </div>
@@ -114,6 +116,7 @@ const MemoryEntryCard = ({ entry, onSave, onDelete }) => {
 };
 
 const NewEntryForm = ({ onCreate }) => {
+  const { t } = useTranslation();
   const [content, setContent] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -134,9 +137,9 @@ const NewEntryForm = ({ onCreate }) => {
 
   return (
     <form className="mar-new-entry" onSubmit={handleSubmit}>
-      <h3 className="mar-subtitle">Agregar entrada manual</h3>
+      <h3 className="mar-subtitle">{t("marMemory.newEntry.title")}</h3>
       <textarea
-        placeholder="Contenido de la entrada"
+        placeholder={t("marMemory.newEntry.placeholder")}
         value={content}
         onChange={(e) => setContent(e.target.value)}
         rows={3}
@@ -144,20 +147,21 @@ const NewEntryForm = ({ onCreate }) => {
       />
       {error && <div className="mar-note mar-note-error">{AlertIcon} {error}</div>}
       <button type="submit" className="btn-primary" disabled={busy || !content.trim()}>
-        {busy ? "Agregando..." : "+ Agregar"}
+        {busy ? t("marMemory.newEntry.adding") : t("marMemory.newEntry.add")}
       </button>
     </form>
   );
 };
 
 function MarMemoryBody({ api }) {
+  const { t, i18n } = useTranslation();
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const load = useCallback(async () => {
     if (!api) {
-      setError("No hay App API Key configurada.");
+      setError(t("marMemory.noApiKey"));
       return;
     }
     setLoading(true);
@@ -169,7 +173,7 @@ function MarMemoryBody({ api }) {
       setError(err.message);
     }
     setLoading(false);
-  }, [api]);
+  }, [api, t]);
 
   useEffect(() => {
     load();
@@ -196,20 +200,23 @@ function MarMemoryBody({ api }) {
   return (
     <>
       <div className="mar-backup-badge">
-        Respaldado automáticamente en Obsidian — carpeta{" "}
-        <code>Orquestrador 360 - Memoria de la App</code>, cada 3h
+        {t("marMemory.backupBadge.prefix")}{" "}
+        <code>{t("marMemory.backupBadge.folder")}</code>
+        {t("marMemory.backupBadge.suffix")}
       </div>
 
-      {loading && <div className="mar-note">Cargando memoria...</div>}
+      {loading && <div className="mar-note">{t("marMemory.loading")}</div>}
       {error && <div className="mar-note mar-note-error">{AlertIcon} {error}</div>}
 
       {!loading && !error && (
         <>
           {entries.length === 0 ? (
-            <div className="mar-note">Sin entradas todavía.</div>
+            <div className="mar-note">{t("marMemory.empty")}</div>
           ) : (
             groupEntriesByDay(
-              [...entries].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+              [...entries].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)),
+              t,
+              i18n.language
             ).map(([label, groupEntries]) => (
               <section key={label} className="mar-group">
                 <h3 className="mar-group-title">{label}</h3>
@@ -231,6 +238,7 @@ function MarMemoryBody({ api }) {
 }
 
 export default function MarMemoryDrillDown({ open, onClose, api: apiProp, fullPage = false }) {
+  const { t } = useTranslation();
   const api = apiProp || defaultApi();
 
   if (fullPage) {
@@ -242,14 +250,14 @@ export default function MarMemoryDrillDown({ open, onClose, api: apiProp, fullPa
   }
 
   return (
-    <DrillDown open={open} onClose={onClose} label="Memoria de Mar">
+    <DrillDown open={open} onClose={onClose} label={t("marMemory.title")}>
       <div className="mar-drilldown">
         <div className="mar-header">
           <h1>
-            <span className="mar-header-icon">{BrainIcon}</span> Memoria de Mar
+            <span className="mar-header-icon">{BrainIcon}</span> {t("marMemory.title")}
           </h1>
           <button type="button" className="btn-cancel" onClick={onClose}>
-            Cerrar
+            {t("marMemory.close")}
           </button>
         </div>
         {open && <MarMemoryBody api={api} />}

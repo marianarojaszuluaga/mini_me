@@ -1,7 +1,29 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import SettingsModal from "../Settings/SettingsModal.jsx";
 import { BrandIcon } from "../icons.jsx";
 import "./sidebar.css";
+
+// Selector de idioma simple ES/EN (2026-09-09) — cambia i18next, que persiste
+// en localStorage vía i18next-browser-languagedetector.
+function LanguageSwitch() {
+  const { i18n, t } = useTranslation();
+  const current = i18n.resolvedLanguage?.startsWith("en") ? "en" : "es";
+  return (
+    <div className="sidebar-lang-switch" aria-label={t("sidebar.language")}>
+      {["es", "en"].map((lng) => (
+        <button
+          key={lng}
+          className={`sidebar-lang-option ${current === lng ? "active" : ""}`}
+          onClick={() => i18n.changeLanguage(lng)}
+          type="button"
+        >
+          {lng.toUpperCase()}
+        </button>
+      ))}
+    </div>
+  );
+}
 
 const ICONS = {
   chat: (
@@ -99,30 +121,31 @@ function useLiveStatus(api) {
 export default function Sidebar({ activeView, onNavigate, onOpenIntegrations, api, projectCount }) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const status = useLiveStatus(api);
+  const { t } = useTranslation();
 
   return (
     <aside className="sidebar">
       <div className="sidebar-brand">
         <div className="sidebar-brand-mark">{BrandIcon}</div>
         <div>
-          <div className="sidebar-brand-name">Mar en internet</div>
-          <div className="sidebar-brand-sub">Mini me with her smarts and AI</div>
+          <div className="sidebar-brand-name">{t("sidebar.brandName")}</div>
+          <div className="sidebar-brand-sub">{t("sidebar.brandSub")}</div>
         </div>
       </div>
 
       <button className="btn-accent sidebar-cta" onClick={() => onNavigate("chat")}>
         {ICONS.chat}
-        Hablar con Jarvis
+        {t("sidebar.talkToJarvis")}
       </button>
 
       <nav className="sidebar-nav">
-        <div className="sidebar-nav-label">Trabajo</div>
+        <div className="sidebar-nav-label">{t("sidebar.work")}</div>
         <button
           className={`sidebar-nav-item ${activeView === "projects" ? "active" : ""}`}
           onClick={() => onNavigate("projects")}
         >
           {ICONS.projects}
-          Proyectos
+          {t("sidebar.projects")}
           {typeof projectCount === "number" && <span className="sidebar-nav-item-count">{projectCount}</span>}
         </button>
         <button
@@ -135,17 +158,17 @@ export default function Sidebar({ activeView, onNavigate, onOpenIntegrations, ap
       </nav>
 
       <nav className="sidebar-nav">
-        <div className="sidebar-nav-label">Analítica &amp; integraciones</div>
+        <div className="sidebar-nav-label">{t("sidebar.analytics")}</div>
         <button
           className={`sidebar-nav-item ${activeView === "dashboard" ? "active" : ""}`}
           onClick={() => onNavigate("dashboard")}
         >
           {ICONS.dashboard}
-          Dashboard
+          {t("sidebar.dashboard")}
         </button>
         <button className="sidebar-nav-item" onClick={onOpenIntegrations}>
           {ICONS.integrations}
-          Integraciones
+          {t("sidebar.integrations")}
         </button>
       </nav>
 
@@ -157,18 +180,19 @@ export default function Sidebar({ activeView, onNavigate, onOpenIntegrations, ap
           onClick={() => onNavigate("mar")}
         >
           {ICONS.mar}
-          Memoria de Mar
+          {t("sidebar.marMemory")}
         </button>
       </div>
 
       <div className="sidebar-footer">
+        <LanguageSwitch />
         <div className="sidebar-status-row">
           <span className={`sidebar-status-dot sidebar-status-dot-${status.state}`} />
           <span className="sidebar-status-text">{status.label}</span>
         </div>
         <button className="sidebar-settings-row" onClick={() => setSettingsOpen(true)}>
           {ICONS.settings}
-          Configuración
+          {t("sidebar.settings")}
         </button>
       </div>
 

@@ -1213,3 +1213,46 @@ aprender de ahí e integrarlo a la Capa 2/3 de QA de este sistema (§16, Tarea 3
 directamente (0 findings bloqueantes → APPROVED; 1 → NOT_APPROVED); endpoint de signoff probado
 contra un sweep inexistente → 404 real; corrida completa de `qa-sweep?scope=project` contra
 Finanz Butik disparada end-to-end.
+
+---
+
+## 18. Multi-usuario e Internacionalización (2026-09-09)
+
+Resumen de las decisiones tomadas para pasar de monousuario (API keys compartidas,
+`APP_API_KEYS`, sin roles ni aislamiento de datos) a multi-usuario real, y para
+introducir i18n en el dashboard. Detalle completo en `PLAN-i18n-multiusuario.md`.
+
+- **Modelo de Usuario propio**: nuevo schema `User` (`app/schemas/user.py`) — id, email,
+  `password_hash` opcional (bcrypt), `google_id` opcional, name, role, created_at.
+  Persistido en `storage/users.json` (filesystem dev) / Redis (prod), mismo patrón que
+  `projects.json`.
+- **Autenticación**: `app/services/auth_service.py` + `app/routers/auth.py` —
+  `POST /auth/register` (email+password), `POST /auth/login` (email+password),
+  `POST /auth/google` (verifica el `id_token` de Google Identity Services), `GET /auth/me`.
+  Cualquiera de los dos métodos emite el mismo JWT propio de la app (HS256, `JWT_SECRET`,
+  7 días de expiración) — el frontend solo maneja ese JWT, no distingue cómo se obtuvo.
+- **Convivencia con `APP_API_KEYS`**: las rutas de proyectos/repositorios ahora aceptan
+  **o bien** una API key compartida (`authenticate_api_key_or_user` en `app/core/security.py`,
+  llamadas server-to-server) **o bien** un JWT de usuario válido — no se rompió el modo
+  API-key existente. `get_current_user`/`get_current_user_optional` extraen el usuario real
+  del JWT cuando está presente.
+- **Ownership de proyectos**: `Project.owner_user_id` (nuevo, opcional) — `GET/POST /projects`
+  filtran por el usuario autenticado cuando hay un JWT de usuario; sin JWT (solo API key) se
+  mantiene el comportamiento actual (ver todo), para no romper llamadas server-to-server
+  existentes. **Alcance de hoy: un solo owner por proyecto.** Roles/equipos compartidos
+  (varios usuarios dueños de un mismo proyecto) queda como TODO documentado para una fase
+  futura — no implementado en este pase.
+- **Auth Profiles con dueño**: `AuthProfile.user_id` (nuevo, opcional) — `GET/POST
+  /auth-profiles` filtran igual que los proyectos.
+- **Migración de datos existentes**: los proyectos y auth-profiles ya existentes de Mariana
+  quedan con `owner_user_id`/`user_id` en `None` hasta correr el seed de migración (crea su
+  usuario real y backfillea sus registros) — ver sección de migración en el PLAN. Mientras no
+  se corra el seed, esos registros solo son visibles vía API key (no aparecen en la vista
+  filtrada de ningún usuario), que es el comportamiento seguro por defecto.
+- **i18n del dashboard**: i18next + react-i18next, locales iniciales `es-ES` (default) y
+  `en-US`, estructura de namespaces en `dashboard/src/i18n/`. Primeras strings migradas:
+  Sidebar, ProjectsView, AppShell (landing incluida).
+- **Landing page nueva**: hero "Mini me" — "Everything in one place. Orquestrador for
+  Strategic Operations with Jarvis Mode." — con selector de idioma, sección de
+  features/integraciones reales (GitHub/Bitbucket/Basecamp/Google, agentes, chat Jarvis, QA)
+  y acceso con email+password o Google, redirigiendo al AppShell existente tras login.
