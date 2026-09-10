@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Sidebar from "./Sidebar/Sidebar.jsx";
 import ChatPanel from "./CommandCenter/ChatPanel.jsx";
 import ProjectsView from "./Projects/ProjectsView.jsx";
+import LifecycleView from "./Lifecycle/LifecycleView.jsx";
 import AnalyticsDrillDown from "./Analytics/AnalyticsDrillDown.jsx";
 import MarMemoryDrillDown from "./MarMemory/MarMemoryDrillDown.jsx";
 import IntegrationsDrillDown from "./Integrations/IntegrationsDrillDown.jsx";
@@ -18,6 +19,9 @@ export default function AppShell({ api, agents, phases }) {
   const [view, setView] = useState("chat");
   const [integrationsOpen, setIntegrationsOpen] = useState(false);
   const [projects, setProjects] = useState([]);
+  // Deep-link real: clickear un proyecto en "Ciclo de vida" navega a
+  // Proyectos con ese proyecto ya abierto.
+  const [lifecycleOpenProjectId, setLifecycleOpenProjectId] = useState(null);
 
   // Dashboard needs the project list for its scope selector; fetched once
   // here (not by AnalyticsDrillDown itself) so Proyectos and Dashboard share
@@ -38,7 +42,25 @@ export default function AppShell({ api, agents, phases }) {
 
       <main className="app-shell-main">
         {view === "chat" && <ChatPanel api={api} projects={projects} />}
-        {view === "projects" && <ProjectsView api={api} agents={agents} phases={phases} />}
+        {view === "projects" && (
+          <ProjectsView
+            api={api}
+            agents={agents}
+            phases={phases}
+            initialProjectId={lifecycleOpenProjectId}
+            onInitialProjectConsumed={() => setLifecycleOpenProjectId(null)}
+          />
+        )}
+        {view === "lifecycle" && (
+          <LifecycleView
+            projects={projects.filter((p) => p.status !== "archived")}
+            phases={phases}
+            onOpenProject={(project) => {
+              setLifecycleOpenProjectId(project.id);
+              setView("projects");
+            }}
+          />
+        )}
         {view === "dashboard" && (
           <div className="app-shell-page">
             <AnalyticsDrillDown api={api} fullPage projects={projects.filter((p) => p.status !== "archived")} />

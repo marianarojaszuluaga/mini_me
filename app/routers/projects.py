@@ -20,9 +20,18 @@ from app.core.config import Settings, get_settings
 from app.core.security import authenticate_token
 from app.core.storage import get_storage
 from app.schemas.auth_profile import AuthProfile
-from app.schemas.project import ProjectCreateRequest
+from app.schemas.project import BasecampMirror, ProjectCreateRequest
 from app.services import agent_registry
-from app.services.basecamp_client import BasecampError, get_active_sprint
+from app.services.basecamp_client import (
+    BasecampError,
+    get_active_sprint,
+    get_card_table_snapshot,
+    list_basecamp_projects,
+    list_card_tables,
+    list_categories,
+)
+from app.schemas.basecamp_publication import BasecampPublication
+from app.services.basecamp_publisher import _PUBLICATIONS_SERIES, _rebuild_payload, retry_publication
 
 router = APIRouter(dependencies=[Depends(authenticate_token)])
 
@@ -175,6 +184,144 @@ async def unlink_basecamp_project(project_id: str) -> dict[str, Any]:
     return project
 
 
+def _get_basecamp_auth_profile(storage: Any, account_id: str) -> AuthProfile:
+    """Shared lookup — same real matching rule already used by
+    get_project_sprint: a Basecamp Auth Profile scoped to this exact
+    account_id, never fabricated."""
+    profiles = storage.read_auth_profiles()
+    profile_dict = next(
+        (
+            p
+            for p in profiles
+            if p.get("provider") == "basecamp" and p.get("scope") == f"account_id:{account_id}"
+        ),
+        None,
+    )
+    if not profile_dict:
+        raise HTTPException(
+            status_code=501,
+            detail=f"No hay un Auth Profile de Basecamp conectado para la cuenta {account_id}.",
+        )
+    return AuthProfile(**profile_dict)
+
+
+@router.get("/auth-profiles/{profile_id}/basecamp-projects")
+async def list_basecamp_projects_for_profile(profile_id: str) -> list[dict[str, Any]]:
+    """Real Basecamp projects for this Auth Profile's account — Tarea 2 Gap 3
+    (2026-08-21): lets "Vincular Basecamp" show a real picker instead of
+    account_id/project_id typed by hand."""
+    storage = get_storage()
+    profiles = storage.read_auth_profiles()
+    profile_dict = next((p for p in profiles if p.get("id") == profile_id), None)
+    if not profile_dict:
+        raise HTTPException(status_code=404, detail="Auth profile not found")
+    if profile_dict.get("provider") != "basecamp":
+        raise HTTPException(status_code=400, detail="Este Auth Profile no es de Basecamp.")
+
+    scope = profile_dict.get("scope") or ""
+    if not scope.startswith("account_id:"):
+        raise HTTPException(status_code=400, detail="Este Auth Profile no tiene un account_id real en su scope.")
+    account_id = scope.split(":", 1)[1]
+
+    auth_profile = AuthProfile(**profile_dict)
+    try:
+        return await list_basecamp_projects(auth_profile, account_id)
+    except BasecampError as error:
+        raise HTTPException(status_code=502, detail=str(error)) from error
+
+
+@router.get("/projects/{project_id}/basecamp-card-tables")
+async def list_project_card_tables(project_id: str) -> list[dict[str, Any]]:
+    """Real Card Tables of the linked Basecamp project — Tarea 2 Gap 3
+    corrección: nunca el todolist, siempre Card Tables reales listadas para
+    que la usuaria elija una o varias."""
+    storage = get_storage()
+    projects = storage.read_projects()
+    project = next((p for p in projects if p.get("id") == project_id), None)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    basecamp = project.get("basecamp")
+    if not basecamp:
+        raise HTTPException(status_code=501, detail="Este proyecto no tiene un proyecto de Basecamp vinculado.")
+
+    account_id = str(basecamp["account_id"])
+    auth_profile = _get_basecamp_auth_profile(storage, account_id)
+    try:
+        return await list_card_tables(auth_profile, account_id, str(basecamp["project_id"]))
+    except BasecampError as error:
+        raise HTTPException(status_code=502, detail=str(error)) from error
+
+
+@router.put("/projects/{project_id}/basecamp-card-tables")
+async def set_project_card_tables(project_id: str, body: dict[str, Any] = Body(...)) -> dict[str, Any]:
+    """Saves which Card Table(s) the usuaria elegió as the real sprint
+    source — never assumed automatically."""
+    card_table_ids = body.get("cardTableIds")
+    if not isinstance(card_table_ids, list):
+        raise HTTPException(status_code=400, detail="cardTableIds (list) is required")
+
+    storage = get_storage()
+    projects = storage.read_projects()
+    project = next((p for p in projects if p.get("id") == project_id), None)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    if not project.get("basecamp"):
+        raise HTTPException(status_code=501, detail="Este proyecto no tiene un proyecto de Basecamp vinculado.")
+
+    project["basecamp"]["selectedCardTableIds"] = [str(i) for i in card_table_ids]
+    storage.write_projects(projects)
+    return project
+
+
+@router.get("/projects/{project_id}/basecamp-mirror")
+async def get_project_basecamp_mirror(project_id: str) -> dict[str, Any]:
+    """Real espejo del proyecto de Basecamp (Tarea 2 Gap 3) — nombre/
+    descripción + columnas/cards reales de las Card Tables elegidas.
+    501 explícito si falta el link, el Auth Profile, o no se eligió ninguna
+    Card Table todavía — nunca inventa un espejo vacío como si fuera real."""
+    storage = get_storage()
+    projects = storage.read_projects()
+    project = next((p for p in projects if p.get("id") == project_id), None)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    basecamp = project.get("basecamp")
+    if not basecamp:
+        raise HTTPException(status_code=501, detail="Este proyecto no tiene un proyecto de Basecamp vinculado.")
+
+    account_id = str(basecamp["account_id"])
+    real_project_id = str(basecamp["project_id"])
+    selected_ids = basecamp.get("selectedCardTableIds") or []
+    if not selected_ids:
+        raise HTTPException(
+            status_code=501,
+            detail="Este proyecto no tiene ninguna Card Table elegida como fuente de sprint todavía.",
+        )
+
+    auth_profile = _get_basecamp_auth_profile(storage, account_id)
+    try:
+        bc_projects = await list_basecamp_projects(auth_profile, account_id)
+        bc_project = next((p for p in bc_projects if p["id"] == real_project_id), None)
+        card_tables = [
+            await get_card_table_snapshot(auth_profile, account_id, real_project_id, card_table_id)
+            for card_table_id in selected_ids
+        ]
+    except BasecampError as error:
+        raise HTTPException(status_code=502, detail=str(error)) from error
+
+    mirror = BasecampMirror(
+        name=bc_project.get("name") if bc_project else None,
+        description=bc_project.get("description") if bc_project else None,
+        cardTables=card_tables,
+        lastSyncAt=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+    )
+
+    project.setdefault("memory", {})["basecampMirror"] = mirror.model_dump(mode="json")
+    storage.write_projects(projects)
+    return mirror.model_dump(mode="json")
+
+
 @router.get("/projects/{project_id}/sprint")
 async def get_project_sprint(project_id: str) -> dict[str, Any]:
     """Real sprint (active Basecamp to-do list) for a linked project — Fase E
@@ -214,6 +361,139 @@ async def get_project_sprint(project_id: str) -> dict[str, Any]:
         raise HTTPException(status_code=502, detail=str(error)) from error
 
     return sprint
+
+
+_DEFAULT_PUBLISH_CONFIG = {
+    "enabled": False,
+    "publish_on_start": True,
+    "publish_on_close": True,
+    "category_id": None,
+    "notify_person_ids": [],
+}
+
+
+@router.get("/projects/{project_id}/basecamp-publish")
+async def get_basecamp_publish_config(project_id: str) -> dict[str, Any]:
+    storage = get_storage()
+    projects = storage.read_projects()
+    project = next((p for p in projects if p.get("id") == project_id), None)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    config = (project.get("basecamp") or {}).get("publish") or {}
+    return {**_DEFAULT_PUBLISH_CONFIG, **config}
+
+
+@router.put("/projects/{project_id}/basecamp-publish")
+async def set_basecamp_publish_config(project_id: str, body: dict[str, Any] = Body(...)) -> dict[str, Any]:
+    """HU-043 E-1 — valida `category_id` contra las categorías reales del
+    Message Board antes de guardar; un id inventado/de otro proyecto nunca
+    se persiste en silencio."""
+    storage = get_storage()
+    projects = storage.read_projects()
+    project = next((p for p in projects if p.get("id") == project_id), None)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    basecamp = project.get("basecamp")
+    if not basecamp:
+        raise HTTPException(status_code=501, detail="Este proyecto no tiene un proyecto de Basecamp vinculado.")
+
+    category_id = body.get("category_id")
+    if category_id is not None:
+        account_id = str(basecamp["account_id"])
+        auth_profile = _get_basecamp_auth_profile(storage, account_id)
+        try:
+            categories = await list_categories(auth_profile, account_id, str(basecamp["project_id"]))
+        except BasecampError as error:
+            raise HTTPException(status_code=502, detail=str(error)) from error
+        if not any(c["id"] == str(category_id) for c in categories):
+            raise HTTPException(
+                status_code=400,
+                detail=f"category_id {category_id} no existe en las categorías reales de este Message Board.",
+            )
+
+    config = {**_DEFAULT_PUBLISH_CONFIG, **(basecamp.get("publish") or {}), **body}
+    basecamp["publish"] = config
+    storage.write_projects(projects)
+    return config
+
+
+@router.get("/projects/{project_id}/sprints/{sprint_id}/publications")
+async def list_sprint_publications(project_id: str, sprint_id: str) -> list[dict[str, Any]]:
+    """§4a — "sprint_id" acá ES el id de la Card Table ya seleccionada
+    (Project.basecamp.selectedCardTableIds), no un dominio de Sprint propio
+    (no existe todavía en este stack). Se anexa a projects.py en vez de un
+    router de sprints separado porque no hay nada más que un Sprint pudiera
+    exponer en este stack.
+
+    Dispara el reintento perezoso (plan §1.1 Opción A, sin cola/cron): cada
+    publicación `pending` de este sprint cuyo backoff ya elapsó se reintenta
+    acá mismo antes de responder — este endpoint es el que la UI poll-ea."""
+    storage = get_storage()
+    projects = storage.read_projects()
+    project = next((p for p in projects if p.get("id") == project_id), None)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    basecamp = project.get("basecamp") or {}
+    account_id = basecamp.get("account_id")
+    auth_profile = _get_basecamp_auth_profile(storage, str(account_id)) if account_id else None
+
+    rows = storage.read_series(_PUBLICATIONS_SERIES)
+    result: list[dict[str, Any]] = []
+    for row in rows:
+        if row.get("sprint_id") != sprint_id:
+            continue
+        if row.get("status") == "pending" and auth_profile is not None:
+            payload = _rebuild_payload(row, project)
+            if payload is not None:
+                try:
+                    publication = await retry_publication(row["id"], auth_profile, project, payload)
+                    result.append(publication.model_dump(mode="json"))
+                    continue
+                except BasecampError:
+                    pass  # el reintento perezoso no puede tumbar el GET — se devuelve el estado tal cual
+        result.append(row)
+    return result
+
+
+@router.post("/publications/{publication_id}/retry")
+async def retry_basecamp_publication(publication_id: str) -> dict[str, Any]:
+    """HU-045 CA-6 — idempotente: si ya está `sent`, 200 sin reintentar
+    (retry_publication ya es no-op en ese caso, así que solo hace falta
+    resolver auth_profile/project reales para el caso que sí reintenta)."""
+    storage = get_storage()
+    rows = storage.read_series(_PUBLICATIONS_SERIES)
+    row = next((r for r in rows if r.get("id") == publication_id), None)
+    if row is None:
+        raise HTTPException(status_code=404, detail="Publication not found")
+
+    if row.get("status") == "sent":
+        return row
+
+    projects = storage.read_projects()
+    project = next((p for p in projects if p.get("id") == row.get("project_id")), None)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    basecamp = project.get("basecamp") or {}
+    account_id = basecamp.get("account_id")
+    if not account_id:
+        raise HTTPException(status_code=501, detail="Este proyecto no tiene un proyecto de Basecamp vinculado.")
+    auth_profile = _get_basecamp_auth_profile(storage, str(account_id))
+
+    payload = _rebuild_payload(row, project)
+    if payload is None:
+        raise HTTPException(
+            status_code=501, detail="Este proyecto no tiene memoria de sprint suficiente para reintentar."
+        )
+
+    try:
+        publication = await retry_publication(publication_id, auth_profile, project, payload)
+    except BasecampError as error:
+        raise HTTPException(status_code=502, detail=str(error)) from error
+    return publication.model_dump(mode="json")
 
 
 async def _ingest_event(

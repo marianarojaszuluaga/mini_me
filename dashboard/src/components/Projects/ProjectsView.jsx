@@ -91,7 +91,7 @@ function NewProjectModal({ open, onClose, onCreate }) {
 
 const SEMAPHORE_LABEL = { "on-track": "En curso", attention: "Atención", blocked: "Bloqueado" };
 
-export default function ProjectsView({ api, agents, phases }) {
+export default function ProjectsView({ api, agents, phases, initialProjectId, onInitialProjectConsumed }) {
   const [projects, setProjects] = useState([]);
   const [gapsByProject, setGapsByProject] = useState({});
   const [loading, setLoading] = useState(true);
@@ -126,6 +126,17 @@ export default function ProjectsView({ api, agents, phases }) {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Deep-link real desde la vista global "Ciclo de vida" (2026-08-24): abre
+  // directo el proyecto que se clickeó ahí, en vez de forzar un segundo
+  // click acá.
+  useEffect(() => {
+    if (!initialProjectId) return;
+    api
+      .getProject(initialProjectId)
+      .then(setSelectedProject)
+      .finally(() => onInitialProjectConsumed?.());
+  }, [api, initialProjectId, onInitialProjectConsumed]);
 
   const handleCreate = async (data) => {
     await api.createProject(data);

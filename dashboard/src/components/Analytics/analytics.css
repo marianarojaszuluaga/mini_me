@@ -235,6 +235,45 @@
   border-radius: 4px;
 }
 
+.dim-legend {
+  display: grid;
+  gap: var(--space-2x, 8px);
+  margin: 0 0 var(--space-4x, 16px);
+  padding: var(--space-3x, 12px);
+  background: hsl(var(--ds-background-100));
+  border-radius: var(--radius-material-medium);
+  box-shadow: var(--shadow-border-base);
+}
+
+.dim-legend-row {
+  display: flex;
+  gap: var(--space-3x, 12px);
+  align-items: baseline;
+  font-size: 12px;
+}
+
+.dim-legend-row dt {
+  flex: 0 0 90px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  text-transform: capitalize;
+  color: hsl(var(--ds-gray-1000));
+}
+
+.dim-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dim-legend-row dd {
+  margin: 0;
+  color: hsl(var(--ds-gray-700));
+}
+
 .agent-quality-card {
   background: hsl(var(--ds-background-100));
   border-radius: var(--radius-material-medium);
@@ -256,6 +295,59 @@
   align-items: center;
   gap: var(--space-2x);
   font-size: 12px;
+}
+
+/* Tarea 4 (2026-08-21): sparkline por corrida + toggle global/proyecto. */
+.dim-sparkline {
+  width: 44px;
+  height: 16px;
+  flex: 0 0 auto;
+}
+
+.p1-scope-toggle {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.p1-scope-toggle button {
+  font-size: 11px;
+  padding: 5px 10px;
+  border-radius: 100px;
+  border: 1px solid hsl(var(--ds-gray-300));
+  background: hsl(var(--ds-background-100));
+  color: hsl(var(--ds-gray-700));
+  cursor: pointer;
+}
+.p1-scope-toggle button.active {
+  background: hsl(var(--accent));
+  color: hsl(var(--accent-ink, 0 0% 100%));
+  border-color: transparent;
+}
+.p1-scope-toggle button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.agent-quality-runs {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+  padding: 8px;
+  background: hsl(var(--ds-background-100));
+  border-radius: 8px;
+}
+.agent-quality-run-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+}
+.agent-quality-run-score {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  width: 28px;
+  text-align: right;
 }
 
 .agent-quality-dim-label {

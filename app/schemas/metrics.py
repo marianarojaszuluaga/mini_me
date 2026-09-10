@@ -55,6 +55,10 @@ class AgentEvaluation(BaseModel):
         default=1,
         description="Number of invocations this record aggregates (1 for a raw per-invocation record).",
     )
+    # Optional so historical rows without it keep validating (Mariana,
+    # 2026-08-21: "debe quedar visible también a nivel proyecto") — None means
+    # a pre-project-scoping row, never fabricated.
+    project_id: str | None = None
 
 
 class ReconciliationRun(BaseModel):
@@ -82,6 +86,16 @@ class UsageEvent(BaseModel):
     date: datetime = Field(default_factory=_utcnow)
     chat_messages: int = Field(default=0, ge=0)
     agent_invocations: int = Field(default=0, ge=0)
+    # Real token counts (Mariana, 2026-08-20: "uso hoy debe tener fuente
+    # real") — summed from each real Anthropic call's response.usage, never
+    # estimated. This is what makes the Dashboard/status-rail's "Uso hoy"
+    # tile a real number instead of a permanent "—".
+    input_tokens: int = Field(default=0, ge=0)
+    output_tokens: int = Field(default=0, ge=0)
+    # Optional — None means global/system-wide (the original behavior);
+    # set means this row is scoped to one project. Both coexist in the same
+    # series (Mariana, 2026-08-21: "debe ser global Y por proyecto").
+    project_id: str | None = None
 
 
 class OutputCount(BaseModel):

@@ -582,6 +582,58 @@
   box-shadow: var(--shadow-border);
 }
 
+/* Tarea 1 (2026-08-21): Fase 2/3 en paralelo, no una fila lineal más. */
+.phases-parallel-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+@media (max-width: 720px) {
+  .phases-parallel-row { grid-template-columns: 1fr; }
+}
+.phases-parallel-row .phase-nav-item {
+  flex-direction: column;
+}
+
+.agent-tag-invokable {
+  gap: 4px;
+  cursor: default;
+  position: relative;
+}
+.agent-tag-invoke {
+  background: none;
+  border: none;
+  padding: 0 2px;
+  margin-left: 2px;
+  font-size: 10px;
+  color: hsl(var(--accent));
+  cursor: pointer;
+}
+.agent-tag-invoke:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.agent-tag-result {
+  display: block;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: hsl(var(--surface));
+  box-shadow: var(--shadow-modal, var(--shadow-border));
+  font-size: 10.5px;
+  font-family: var(--font-sans-small);
+  color: hsl(var(--text-2));
+  white-space: normal;
+  width: 220px;
+  z-index: 5;
+}
+.agent-tag-result-error {
+  color: hsl(var(--red));
+}
+
 .pd-subsection {
   margin-bottom: var(--space-6x);
 }
@@ -692,6 +744,77 @@
 .recon-ac-reason {
   font-style: italic;
   color: hsl(var(--ds-gray-700));
+}
+
+/* Tarea 2 Gap 3 (2026-08-21) — espejo real de Card Tables de Basecamp. */
+.basecamp-mirror-card {
+  background: hsl(var(--surface));
+  box-shadow: var(--shadow-border);
+  border-radius: 10px;
+  padding: var(--space-4x);
+}
+.basecamp-mirror-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+.basecamp-card-table {
+  margin-top: 10px;
+}
+.basecamp-card-table-name {
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+.basecamp-card-table-columns {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+}
+.basecamp-card-table-column {
+  flex: 0 0 160px;
+  background: hsl(var(--bg-2));
+  border-radius: 8px;
+  padding: 8px;
+}
+.basecamp-column-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: hsl(var(--text-2));
+  margin-bottom: 6px;
+}
+.basecamp-card {
+  background: hsl(var(--surface));
+  border-radius: 6px;
+  padding: 6px 8px;
+  margin-bottom: 4px;
+  font-size: 11.5px;
+  box-shadow: var(--shadow-border);
+}
+.basecamp-card-table-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.basecamp-card-table-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.recon-help-text {
+  margin-top: var(--space-2x);
+  padding: 8px 10px;
+  border-radius: var(--radius-material-small);
+  background: hsl(var(--amber-soft));
+  color: hsl(var(--amber));
+  font-size: 12px;
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
 }
 
 /* Reconciliation / repo status pills — color mapping decided in

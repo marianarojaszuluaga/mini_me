@@ -61,10 +61,15 @@ async def record_evaluation(
     eficiencia: float,
     acertividad: float,
     formato: float,
+    project_id: str | None = None,
 ) -> AgentEvaluation:
     """Appends one AgentEvaluation record — a raw, per-invocation data point.
     HU-009's changelog threshold (2 consecutive low-quality invocations,
-    SPEC_JARVIS.md §10) is computed by reading this series, not here."""
+    SPEC_JARVIS.md §10) is computed by reading this series, not here.
+
+    `project_id` is optional (Mariana, 2026-08-21: "debe quedar visible
+    también a nivel proyecto") — None for invocations with no project
+    context, never fabricated."""
     evaluation = AgentEvaluation(
         agent=agent_name,
         eficiencia=eficiencia,
@@ -72,6 +77,7 @@ async def record_evaluation(
         formato=formato,
         calidad=calidad,
         count=1,
+        project_id=project_id,
     )
     storage = get_storage()
     storage.append_series(_AGENT_EVAL_SERIES, evaluation.model_dump(mode="json"))
@@ -134,41 +140,104 @@ async def record_output(
     return record
 
 
-async def record_usage_event(chat_message: bool = False, agent_invocation: bool = False) -> UsageEvent:
-    """Increments today's usage rollup. Called once per chat turn
-    (chat_message=True) and once per agent invocation triggered from that
-    turn or from 'Invocar Agente' manual (agent_invocation=True) — a single
-    call may set both to True."""
-    storage = get_storage()
-    today = _today_iso()
-    events = storage.read_series(_USAGE_SERIES)
-
+def _upsert_usage_row(
+    events: list[dict],
+    today: str,
+    project_id: str | None,
+    chat_message: bool,
+    agent_invocation: bool,
+    input_tokens: int,
+    output_tokens: int,
+) -> UsageEvent:
+    """Finds-or-creates today's row scoped to `project_id` (None = the
+    global, system-wide row) and accumulates into it in place."""
     for row in events:
-        if row.get("date", "").startswith(today):
+        if row.get("date", "").startswith(today) and row.get("project_id") == project_id:
             if chat_message:
                 row["chat_messages"] = row.get("chat_messages", 0) + 1
             if agent_invocation:
                 row["agent_invocations"] = row.get("agent_invocations", 0) + 1
-            storage.write_series(_USAGE_SERIES, events)
-            _record_raw_event(
-                "usage_event",
-                None,
-                {"chat_message": chat_message, "agent_invocation": agent_invocation, "date": today},
-            )
+            row["input_tokens"] = row.get("input_tokens", 0) + input_tokens
+            row["output_tokens"] = row.get("output_tokens", 0) + output_tokens
             return UsageEvent(**row)
 
     record = UsageEvent(
         chat_messages=1 if chat_message else 0,
         agent_invocations=1 if agent_invocation else 0,
+        input_tokens=input_tokens,
+        output_tokens=output_tokens,
+        project_id=project_id,
     )
     events.append(record.model_dump(mode="json"))
+    return record
+
+
+async def record_usage_event(
+    chat_message: bool = False,
+    agent_invocation: bool = False,
+    input_tokens: int = 0,
+    output_tokens: int = 0,
+    project_id: str | None = None,
+) -> UsageEvent:
+    """Increments today's usage rollup. Called once per chat turn
+    (chat_message=True) and once per agent invocation triggered from that
+    turn or from 'Invocar Agente' manual (agent_invocation=True) — a single
+    call may set both to True. `input_tokens`/`output_tokens` come straight
+    from the real Anthropic response.usage of that call — never estimated
+    (Mariana, 2026-08-20: "uso hoy debe tener fuente real").
+
+    Always accumulates into the global (system-wide) row; when `project_id`
+    is given, ALSO accumulates into a separate per-project row for that same
+    day — "global Y por proyecto" (2026-08-21), never one instead of the
+    other. Returns the global row, for backward compatibility with callers
+    that don't pass a project."""
+    storage = get_storage()
+    today = _today_iso()
+    events = storage.read_series(_USAGE_SERIES)
+
+    global_record = _upsert_usage_row(
+        events, today, None, chat_message, agent_invocation, input_tokens, output_tokens
+    )
+    project_record = None
+    if project_id:
+        project_record = _upsert_usage_row(
+            events, today, project_id, chat_message, agent_invocation, input_tokens, output_tokens
+        )
+
     storage.write_series(_USAGE_SERIES, events)
     _record_raw_event(
         "usage_event",
         None,
-        {"chat_message": chat_message, "agent_invocation": agent_invocation, "date": today},
+        {
+            "chat_message": chat_message,
+            "agent_invocation": agent_invocation,
+            "input_tokens": input_tokens,
+            "output_tokens": output_tokens,
+            "project_id": project_id,
+            "date": today,
+        },
     )
-    return record
+    return project_record or global_record
+
+
+def usage_today(project_id: str | None = None) -> dict[str, int]:
+    """Real rollup for the Dashboard/status-rail's "Uso hoy" tile — sums
+    today's UsageEvent rows scoped to `project_id` (None = global, the
+    original system-wide total) instead of ever showing a fabricated
+    number."""
+    today = _today_iso()
+    events = read_usage_events()
+    todays = [
+        e
+        for e in events
+        if str(e.get("date", "")).startswith(today) and e.get("project_id") == project_id
+    ]
+    return {
+        "chat_messages": sum(e.get("chat_messages", 0) for e in todays),
+        "agent_invocations": sum(e.get("agent_invocations", 0) for e in todays),
+        "input_tokens": sum(e.get("input_tokens", 0) for e in todays),
+        "output_tokens": sum(e.get("output_tokens", 0) for e in todays),
+    }
 
 
 async def record_reconciliation_run(

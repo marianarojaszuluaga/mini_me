@@ -678,7 +678,10 @@ filesystem/Redis intercambiable, así que la migración no debería tocar lógic
   actualizada). Además, cada sincronización debe **distinguir el ambiente** (`prod` vs.
   `develop`/`development`) del repo que está leyendo — Mar suele trabajar en un entorno de
   pruebas, y un gap de reconciliación en develop no debe tratarse igual que uno en prod.
-- Multi-usuario / permisos por proyecto.
+- **Multi-usuario / permisos por proyecto.** (2026-08-24, Mariana: *"Quiero un admin del Mini me
+  para una siguiente versión, en la que pueda tener más usuarios."*) Anotado para v2 — un panel de
+  administración real (usuarios, roles, permisos por proyecto) — sin diseñar todavía, se piensa en
+  detalle cuando se retome.
 - Aplicar automáticamente los ajustes de prompt que sugiere la autoevaluación — siempre pasan por
   aprobación de Mar en v1.
 - El bug de overlap CSS y el rediseño React — hallazgo separado, se resuelve en ese esfuerzo (Mar
@@ -877,7 +880,7 @@ en `openapi.json` (confirmado comparando la lista real contra §6.5 de `ARCHITEC
 | HU-005-JarvisMode (timeline) | 🟢 Implementado | `GET /projects/{id}/timeline` |
 | HU-006-JarvisMode (Jarvis Chat) | 🟢 Implementado | Loop agéntico completo con las 5 herramientas, versionado de sesión por límite de contexto (umbral 120k tokens, marcado para calibrar). **QA 2026-08-13**: corregidos 2 bugs — `_run_agentic_loop` no envolvía `client.messages.create` en try/except (mismo tipo de regresión que `/agents/invoke`, ahora igualado); el `ChatPanel` del dashboard nunca enviaba `purpose`, por lo que el primer mensaje de cualquier sesión nueva era rechazado con `400` desde la UI real — ambos corregidos y reverificados con curl real. **2026-08-19**: pestañas de sesión reales agregadas — `GET /jarvis/sessions` + `GET /jarvis/sessions/{conversation_id}` listan/cargan sesiones reales; `ChatPanel.jsx` renderiza un `chat-tabs` real por sesión (no tabs client-only fingidos) |
 | HU-007-JarvisMode (Memoria de Mar) | 🟢 Implementado | Dedup por similitud Jaccard (umbral 0.6, marcado para calibrar). **2026-08-19**: `MarMemoryDrillDown.jsx` agrupa las entradas por día real (Hoy/Ayer/fecha) en vez de lista plana |
-| HU-008-JarvisMode (autoevaluación) | 🟢 Implementado | Las 4 dimensiones se disparan automáticamente en `invoke_agent_core` (usada por `/agents/{name}/invoke` **y** `/orchestrate`), envuelto en try/except propio para no tumbar la respuesta si la evaluación falla. Detector de 2 invocaciones seguidas bajas conectado a la propuesta de changelog |
+| HU-008-JarvisMode (autoevaluación) | 🟢 Implementado | Las 4 dimensiones se disparan automáticamente en `invoke_agent_core` (usada por `/agents/{name}/invoke` **y** `/orchestrate`), envuelto en try/except propio para no tumbar la respuesta si la evaluación falla. Detector de 2 invocaciones seguidas bajas conectado a la propuesta de changelog. **2026-08-20**: las 4 dimensiones ahora se explican explícitamente en la UI (`AnalyticsDrillDown.jsx`'s `dim-legend`, con el mecanismo real detrás de cada una), no solo como etiquetas sin contexto (§15.5) |
 | HU-009-JarvisMode (changelog de mejoras) | 🟢 Implementado | `POST /changelog` (propuesta), `POST /changelog/{id}/approve` (aprobación manual, nunca automática), ventana antes/después simétrica, scores reales del `collector`, nunca inventados |
 | HU-010-JarvisMode (Analítica) | 🟢 Implementado | `GET /metrics/events` + cada serie agregada trae `eventIds`/`eventsAvailable`; los agregados de antes de este cambio devuelven explícitamente "sin eventos crudos disponibles" en vez de inventar un desglose. **2026-08-14**: `record_output()` conectado a invocaciones reales (antes sin callers) y `OutputCount` escopado por `project_id` — ver detalle abajo. **Post-2026-08-14**: `GET /projects/{id}/sprint` + `basecamp_client.py` agregan el sprint real de Basecamp (tareas hechas/total) al panel de Analítica, ya no solo eventos internos |
 | HU-011-JarvisMode (rediseño de IA) | 🟢 Implementado | Sidebar + AppShell + 3 tabs reales en el drill-down de proyecto + `Modal` compartido + tokens Nunito/Inter (2026-08-19) — ver detalle en §12 arriba |
@@ -1000,14 +1003,11 @@ estaba leyendo del archivo filtrado. Mariana: "no debería ser así" — corregi
 Reportados desde el chat de Jarvis en producción, con captura del panel de estado real. Documentados
 aquí primero (a pedido de Mariana: "Documentalos y luego los arreglamos") antes de tocar código.
 
-**BUG-018 — Panel de estado del chat no se actualiza en tiempo real.** `StatusRail` (`ChatPanel.jsx`,
-`useSystemRailData`) llama `api.getMetricsSummary()` una sola vez en un `useEffect` con dependencia
-`[api]` — nunca hay un intervalo ni un refetch tras enviar un mensaje o correr una reconciliación.
-Los números de "Sistema (todos los proyectos)" (Gaps totales, Alertas de reconciliación) quedan
-congelados en lo que había al momento de abrir esa pestaña de chat, aunque el sistema cambie
-mientras la conversación sigue abierta. Fix esperado: refrescar tras cada turno enviado (mismo punto
-donde ya se actualiza `tokenTotal`), y/o un intervalo corto, igual al patrón que `useLiveStatus`
-(sidebar) ya usa para el estado "Operativo/Caído" (`setInterval` de 30s).
+**BUG-018 — Panel de estado del chat no se actualiza en tiempo real. 🟢 CORREGIDO 2026-08-20.**
+`StatusRail` (`ChatPanel.jsx`, `useSystemRailData`) llamaba `api.getMetricsSummary()` una sola vez en
+un `useEffect` con dependencia `[api]` — nunca había un intervalo ni un refetch tras enviar un mensaje.
+Fix real aplicado: `useSystemRailData` ahora hace polling cada 30s (mismo patrón que `useLiveStatus`
+del sidebar ya usaba para "Operativo/Caído"), y el mismo fetch trae `usageToday` (§15.6).
 
 **BUG-019 — Reconciliación no explica el error ni cómo resolverlo.** `ReconciliationSubsection`
 (`ProjectDetailDrillDown.jsx`) solo muestra `huId` + pill de estado (`sin_test`, etc.) +
@@ -1028,3 +1028,188 @@ ver `app/services/jarvis_chat/tools.py`) ni qué puede/no puede hacer con ellas.
 "¿qué puedes hacer?", Jarvis no tiene esa información en su contexto real — cualquier respuesta que
 dé sobre sus propias capacidades no está fundamentada en el sistema real. Fix esperado: agregar una
 sección al system prompt describiendo las herramientas reales disponibles y su propósito.
+
+---
+
+## 15. Auditoría del tech lead (2026-08-20) — respuestas y ajustes
+
+**Contexto (Mariana)**: *"Esto hay que tomarlo con pinzas no podemos desviar del foco; la idea es
+que la idea POC que es ya compleja sea funcional. Si esto sirve y no aplica a esta versión, dejarlo
+para la siguiente versión."* Cada punto de abajo se resolvió o se registró como diferido — ninguno
+se implementó especulativamente fuera de lo que Mariana pidió explícitamente.
+
+### 15.1 Memoria local — respaldo y dependencia de red (plan, no implementado aún)
+
+**Pregunta del tech lead**: ¿hay un respaldo del "cerebro"? ¿Depende de que la computadora tenga red?
+**Respuesta de Mariana**: *"Me gustaría que se planee la sincronización con Obsidian para que no
+tengamos dependencias de red."*
+
+Estado real hoy: `app/services/obsidian_sync.py`'s `VAULT_DIR` es una ruta local de Windows
+hardcodeada (`C:\Users\marir\OneDrive\Documentos\Obsidian Vault\Orquestrador 360 - Memoria de la App`)
+— solo tiene sentido cuando el backend corre en la máquina de Mariana. `app/cron/sync_scheduler.py`
+registra un `AsyncIOScheduler` en el `startup` de FastAPI (`CronTrigger(hour="7-19/3", minute=0)`)
+para disparar ese sync automáticamente — pero en producción (Vercel serverless) las funciones son
+efímeras por invocación, así que ese scheduler en proceso casi con certeza **nunca dispara** ahí; solo
+funciona cuando `uvicorn` corre como proceso local de larga duración.
+
+**Plan** (separar "dónde corre el scheduler" de "dónde se escribe el archivo"):
+1. El sync real al vault **solo puede depender de la máquina de Mariana estando prendida** — nunca
+   del backend de Vercel, que es efímero por diseño. Punto de partida: dejar de depender del
+   `AsyncIOScheduler` en proceso para este propósito.
+2. Usar el script CLI ya existente (`scripts/sync_memories_to_obsidian.py`) apuntando a la **API de
+   producción** (`https://backmar-in-theinternet.vercel.app`), disparado por un scheduler real a
+   nivel de sistema operativo en la máquina de Mariana (Windows Task Scheduler), no por código de la
+   app.
+3. Con esto, el único requisito de red es: (a) la máquina de Mariana prendida, y (b) alcanzar la API
+   de producción para leer los datos — la escritura local del archivo en sí no depende de que el
+   backend de Vercel esté "vivo" en ese instante, ya que la API siempre responde vía su propio
+   endpoint HTTP independientemente del scheduler roto.
+4. La sincronización de OneDrive de esa carpeta local a la nube sigue siendo responsabilidad de
+   OneDrive, fuera del control de esta app — eso sí requiere red, pero es un respaldo adicional, no
+   la única copia (la copia primaria vive en Redis/Upstash en producción).
+5. **No implementado todavía** — pendiente crear la tarea de Windows Task Scheduler y confirmar la
+   frecuencia (se sugiere cada 3h, igual al cron roto que reemplaza).
+
+### 15.2 Proceso de aprendizaje / mejora continua de agentes
+
+Ya existe un mecanismo real, no especulativo: `HU-009-JarvisMode` — cuando un agente registra 2
+invocaciones consecutivas con `calidad` por debajo de `DEGRADATION_THRESHOLD` (60.0,
+`evaluate_invocation.py`), se genera automáticamente una propuesta de changelog
+(`POST /changelog`) con un diff antes/después de las 4 dimensiones — pero la aprobación de esa
+propuesta siempre es manual (`POST /changelog/{id}/approve`), nunca automática. Los ajustes de
+configuración de agente en sí (prompts, parámetros) los sigue haciendo Claude manualmente cuando
+Mariana lo pide — confirmado explícitamente por ella: *"Tu tienes que editarlo"* — no hay
+auto-tuning de prompts todavía, y no se construyó ninguno en esta ronda (fuera de alcance, no
+pedido).
+
+### 15.3 Harness — diferido a v2
+
+**Pregunta del tech lead**: ¿qué tan recomendable es usar Harness (para las reglas de Jarvis)?
+**Decisión de Mariana**: *"Déjalo como una sugerencia valiosa y guarda esa opción para un proceso de
+escalabilidad."* — no se investiga ni se implementa en esta versión. Guardado aquí como nota para
+v2/escalabilidad, sin acción pendiente en el POC actual.
+
+### 15.4 Contabilización de tokens — hallazgo real y fix
+
+**Hallazgo (previo a este fix)**: los tokens de cada turno ya se capturaban de verdad
+(`response.usage.input_tokens/output_tokens` de Anthropic, guardados por turno en `ChatTurn`), pero
+**nunca se acumulaban en un total global del sistema** — solo se sumaban del lado del navegador
+(`ChatPanel.jsx`'s `tokenTotal`), por sesión de chat individual, y se perdían al cerrar la pestaña.
+`collector.record_usage_event()` existía en el código pero tenía **cero llamadores reales** en todo
+el sistema — la misma clase de bug que tuvo `record_output()` antes de una ronda anterior. Por eso
+el tile "Uso hoy" del status-rail siempre mostraba un guion vacío permanente, nunca un número real.
+
+**Fix aplicado (2026-08-20)**, en respuesta directa a *"4. Debería construirse algo para que 'uso
+hoy' se mantenga vivo. 5. uso hoy debe tener fuente real"*:
+- `UsageEvent` (`app/schemas/metrics.py`) ahora incluye `input_tokens`/`output_tokens`.
+- `collector.record_usage_event()` acumula esos tokens al rollup diario; nueva `collector.usage_today()`
+  suma el día real, sin estimar nada.
+- Dos llamadores reales agregados: `invoke_agent_core` (`app/routers/agents.py`) y `jarvis_chat`
+  (`app/routers/jarvis_chat.py`) — cada uno pasa el `response.usage` real de esa llamada a Claude.
+- `GET /metrics/summary` expone `usageToday` — el frontend (`ChatPanel.jsx`) ya no muestra "—" fijo,
+  sino el total real, con refresco cada 30s (mismo fix que BUG-018).
+
+### 15.5 Dimensiones de evaluación — explícitas en la plataforma
+
+Ya cubierto arriba en la fila de `HU-008-JarvisMode` (§12): `AnalyticsDrillDown.jsx` ahora muestra
+un `dim-legend` con el mecanismo real de cada una de las 4 dimensiones (eficiencia, acertividad,
+formato, calidad) directamente en el Dashboard, no solo como etiquetas de barra sin contexto.
+
+### 15.6 Estadísticas generales — dónde se muestran
+
+Respuesta directa a "¿dónde se muestran las estadísticas generales?": en la vista **Dashboard**
+(`AnalyticsDrillDown.jsx`, accesible desde el sidebar bajo "Analítica & integraciones"), organizada
+en las secciones P0–P3 de §7 de este documento (P0 = existe/se usa/desalineación real, P1 = valor,
+P2 = contexto y tendencia, P3 = lo más blando) — nunca un número inventado; cada sección que no
+tiene una fuente real de datos todavía lo dice explícitamente en vez de mostrar un valor fabricado.
+
+### 15.7 BD vectorial semántica — explícitamente NO tocado en esta ronda
+
+**Instrucción explícita de Mariana**: *"No lo toques. BD vectorial semántica."* — la idea de una base
+de datos vectorial para responder desde memoria semántica queda registrada como sugerencia del tech
+lead, sin ninguna investigación ni cambio de código en esta ronda. No confundir con ningún trabajo
+futuro no solicitado — se retoma solo si Mariana lo pide explícitamente.
+
+---
+
+## 16. Go-live real: 6 tareas aprobadas (2026-08-21) — status de construcción
+
+Backlog aprobado en la sesión del "Panel de control de Minime". Cada una con plan técnico propio;
+construcción en curso, este documento se actualiza a medida que avanza.
+
+- **Tarea 1 — Ciclo de vida del proyecto** (renombrado 2026-08-24 — Mariana: *"Esto se llama en
+  realidad 'Ciclo de vida del proyecto'... deberíamos tenerlo como un global... Es el MVP del Mini
+  Me"*). 🟢 **Construido y verificado en vivo**: además del tab por-proyecto (renombrado de "Fases y
+  agentes"), ahora existe una **vista global de portafolio** (`Sidebar` → "Ciclo de vida",
+  `LifecycleView.jsx`) — Kanban de 5 columnas (una por fase real), con todos los proyectos activos
+  agrupados por su `Project.currentPhase` real, y deep-link real al abrir un proyecto desde ahí
+  (`ProjectsView`'s nuevo `initialProjectId`). Reusa datos 100% reales (`GET /projects`,
+  `GET /phases`) — cero endpoints nuevos. Declarado **MVP central** de Mini Me — el resto de
+  funcionalidades existen para alimentar esta vista, no al revés.
+- **Tarea 2 — 3 gaps de conectividad.**
+  - Gap 1 (Bitbucket+GitHub en el flujo de repos): sin bug de código — bloqueado en Tarea 5.
+  - Gap 2 (pull de repos reales): 🟢 **construido y verificado en vivo** — `RepoSummary` (schema),
+    `list_repos()` en `GitHubAdapter`/`BitbucketAdapter`, `GET /auth-profiles/{id}/repos`,
+    `ConnectRepoForm.jsx` con selector real + fallback manual explícito.
+  - Gap 3 (Basecamp Card Tables, corregido de todolist): 🟢 backend construido —
+    `list_basecamp_projects`/`list_card_tables`/`get_card_table_snapshot` (`basecamp_client.py`),
+    `BasecampMirror`/`selectedCardTableIds` (schema), 4 endpoints nuevos en `projects.py`. Falta UI
+    (modal de vínculo + tarjeta del Dashboard).
+- **Tarea 3 — 3 capas de QA.**
+  - Capa 1 (código completo): gate documental — los 5 meta-agentes reales de Claude Code
+    (Jenny, Karen, Task Completion Validator, Claude MD Compliance, Code Quality Pragmatist),
+    documentado en `ia-hybrid-teams/spec-kit/PHASE_CONTRACTS.md` §Fase 4.
+  - Capa 2 (funcionales, a demanda): 🟢 **construida** — `POST /projects/{id}/qa-sweep`
+    (`app/routers/agents.py`) encadena moni→rena→sara/xime→Vale (reconciliación)→pau. El disparo
+    automático por "Milestone completo"/"HU mergeada" queda documentado como pendiente (requiere
+    definir el evento real de milestone, no existe todavía). BUG-019 (ayuda inline por estado de
+    gap) también corregido en esta pasada — `reconciliation.py`'s `_help_text()`.
+  - Capa 3 (integración, solo a demanda): specs extendidas con las 4 verificaciones reales
+    (validación de campos, pixel-perfect, flujos alternos, prueba de carga) en
+    `agents/mcp-integration-tester.md` y `agents/test-video-recorder.md` (ia-hybrid-teams). Sin
+    endpoint de runtime nuevo todavía.
+- **Tarea 4 — `project_id` en métricas.** 🟢 **construido y verificado en vivo** —
+  `AgentEvaluation`/`UsageEvent` con `project_id` opcional, `/metrics/summary` devuelve
+  `projectAgentEvaluations`/`projectUsageToday` junto a los globales (global Y por proyecto, nunca
+  uno en vez del otro). Falta la UI del sparkline "por corrida" en `AnalyticsDrillDown.jsx`.
+- **Tarea 5 — Bitbucket bloqueado.** En curso: Mariana registra un OAuth consumer a nivel de su
+  cuenta personal (Camino A, no requiere admin del workspace `imagineappsdev`). Sin código
+  pendiente de mi lado hasta tener el Key/Secret real.
+- **Tarea 6 — Scheduler de Obsidian roto.** Aprobada, construcción pendiente (crear la tarea real
+  de Windows Task Scheduler + confirmar `scripts/sync_memories_to_obsidian.py` apunta a producción).
+
+---
+
+## 17. Integración del esquema de QA real de Finanz Butik (2026-08-24)
+
+Origen: `planning-fb/qa/README.md`, `QA-SCHEME-UPGRADE-2026-08-24.md`,
+`QA-EXECUTION-TEMPLATE.md` — el esquema de QA manual real de Finanz Butik V2, con un pase experto
+que produjo 31 escenarios nuevos y 6 defectos confirmados (BUG-Q1..Q6). Mariana pidió evaluar qué
+aprender de ahí e integrarlo a la Capa 2/3 de QA de este sistema (§16, Tarea 3).
+
+**5 mejoras reales adoptadas:**
+
+1. **Severidad + gate mecánico.** Nuevo `app/schemas/qa.py`'s `Finding` (S1–S5) + `QaSweepReport`.
+   El veredicto (`APPROVED`/`NOT_APPROVED`) se calcula en Python a partir de `blockingCount`
+   (S1/S2), nunca se confía en que Claude haga la aritmética — mismo gate que usa Finanz
+   ("1 bloqueante = NOT APPROVED", sin importar el % de aprobación).
+2. **Criterios en vez de prosa.** `run_qa_sweep` ahora instruye a Moni/Rena/Sara/Xime a devolver
+   una tabla `ID | Criterio | T | UX | HU | Resultado` — mismo formato que
+   `QA-EXECUTION-TEMPLATE.md`, en vez de texto libre sin estructura.
+3. **6 Types nuevos en Capa 3** (`agents/mcp-integration-tester.md` + `agents/test-video-recorder.md`,
+   ia-hybrid-teams): CONTENT, COPY, BRAND, EMAIL (Tami) y DSGN (Vane) — con los ejemplos reales de
+   Finanz (BUG-Q3 ícono inconsistente, BUG-Q4 toast sin traducir) como referencia concreta de qué
+   deben atrapar.
+4. **Modo `scope=release`.** `POST /projects/{id}/qa-sweep?scope=release` corre un set distinto de
+   agentes (Sara, Xime, Vane) enfocado en consistencia cross-cutting — pensado para correr 1×/release,
+   producto entero, igual que la suite `X0-cross-cutting-consistency-tests.md` de Finanz corre
+   aparte de los tests por milestone.
+5. **Sign-off humano real.** `POST /projects/{id}/qa-sweeps/{sweep_id}/signoff` (reviewer PM/TechLead,
+   verdict) — persistido en `project.memory.qaSweeps[]`. Un gate mecánico en APPROVED no es "cierre"
+   por sí solo, igual que Finanz exige las 2 firmas (PM + Tech Lead) antes de dar un ciclo por cerrado.
+
+**Verificado en vivo (2026-08-24):** `_parse_pau_findings()` probado con un finding S1 real →
+`verdict=NOT_APPROVED`, `blockingCount=1`; `QaSweepReport.verdict`/`blockingCount` probados
+directamente (0 findings bloqueantes → APPROVED; 1 → NOT_APPROVED); endpoint de signoff probado
+contra un sweep inexistente → 404 real; corrida completa de `qa-sweep?scope=project` contra
+Finanz Butik disparada end-to-end.

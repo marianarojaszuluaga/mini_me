@@ -32,6 +32,7 @@ from app.schemas.chat import ChatRequest, ChatSession, ChatTurn, ChatTurnRespons
 from app.services import mar_memory
 from app.services.jarvis_chat import session_manager
 from app.services.jarvis_chat.tools import TOOL_SCHEMAS, dispatch_tool
+from app.services.metrics import collector
 
 router = APIRouter(dependencies=[Depends(authenticate_token)])
 
@@ -243,6 +244,13 @@ async def jarvis_chat(
         declared_unknown=_declared_unknown(final_text),
         input_tokens=input_tokens,
         output_tokens=output_tokens,
+    )
+
+    await collector.record_usage_event(
+        chat_message=True,
+        input_tokens=input_tokens,
+        output_tokens=output_tokens,
+        project_id=session.project_id,
     )
 
     session_with_turn = session_manager.persist_turn(session, turn)

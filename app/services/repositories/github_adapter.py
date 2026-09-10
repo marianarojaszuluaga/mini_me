@@ -21,7 +21,7 @@ from datetime import datetime
 import httpx
 
 from app.schemas.auth_profile import AuthProfile
-from app.schemas.repository import Commit, FileNode, PullRequest
+from app.schemas.repository import Commit, FileNode, PullRequest, RepoSummary
 
 _API_BASE = "https://api.github.com"
 
@@ -45,6 +45,32 @@ def _headers(auth_profile: AuthProfile) -> dict[str, str]:
 
 
 class GitHubAdapter:
+    async def list_repos(self, auth_profile: AuthProfile) -> list[RepoSummary]:
+        """Real repos of the connected account — Tarea 2 Gap 2 (2026-08-21),
+        replaces typing owner/repo by hand. GitHub's `/user/repos` covers
+        every repo the token can see (own + org membership), newest-activity
+        first; capped at 100 (one page) — plenty for a manual picker, no
+        pagination UI needed yet."""
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            response = await client.get(
+                f"{_API_BASE}/user/repos",
+                headers=_headers(auth_profile),
+                params={"per_page": 100, "sort": "updated"},
+            )
+        response.raise_for_status()
+        return [
+            RepoSummary(
+                owner=(item.get("owner") or {}).get("login", ""),
+                repo=item.get("name", ""),
+                description=item.get("description"),
+                language=item.get("language"),
+                defaultBranch=item.get("default_branch") or "main",
+                private=bool(item.get("private")),
+                url=item.get("html_url"),
+            )
+            for item in response.json()
+        ]
+
     async def validate_access(self, auth_profile: AuthProfile, owner: str, repo: str) -> bool:
         async with httpx.AsyncClient(timeout=10.0) as client:
             response = await client.get(

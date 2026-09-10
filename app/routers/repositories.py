@@ -14,6 +14,7 @@ from __future__ import annotations
 import time
 from typing import Any
 
+import httpx
 from fastapi import APIRouter, Body, Depends, HTTPException
 
 from app.core.security import authenticate_token
@@ -59,6 +60,24 @@ async def delete_auth_profile(profile_id: str) -> dict[str, Any]:
     if not deleted:
         raise HTTPException(status_code=404, detail="Auth profile not found")
     return {"deleted": True, "id": profile_id}
+
+
+@router.get("/auth-profiles/{profile_id}/repos")
+async def list_auth_profile_repos(profile_id: str) -> list[dict[str, Any]]:
+    """Real repos of the connected account (Tarea 2 Gap 2, 2026-08-21) — lets
+    ConnectRepoForm show a real picker instead of two free-text fields."""
+    profile = auth_profiles.get_auth_profile(profile_id)
+    if profile is None:
+        raise HTTPException(status_code=404, detail="Auth profile not found")
+    adapter = get_adapter(profile.provider)
+    try:
+        repos = await adapter.list_repos(profile)
+    except httpx.HTTPStatusError as error:
+        raise HTTPException(
+            status_code=502,
+            detail=f"No se pudo listar los repos de este Auth Profile — el proveedor respondió {error.response.status_code}. Verificá que el token siga siendo válido.",
+        ) from error
+    return [repo.model_dump(mode="json") for repo in repos]
 
 
 # -- Repositories (nested under a project) -----------------------------------

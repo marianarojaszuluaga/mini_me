@@ -23,6 +23,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+import httpx
+
 from app.core.storage import get_storage
 
 logger = logging.getLogger(__name__)
@@ -131,16 +133,7 @@ def _sync_projects(projects: list[dict[str, Any]]) -> int:
     return len(projects)
 
 
-def sync_to_obsidian() -> dict[str, int]:
-    """Regenerates the whole "Orquestrador 360 - Memoria de la App" vault
-    folder from current storage state. Returns counts for logging/metrics.
-    Never raises on an empty/missing store — an empty Mar Memory or project
-    list is a valid, real state (see storage.py's read_* defaults), not an
-    error condition."""
-    storage = get_storage()
-    mar_entries = storage.read_mar_memory()
-    projects = storage.read_projects()
-
+def _write_vault(mar_entries: list[dict[str, Any]], projects: list[dict[str, Any]]) -> dict[str, int]:
     _write(
         VAULT_DIR / "README.md",
         "\n".join(
@@ -173,3 +166,31 @@ def sync_to_obsidian() -> dict[str, int]:
         VAULT_DIR,
     )
     return {"mar_memory_entries": mar_count, "projects": project_count}
+
+
+def sync_to_obsidian() -> dict[str, int]:
+    """Regenerates the vault from THIS process's own storage (Redis in
+    production, filesystem locally) — used by the in-process cron
+    (sync_scheduler.py), which runs inside the real backend and therefore
+    already has the real store. Never raises on an empty/missing store — an
+    empty Mar Memory or project list is a valid, real state (see storage.py's
+    read_* defaults), not an error condition."""
+    storage = get_storage()
+    return _write_vault(storage.read_mar_memory(), storage.read_projects())
+
+
+async def sync_to_obsidian_from_api(base_url: str, api_key: str) -> dict[str, int]:
+    """Same vault regeneration, but sourced from the REAL production API
+    instead of local storage (SPEC_JARVIS.md §15.1, 2026-08-21) — this is
+    what a scheduler running on Mariana's own machine must call, since her
+    local storage is filesystem/dev, never the real production Redis data.
+    Raises on a real HTTP failure — never writes a fabricated empty vault
+    just because the API was unreachable."""
+    headers = {"Authorization": f"Bearer {api_key}"}
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        mar_response = await client.get(f"{base_url}/mar/memory", headers=headers)
+        mar_response.raise_for_status()
+        projects_response = await client.get(f"{base_url}/projects", headers=headers)
+        projects_response.raise_for_status()
+
+    return _write_vault(mar_response.json(), projects_response.json())

@@ -76,6 +76,48 @@ export default class ApiClient {
     return this.request(`/projects/${projectId}/sprint`);
   }
 
+  // ---- Tarea 2 Gap 3 (2026-08-21): Basecamp real — proyectos + Card Tables ----
+
+  listBasecampProjectsForProfile(profileId) {
+    return this.request(`/auth-profiles/${profileId}/basecamp-projects`);
+  }
+
+  listProjectCardTables(projectId) {
+    return this.request(`/projects/${projectId}/basecamp-card-tables`);
+  }
+
+  setProjectCardTables(projectId, cardTableIds) {
+    return this.request(`/projects/${projectId}/basecamp-card-tables`, {
+      method: "PUT",
+      body: JSON.stringify({ cardTableIds })
+    });
+  }
+
+  getProjectBasecampMirror(projectId) {
+    return this.request(`/projects/${projectId}/basecamp-mirror`);
+  }
+
+  // ---- Basecamp Message Board Publisher (2026-09-09) ----
+
+  getBasecampPublishConfig(projectId) {
+    return this.request(`/projects/${projectId}/basecamp-publish`);
+  }
+
+  setBasecampPublishConfig(projectId, config) {
+    return this.request(`/projects/${projectId}/basecamp-publish`, {
+      method: "PUT",
+      body: JSON.stringify(config)
+    });
+  }
+
+  listSprintPublications(projectId, sprintId) {
+    return this.request(`/projects/${projectId}/sprints/${sprintId}/publications`);
+  }
+
+  retryBasecampPublication(publicationId) {
+    return this.request(`/publications/${publicationId}/retry`, { method: "POST" });
+  }
+
   invokeAgent(agentName, projectId, input, context) {
     return this.request(`/agents/${agentName}/invoke`, {
       method: "POST",
@@ -122,6 +164,10 @@ export default class ApiClient {
 
   listAuthProfiles() {
     return this.request("/auth-profiles");
+  }
+
+  listAuthProfileRepos(profileId) {
+    return this.request(`/auth-profiles/${profileId}/repos`);
   }
 
   createAuthProfile(data) {

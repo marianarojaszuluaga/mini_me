@@ -191,7 +191,11 @@ AGENT_MODEL_CONFIG: dict[str, ModelTierConfig] = {
     "tami": ModelTierConfig("sonnet", 2000),
     "vane": ModelTierConfig("haiku", 1000),
     "xime": ModelTierConfig("sonnet", 2000),
-    "pau": ModelTierConfig("haiku", 1500),
+    # 2026-08-24: 1500 truncaba el reporte real a mitad del bloque ```json de
+    # findings (Capa 2 del qa-sweep) — el parser silenciosamente veía 0
+    # findings porque el fence nunca cerraba. Subido para que el reporte +
+    # el JSON de findings quepan completos.
+    "pau": ModelTierConfig("haiku", 3500),
     "mila": ModelTierConfig("sonnet", 2500),
     "diana": ModelTierConfig("sonnet", 2500),
     "cami": ModelTierConfig("sonnet", 2500),

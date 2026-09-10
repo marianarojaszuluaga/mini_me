@@ -59,11 +59,13 @@ def _enrich(row: dict[str, Any], event_type: str, agent_name: str | None = None)
 
 
 @router.get("/metrics/agent-evaluations")
-async def agent_evaluations() -> list[dict[str, Any]]:
-    return [
-        _enrich(row, "agent_evaluation", agent_name=row.get("agent"))
-        for row in collector.read_agent_evaluations()
-    ]
+async def agent_evaluations(
+    project_id: str | None = Query(default=None, description="Filter to one project's evaluations — omit for the system-wide (global) list"),
+) -> list[dict[str, Any]]:
+    rows = collector.read_agent_evaluations()
+    if project_id is not None:
+        rows = [row for row in rows if row.get("project_id") == project_id]
+    return [_enrich(row, "agent_evaluation", agent_name=row.get("agent")) for row in rows]
 
 
 @router.get("/metrics/reconciliation-runs")
@@ -103,13 +105,24 @@ async def raw_events(
 
 @router.get("/metrics/summary")
 async def summary(
-    project_id: str | None = Query(default=None, description="Scopes outputCounts to one project — the rest stay system-wide"),
+    project_id: str | None = Query(default=None, description="Scopes outputCounts/agentEvaluations/usageToday to one project too — the global slices stay present either way."),
 ) -> dict[str, Any]:
     """One-shot payload for HU-010's analytics panel — all four series
     together, so the frontend doesn't need four round-trips."""
     return {
+        # Global agentEvaluations always included so P1's cross-project
+        # legend keeps working; projectAgentEvaluations is the per-project
+        # slice when a project is open (2026-08-21: "que quede visible
+        # también a nivel proyecto" — both, never one instead of the other).
         "agentEvaluations": await agent_evaluations(),
+        "projectAgentEvaluations": await agent_evaluations(project_id=project_id) if project_id else None,
         "reconciliationRuns": await reconciliation_runs(),
         "usageEvents": await usage_events(),
         "outputCounts": await output_counts(project_id=project_id),
+        # Real "Uso hoy" rollup (Mariana, 2026-08-20: "uso hoy debe tener
+        # fuente real") — never a fabricated/estimated number. Global always
+        # present; projectUsageToday only when a project_id is given (global
+        # Y por proyecto, 2026-08-21).
+        "usageToday": collector.usage_today(),
+        "projectUsageToday": collector.usage_today(project_id=project_id) if project_id else None,
     }

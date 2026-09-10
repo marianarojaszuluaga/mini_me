@@ -119,6 +119,17 @@ const AGENT_DIM_COLORS = {
   calidad: "var(--cat-purple)"
 };
 
+// Real mechanism behind each of the 4 dimensions (app/services/metrics/
+// evaluate_invocation.py) — shown explicitly in the UI per Mariana's
+// tech-lead-audit answer (2026-08-20: "Las dimensiones de evaluación deben
+// estar claras y ser explicitas en la plataforma"), not left as bare labels.
+const AGENT_DIM_DESCRIPTIONS = {
+  eficiencia: "Densidad de la respuesta vs. los pasos pedidos (heurística de longitud/caracteres por paso).",
+  acertividad: "Corrección y relevancia — evaluada por una llamada de juicio separada a Claude.",
+  formato: "Cumple el contrato de formato esperado para ese agente (heurística por tipo de agente).",
+  calidad: "Rúbrica ponderada por agente (AgentEvaluator) — combina varios criterios en un solo score."
+};
+
 // ----------------------------------------------------------------------------
 // Section blocks (P0 → P3, per SPEC_JARVIS.md §7)
 // ----------------------------------------------------------------------------
@@ -197,9 +208,34 @@ const P0Section = ({ api, outputCounts, usageEvents, reconciliationRuns }) => {
   );
 };
 
-const P1Section = ({ api, agentEvaluations }) => {
+// Tarea 4 (2026-08-21): "las 4 dimensiones deben ser por corrida, no solo la
+// última" — mini sparkline real de las últimas N corridas por dimensión.
+// AgentEvaluation ya guardaba un registro por invocación; esto solo lo
+// muestra, no inventa ningún agregado nuevo.
+const Sparkline = ({ values, colorVar }) => {
+  if (values.length === 0) return null;
+  const w = 100;
+  const h = 24;
+  const max = 100; // scores are already 0-100
+  const step = values.length > 1 ? w / (values.length - 1) : 0;
+  const points = values.map((v, i) => `${i * step},${h - (v / max) * h}`).join(" ");
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} className="dim-sparkline" preserveAspectRatio="none">
+      <polyline points={points} fill="none" stroke={colorVar} strokeWidth="2" />
+      <circle cx={(values.length - 1) * step} cy={h - (values[values.length - 1] / max) * h} r="2.5" fill={colorVar} />
+    </svg>
+  );
+};
+
+const P1Section = ({ api, agentEvaluations, projectAgentEvaluations, projectId }) => {
+  const [scope, setScope] = useState("global"); // "global" | "project"
+  const [expandedRuns, setExpandedRuns] = useState(null); // agent name currently showing its run history
+
+  const effectiveRows =
+    scope === "project" && projectAgentEvaluations ? projectAgentEvaluations : agentEvaluations;
+
   const byAgent = {};
-  for (const row of agentEvaluations) {
+  for (const row of effectiveRows) {
     byAgent[row.agent] = byAgent[row.agent] || [];
     byAgent[row.agent].push(row);
   }
@@ -214,9 +250,36 @@ const P1Section = ({ api, agentEvaluations }) => {
       </div>
 
       <h3 className="analytics-subtitle">Calidad en el tiempo por agente (4 dimensiones, HU-008)</h3>
+      {projectId && (
+        <div className="p1-scope-toggle">
+          <button type="button" className={scope === "global" ? "active" : ""} onClick={() => setScope("global")}>
+            Global (todos los proyectos)
+          </button>
+          <button
+            type="button"
+            className={scope === "project" ? "active" : ""}
+            onClick={() => setScope("project")}
+            disabled={!projectAgentEvaluations}
+          >
+            Este proyecto {projectAgentEvaluations ? `(${projectAgentEvaluations.length})` : "(sin datos)"}
+          </button>
+        </div>
+      )}
+      <dl className="dim-legend">
+        {["eficiencia", "acertividad", "formato", "calidad"].map((dim) => (
+          <div key={dim} className="dim-legend-row">
+            <dt>
+              <span className="dim-legend-dot" style={{ background: AGENT_DIM_COLORS[dim] }} />
+              {dim}
+            </dt>
+            <dd>{AGENT_DIM_DESCRIPTIONS[dim]}</dd>
+          </div>
+        ))}
+      </dl>
       {Object.keys(byAgent).length === 0 && <div className="analytics-note">Sin evaluaciones registradas todavía.</div>}
       {Object.entries(byAgent).map(([agent, rows]) => {
         const last = rows[rows.length - 1];
+        const recentRuns = rows.slice(-10);
         return (
           <div key={agent} className="agent-quality-card">
             <div className="agent-quality-header">
@@ -228,8 +291,33 @@ const P1Section = ({ api, agentEvaluations }) => {
                 <span className="agent-quality-dim-label">{dim}</span>
                 <Bar pct={last[dim]} colorVar={AGENT_DIM_COLORS[dim]} />
                 <span className="agent-quality-dim-value">{Math.round(last[dim])}</span>
+                <Sparkline values={recentRuns.map((r) => r[dim])} colorVar={AGENT_DIM_COLORS[dim]} />
               </div>
             ))}
+            <button
+              type="button"
+              className="btn-link"
+              onClick={() => setExpandedRuns(expandedRuns === agent ? null : agent)}
+            >
+              {expandedRuns === agent ? "Ocultar" : "Ver"} las últimas {recentRuns.length} corridas
+            </button>
+            {expandedRuns === agent && (
+              <div className="agent-quality-runs">
+                {recentRuns
+                  .slice()
+                  .reverse()
+                  .map((run, i) => (
+                    <div key={i} className="agent-quality-run-row">
+                      <span className="pd-meta">{new Date(run.date).toLocaleString("es")}</span>
+                      {["eficiencia", "acertividad", "formato", "calidad"].map((dim) => (
+                        <span key={dim} className="agent-quality-run-score" style={{ color: AGENT_DIM_COLORS[dim] }}>
+                          {Math.round(run[dim])}
+                        </span>
+                      ))}
+                    </div>
+                  ))}
+              </div>
+            )}
             <ExpandableMetric
               api={api}
               label="ver evaluación cruda más reciente"
@@ -558,7 +646,12 @@ function DashboardBody({ api, projects, projectId, onProjectIdChange }) {
             <div className="analytics-note-inline" style={{ marginBottom: 8 }}>
               Explora la calidad de los agentes
             </div>
-            <P1Section api={api} agentEvaluations={data.agentEvaluations} />
+            <P1Section
+              api={api}
+              agentEvaluations={data.agentEvaluations}
+              projectAgentEvaluations={data.projectAgentEvaluations}
+              projectId={projectId}
+            />
           </section>
 
           <P2Section

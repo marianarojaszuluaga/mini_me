@@ -44,24 +44,39 @@ function SourceList({ sources }) {
 // Real system-wide reconciliation alerts + gap total for the status rail's
 // "Sistema" group — same computation AnalyticsDrillDown already uses
 // (reconciliationRuns[].gaps_found), never a fabricated number.
+// BUG-018 fix: this used to fetch once on mount and never refresh, so the
+// rail went stale mid-conversation — now it polls every 30s.
 function useSystemRailData(api) {
   const [reconciliationRuns, setReconciliationRuns] = useState([]);
+  const [usageToday, setUsageToday] = useState(null);
 
   useEffect(() => {
     if (!api) return;
-    api
-      .getMetricsSummary()
-      .then((summary) => setReconciliationRuns(summary.reconciliationRuns || []))
-      .catch(() => setReconciliationRuns([]));
+    const load = () => {
+      api
+        .getMetricsSummary()
+        .then((summary) => {
+          setReconciliationRuns(summary.reconciliationRuns || []);
+          setUsageToday(summary.usageToday || null);
+        })
+        .catch(() => {
+          setReconciliationRuns([]);
+          setUsageToday(null);
+        });
+    };
+    load();
+    const interval = setInterval(load, 30000);
+    return () => clearInterval(interval);
   }, [api]);
 
   const gapsTotal = reconciliationRuns.reduce((acc, r) => acc + (r.gaps_found || 0), 0);
   const alerts = reconciliationRuns.filter((r) => (r.gaps_found || 0) > 0).slice(-5);
-  return { gapsTotal, alerts };
+  return { gapsTotal, alerts, usageToday };
 }
 
 function StatusRail({ api, purpose, turnCount, tokenCount }) {
-  const { gapsTotal, alerts } = useSystemRailData(api);
+  const { gapsTotal, alerts, usageToday } = useSystemRailData(api);
+  const usageTodayTokens = usageToday ? (usageToday.input_tokens || 0) + (usageToday.output_tokens || 0) : 0;
   return (
     <aside className="chat-status-rail">
       <div className="rail-group session">
@@ -82,7 +97,9 @@ function StatusRail({ api, purpose, turnCount, tokenCount }) {
         <div className="rail-group-label">Sistema (todos los proyectos)</div>
         <div className="rail-metric-grid" style={{ marginBottom: 14 }}>
           <div className="rail-card">
-            <div className="rail-metric-value rail-metric-empty">—</div>
+            <div className={`rail-metric-value${usageToday ? "" : " rail-metric-empty"}`}>
+              {usageToday ? usageTodayTokens.toLocaleString("es") : "—"}
+            </div>
             <div className="rail-metric-label">Uso hoy</div>
           </div>
           <div className="rail-card">

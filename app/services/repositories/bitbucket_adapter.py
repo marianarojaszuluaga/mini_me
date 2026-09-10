@@ -16,7 +16,7 @@ from datetime import datetime
 import httpx
 
 from app.schemas.auth_profile import AuthProfile
-from app.schemas.repository import Commit, FileNode, PullRequest
+from app.schemas.repository import Commit, FileNode, PullRequest, RepoSummary
 
 _API_BASE = "https://api.bitbucket.org/2.0"
 
@@ -40,6 +40,35 @@ def _headers(auth_profile: AuthProfile) -> dict[str, str]:
 
 
 class BitbucketAdapter:
+    async def list_repos(self, auth_profile: AuthProfile) -> list[RepoSummary]:
+        """Real repos of the connected account — Tarea 2 Gap 2 (2026-08-21).
+        `role=member` covers every repo across every workspace the token's
+        user belongs to, not just one workspace — mirrors GitHub's
+        account-wide `/user/repos`."""
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            response = await client.get(
+                f"{_API_BASE}/repositories",
+                headers=_headers(auth_profile),
+                params={"role": "member", "pagelen": 100, "sort": "-updated_on"},
+            )
+        response.raise_for_status()
+        summaries: list[RepoSummary] = []
+        for item in response.json().get("values", []):
+            full_name = item.get("full_name", "")
+            owner, _, repo_name = full_name.partition("/")
+            summaries.append(
+                RepoSummary(
+                    owner=owner,
+                    repo=repo_name or item.get("slug", ""),
+                    description=item.get("description"),
+                    language=item.get("language"),
+                    defaultBranch=(item.get("mainbranch") or {}).get("name") or "main",
+                    private=bool(item.get("is_private")),
+                    url=(item.get("links") or {}).get("html", {}).get("href"),
+                )
+            )
+        return summaries
+
     async def validate_access(self, auth_profile: AuthProfile, owner: str, repo: str) -> bool:
         async with httpx.AsyncClient(timeout=10.0) as client:
             response = await client.get(

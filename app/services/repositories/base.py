@@ -13,10 +13,12 @@ from datetime import datetime
 from typing import Protocol
 
 from app.schemas.auth_profile import AuthProfile
-from app.schemas.repository import Commit, FileNode, PullRequest
+from app.schemas.repository import Commit, FileNode, PullRequest, RepoSummary
 
 
 class RepoAdapter(Protocol):
+    async def list_repos(self, auth_profile: AuthProfile) -> list[RepoSummary]: ...
+
     async def validate_access(
         self, auth_profile: AuthProfile, owner: str, repo: str
     ) -> bool: ...

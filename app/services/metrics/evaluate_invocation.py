@@ -216,6 +216,7 @@ async def evaluate_invocation(
     input_: str = "",
     client: AsyncAnthropic | None = None,
     evaluator: AgentEvaluator | None = None,
+    project_id: str | None = None,
 ) -> InvocationEvaluation:
     """Runs all 4 HU-008 dimensions on one real agent output and persists
     the result via metrics/collector.record_evaluation. Returns the
@@ -245,6 +246,7 @@ async def evaluate_invocation(
         eficiencia=eficiencia_score,
         acertividad=acertividad_score,
         formato=formato_score,
+        project_id=project_id,
     )
 
     if own_client:
@@ -305,6 +307,7 @@ async def evaluate_and_check(
     input_: str = "",
     client: AsyncAnthropic | None = None,
     evaluator: AgentEvaluator | None = None,
+    project_id: str | None = None,
 ) -> dict[str, Any]:
     """Convenience entry point for the invoke handler: runs
     evaluate_invocation, then check_degradation for each of the 4
@@ -314,7 +317,7 @@ async def evaluate_and_check(
     {"dimensions": {...}, "degraded": ["eficiencia", ...]}
     """
     evaluation = await evaluate_invocation(
-        agent_name, output, context, input_=input_, client=client, evaluator=evaluator
+        agent_name, output, context, input_=input_, client=client, evaluator=evaluator, project_id=project_id
     )
 
     degraded: list[str] = []

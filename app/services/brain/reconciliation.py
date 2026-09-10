@@ -266,6 +266,26 @@ def _build_auth_profile(repository: dict[str, Any], auth_profiles: list[dict[str
     )
 
 
+def _help_text(status: str, ac_id: str | None, reason: str | None = None) -> str:
+    """BUG-019 fix (SPEC_JARVIS.md §14, 2026-08-21): a bare status pill never
+    told the usuaria WHAT to do about it — this is the real action per
+    status, using the exact marker convention `_AC_LINK_RE` looks for, so
+    the fix instruction actually matches what reconciliation reads."""
+    if status == "sin_test":
+        return (
+            f'Agregá un comentario "# @ac:{ac_id}" (Python) o "// @ac:{ac_id}" (JS/TS) '
+            "junto al test real que cubre este criterio, en el repo conectado."
+        )
+    if status == "con_test_sin_resultado":
+        return (
+            "Ya hay un test vinculado, pero todavía no hay un proveedor de CI conectado "
+            "que reporte si pasó o falló — conectá CI para que este gap se cierre de verdad."
+        )
+    if status == "no_reconciliable":
+        return reason or "Esta HU no tiene una sección de Acceptance Criteria parseable — revisá su formato."
+    return "Sin acción real definida para este estado todavía."
+
+
 async def _collect_test_links(project: dict[str, Any]) -> dict[str, str]:
     """Walks every connected repo's file tree, reads files under a "test"-ish
     path, and returns {acId: "owner/repo:path"} for every `@ac:<acId>` link
@@ -375,6 +395,10 @@ async def run_reconciliation(project_id: str) -> dict[str, Any] | None:
                 "testRef": test_ref,
                 "evidence": test_ref,
                 "status": status,
+                # BUG-019 fix (2026-08-21): la usuaria veía el estado pero no
+                # la acción real que lo resuelve — nunca genérico, siempre
+                # con el acId/marcador exacto de esta fila.
+                "helpText": _help_text(status, ac["acId"]),
             }
         )
 
@@ -388,6 +412,7 @@ async def run_reconciliation(project_id: str) -> dict[str, Any] | None:
                 "evidence": None,
                 "status": "no_reconciliable",
                 "reason": unreconcilable["reason"],
+                "helpText": _help_text("no_reconciliable", None, unreconcilable["reason"]),
             }
         )
 

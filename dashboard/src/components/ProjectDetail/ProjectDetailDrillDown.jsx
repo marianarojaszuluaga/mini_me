@@ -2,7 +2,17 @@ import React, { useEffect, useState } from "react";
 import Modal from "../Modal/Modal.jsx";
 import DestructiveActionModal from "../Modal/DestructiveActionModal.jsx";
 import { AlertIcon, CheckIcon } from "../icons.jsx";
+import { BasecampPublishSettings, SprintPublicationStatus } from "./BasecampPublishSettings.jsx";
 import "../CommandCenter/command-center.css";
+
+// Tarea 2 Gap 1 (2026-08-21) — nombre legible por proveedor real, usado en
+// el selector de Auth Profile para distinguirlos de un vistazo.
+const PROVIDER_LABEL = {
+  github: "GitHub",
+  bitbucket: "Bitbucket",
+  basecamp: "Basecamp",
+  google: "Google"
+};
 
 const REPO_ICON = (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -36,7 +46,7 @@ const REPO_ICON = (
  */
 
 const SECTIONS = [
-  { id: "fases", label: "Fases y agentes" },
+  { id: "fases", label: "Ciclo de vida del proyecto" },
   { id: "brain", label: "Project Brain" },
   { id: "repos", label: "Repositorios asociados" },
   { id: "basecamp", label: "Basecamp" },
@@ -85,38 +95,78 @@ function StatusPill({ status }) {
 // 1. Fases y agentes
 // ---------------------------------------------------------------------------
 
-function FasesYAgentesSection({ project, phases }) {
+// Tarea 1 (2026-08-21): picker "@" contextual — invoca un agente real
+// directo desde su tag, sin que la usuaria tenga que abrir el chat ni
+// recordar el id corto de memoria.
+function AgentInvokeTag({ api, project, agent }) {
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState(null); // { ok: bool, message: string } | null
+
+  const handleInvoke = async () => {
+    setBusy(true);
+    setResult(null);
+    try {
+      const res = await api.invokeAgent(agent, project.id, `Corré tu verificación real para el proyecto ${project.name}.`, {
+        trigger: "fases_y_agentes_tab",
+      });
+      setResult({ ok: true, message: (res.output || "").slice(0, 160) });
+    } catch (err) {
+      setResult({ ok: false, message: err.message });
+    }
+    setBusy(false);
+  };
+
+  return (
+    <span className="agent-tag agent-tag-invokable">
+      <span>{agent}</span>
+      <button type="button" className="agent-tag-invoke" onClick={handleInvoke} disabled={busy} title={`Invocar a ${agent} para este proyecto`}>
+        {busy ? "..." : "▶"}
+      </button>
+      {result && (
+        <span className={`agent-tag-result ${result.ok ? "" : "agent-tag-result-error"}`}>
+          {result.ok ? CheckIcon : AlertIcon} {result.message}
+        </span>
+      )}
+    </span>
+  );
+}
+
+function FasesYAgentesSection({ api, project, phases }) {
   if (!phases || phases.length === 0) {
     return <div className="empty-state">Cargando fases...</div>;
   }
 
+  // Tarea 1: Front (Fase 3) y Back (Fase 2) no son un paso secuencial más —
+  // arrancan en paralelo apenas Fase 1 entrega contratos, igual que un board
+  // de Scrum real. Se agrupan en un mismo renglón en vez de una fila lineal.
+  const phase1 = phases.find((p) => p.id === 1);
+  const parallelPhases = phases.filter((p) => p.id === 2 || p.id === 3);
+  const laterPhases = phases.filter((p) => p.id > 3);
+
+  const renderPhase = (phase) => (
+    <div key={phase.id} className={`phase-nav-item ${phase.id === project.currentPhase ? "active" : ""}`}>
+      <div className="phase-nav-number">{phase.id}</div>
+      <div className="phase-nav-content">
+        <div className="phase-nav-title">{phase.title}</div>
+        <div className="phase-nav-desc">{Array.isArray(phase.outputs) ? phase.outputs[0] : ""}</div>
+      </div>
+      <div className="phase-nav-agents">
+        {phase.agents.length === 0 ? (
+          <span className="agent-tag">sin agentes (tooling)</span>
+        ) : (
+          phase.agents.map((agent) => <AgentInvokeTag key={agent} api={api} project={project} agent={agent} />)
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div className="phases-list">
-      {phases.map((phase) => (
-        <div
-          key={phase.id}
-          className={`phase-nav-item ${phase.id === project.currentPhase ? "active" : ""}`}
-        >
-          <div className="phase-nav-number">{phase.id}</div>
-          <div className="phase-nav-content">
-            <div className="phase-nav-title">{phase.title}</div>
-            <div className="phase-nav-desc">
-              {Array.isArray(phase.outputs) ? phase.outputs[0] : ""}
-            </div>
-          </div>
-          <div className="phase-nav-agents">
-            {phase.agents.length === 0 ? (
-              <span className="agent-tag">sin agentes (tooling)</span>
-            ) : (
-              phase.agents.map((agent) => (
-                <span key={agent} className="agent-tag">
-                  {agent}
-                </span>
-              ))
-            )}
-          </div>
-        </div>
-      ))}
+      {phase1 && renderPhase(phase1)}
+      {parallelPhases.length > 0 && (
+        <div className="phases-parallel-row">{parallelPhases.map(renderPhase)}</div>
+      )}
+      {laterPhases.map(renderPhase)}
     </div>
   );
 }
@@ -176,6 +226,8 @@ function ReconciliationSubsection({ api, project, onProjectUpdated }) {
               {gap.acceptanceCriterion && <div className="recon-ac-text">{gap.acceptanceCriterion}</div>}
               {gap.reason && <div className="recon-ac-text recon-ac-reason">{gap.reason}</div>}
               {gap.testRef && <div className="pd-meta">Test: {gap.testRef}</div>}
+              {/* BUG-019 fix (2026-08-21): la acción real que resuelve este estado, no solo el estado. */}
+              {gap.helpText && <div className="recon-help-text">{AlertIcon} {gap.helpText}</div>}
             </div>
           ))}
         </div>
@@ -248,10 +300,47 @@ function ConnectRepoForm({ api, project, authProfiles, onConnected, onCancel }) 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
+  // Tarea 2 Gap 2 (2026-08-21): pull the account's real repos instead of
+  // making the user type owner/repo by hand. `null` = loading,
+  // `[]`/error = fall back to the manual text fields below.
+  const [realRepos, setRealRepos] = useState(null);
+  const [reposError, setReposError] = useState("");
+  const [selectedRepoKey, setSelectedRepoKey] = useState("");
+  const [manualMode, setManualMode] = useState(false);
+
+  useEffect(() => {
+    if (!authProfileId) return;
+    setRealRepos(null);
+    setReposError("");
+    setSelectedRepoKey("");
+    setManualMode(false);
+    api
+      .listAuthProfileRepos(authProfileId)
+      .then((repos) => {
+        setRealRepos(repos);
+        if (repos.length === 0) setManualMode(true);
+      })
+      .catch((err) => {
+        setReposError(err.message);
+        setRealRepos([]);
+        setManualMode(true);
+      });
+  }, [api, authProfileId]);
+
   const handleAuthProfileChange = (id) => {
     setAuthProfileId(id);
     const profile = authProfiles.find((p) => p.id === id);
     if (profile) setProvider(profile.provider);
+  };
+
+  const handleRepoPick = (key) => {
+    setSelectedRepoKey(key);
+    const picked = (realRepos || []).find((r) => `${r.owner}/${r.repo}` === key);
+    if (picked) {
+      setOwner(picked.owner);
+      setRepo(picked.repo);
+      if (picked.defaultBranch) setBranches([picked.defaultBranch]);
+    }
   };
 
   const handleAddBranch = () => {
@@ -300,31 +389,78 @@ function ConnectRepoForm({ api, project, authProfiles, onConnected, onCancel }) 
           <select className="field-select" value={authProfileId} onChange={(e) => handleAuthProfileChange(e.target.value)} required>
             {authProfiles.map((p) => (
               <option key={p.id} value={p.id}>
-                {/* BUG-017 fix: label legible (cuenta — alcance), no el id crudo */}
-                {p.account} — {p.scope ? p.scope : p.provider}
+                {/* BUG-017 fix: label legible (cuenta — alcance), no el id crudo.
+                    Tarea 2 Gap 1 (2026-08-21): prefijo de proveedor real para
+                    distinguir GitHub personal/Imagine y Bitbucket de un
+                    vistazo — un <option> nativo no puede llevar un ícono SVG. */}
+                [{PROVIDER_LABEL[p.provider] || p.provider}] {p.account} — {p.scope ? p.scope : p.provider}
               </option>
             ))}
           </select>
         </div>
         <div>
           <label className="field-label">Repositorio</label>
-          <input
-            className="field-input"
-            type="text"
-            placeholder="owner"
-            value={owner}
-            onChange={(e) => setOwner(e.target.value)}
-            required
-            style={{ marginBottom: 8 }}
-          />
-          <input
-            className="field-input"
-            type="text"
-            placeholder="repo"
-            value={repo}
-            onChange={(e) => setRepo(e.target.value)}
-            required
-          />
+          {realRepos === null && <div className="loading">Cargando repos reales de la cuenta...</div>}
+          {!manualMode && realRepos && realRepos.length > 0 && (
+            <>
+              <select
+                className="field-select"
+                value={selectedRepoKey}
+                onChange={(e) => handleRepoPick(e.target.value)}
+                required
+              >
+                <option value="" disabled>
+                  Selecciona un repositorio
+                </option>
+                {realRepos.map((r) => (
+                  <option key={`${r.owner}/${r.repo}`} value={`${r.owner}/${r.repo}`}>
+                    {r.owner}/{r.repo}
+                    {r.private ? " (privado)" : ""}
+                    {r.language ? ` — ${r.language}` : ""}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                className="btn-link"
+                style={{ marginTop: 6 }}
+                onClick={() => setManualMode(true)}
+              >
+                Escribir owner/repo manualmente en su lugar
+              </button>
+            </>
+          )}
+          {manualMode && (
+            <>
+              {reposError && (
+                <div className="flag" style={{ marginBottom: 8 }}>
+                  {AlertIcon} No se pudo traer la lista real de repos ({reposError}). Escribí owner/repo a mano.
+                </div>
+              )}
+              <input
+                className="field-input"
+                type="text"
+                placeholder="owner"
+                value={owner}
+                onChange={(e) => setOwner(e.target.value)}
+                required
+                style={{ marginBottom: 8 }}
+              />
+              <input
+                className="field-input"
+                type="text"
+                placeholder="repo"
+                value={repo}
+                onChange={(e) => setRepo(e.target.value)}
+                required
+              />
+              {realRepos && realRepos.length > 0 && (
+                <button type="button" className="btn-link" style={{ marginTop: 6 }} onClick={() => setManualMode(false)}>
+                  Volver a elegir de la lista real
+                </button>
+              )}
+            </>
+          )}
         </div>
         <div>
           <label className="field-label">Ambiente</label>
@@ -643,7 +779,7 @@ function BasecampSprintCard({ api, project }) {
   }, [api, project.id]);
 
   if (sprintError) {
-    return <div className="pd-meta">Sprint: {sprintError}</div>;
+    return <div className="pd-meta">Sprint (todolist, legacy): {sprintError}</div>;
   }
   if (!sprint) return null;
 
@@ -664,41 +800,213 @@ function BasecampSprintCard({ api, project }) {
   );
 }
 
-function BasecampSection({ api, project, onProjectUpdated }) {
-  const existing = project.basecamp;
-  const [accountId, setAccountId] = useState(existing?.account_id || "");
-  const [basecampProjectId, setBasecampProjectId] = useState(existing?.project_id || "");
+// Tarea 2 Gap 3 (2026-08-21, corrección de Mariana): el espejo real viene de
+// las Card Tables (columnas + cards), nunca del todolist — se muestra
+// aparte del sprint legacy de arriba, que queda solo como referencia.
+function BasecampMirrorCard({ api, project }) {
+  const [mirror, setMirror] = useState(null);
+  const [mirrorError, setMirrorError] = useState("");
+
+  useEffect(() => {
+    setMirror(null);
+    setMirrorError("");
+    api
+      .getProjectBasecampMirror(project.id)
+      .then(setMirror)
+      .catch((err) => setMirrorError(err.message));
+  }, [api, project.id]);
+
+  if (mirrorError) {
+    return (
+      <div className="flag" style={{ marginTop: 12 }}>
+        {AlertIcon} Espejo de Basecamp: {mirrorError}
+      </div>
+    );
+  }
+  if (!mirror) return <div className="loading">Cargando espejo real de Basecamp...</div>;
+
+  return (
+    <div className="basecamp-mirror-card" style={{ marginTop: 12 }}>
+      <div className="basecamp-mirror-header">
+        <strong>{mirror.name || project.name}</strong>
+        {mirror.lastSyncAt && <span className="pd-meta">Última sync: {new Date(mirror.lastSyncAt).toLocaleString("es")}</span>}
+      </div>
+      {mirror.description && <p className="pd-meta">{mirror.description}</p>}
+      {mirror.cardTables.length === 0 ? (
+        <div className="empty-state">Sin Card Tables en el espejo todavía.</div>
+      ) : (
+        mirror.cardTables.map((table, i) => (
+          <div key={i} className="basecamp-card-table">
+            <div className="basecamp-card-table-name">{table.name}</div>
+            <div className="basecamp-card-table-columns">
+              {table.columns.map((col, j) => (
+                <div key={j} className="basecamp-card-table-column">
+                  <div className="basecamp-column-name">{col.name} ({col.cards.length})</div>
+                  {col.cards.map((card, k) => (
+                    <div key={k} className="basecamp-card">{card.title}</div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        ))
+      )}
+    </div>
+  );
+}
+
+function BasecampLinkForm({ api, project, onLinked, onCancel }) {
+  const [authProfiles, setAuthProfiles] = useState(null);
+  const [authProfileId, setAuthProfileId] = useState("");
+  const [bcProjects, setBcProjects] = useState(null);
+  const [bcProjectsError, setBcProjectsError] = useState("");
+  const [bcProjectId, setBcProjectId] = useState("");
+  const [cardTables, setCardTables] = useState(null);
+  const [cardTablesError, setCardTablesError] = useState("");
+  const [selectedCardTableIds, setSelectedCardTableIds] = useState([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [showForm, setShowForm] = useState(false);
 
-  const handleLink = async (e) => {
+  useEffect(() => {
+    api.listAuthProfiles().then((profiles) => {
+      const basecampProfiles = profiles.filter((p) => p.provider === "basecamp");
+      setAuthProfiles(basecampProfiles);
+      if (basecampProfiles[0]) setAuthProfileId(basecampProfiles[0].id);
+    });
+  }, [api]);
+
+  useEffect(() => {
+    if (!authProfileId) return;
+    setBcProjects(null);
+    setBcProjectsError("");
+    api
+      .listBasecampProjectsForProfile(authProfileId)
+      .then(setBcProjects)
+      .catch((err) => setBcProjectsError(err.message));
+  }, [api, authProfileId]);
+
+  const handlePickProject = async (id) => {
+    setBcProjectId(id);
+    setCardTables(null);
+    setCardTablesError("");
+    setSelectedCardTableIds([]);
+    // Link primero (account_id real del profile elegido) para poder listar
+    // sus Card Tables — un proyecto de Basecamp solo se puede leer con el
+    // link real ya guardado.
+    const profile = authProfiles.find((p) => p.id === authProfileId);
+    const accountId = (profile?.scope || "").replace("account_id:", "");
+    try {
+      await api.linkBasecampProject(project.id, accountId, id);
+      const tables = await api.listProjectCardTables(project.id);
+      setCardTables(tables);
+    } catch (err) {
+      setCardTablesError(err.message);
+      setCardTables([]);
+    }
+  };
+
+  const toggleCardTable = (id) => {
+    setSelectedCardTableIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  };
+
+  const handleSave = async (e) => {
     e.preventDefault();
     setBusy(true);
     setError("");
     try {
-      const fresh = await api.linkBasecampProject(project.id, accountId, basecampProjectId);
-      onProjectUpdated?.(fresh);
-      setShowForm(false);
+      await api.setProjectCardTables(project.id, selectedCardTableIds);
+      onLinked();
     } catch (err) {
       setError(err.message);
     }
     setBusy(false);
   };
 
+  return (
+    <form onSubmit={handleSave} className="pd-connect-repo-form">
+      <div>
+        <label className="field-label">Auth Profile de Basecamp</label>
+        {authProfiles === null && <div className="loading">Cargando Auth Profiles...</div>}
+        {authProfiles && authProfiles.length === 0 && (
+          <div className="flag">{AlertIcon} No hay ningún Auth Profile de Basecamp conectado todavía.</div>
+        )}
+        {authProfiles && authProfiles.length > 0 && (
+          <select className="field-select" value={authProfileId} onChange={(e) => setAuthProfileId(e.target.value)}>
+            {authProfiles.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.account}
+              </option>
+            ))}
+          </select>
+        )}
+      </div>
+
+      {authProfileId && (
+        <div>
+          <label className="field-label">Proyecto real de Basecamp</label>
+          {bcProjectsError && <div className="flag">{AlertIcon} {bcProjectsError}</div>}
+          {bcProjects === null && !bcProjectsError && <div className="loading">Cargando proyectos reales...</div>}
+          {bcProjects && bcProjects.length > 0 && (
+            <select className="field-select" value={bcProjectId} onChange={(e) => handlePickProject(e.target.value)} required>
+              <option value="" disabled>Selecciona un proyecto</option>
+              {bcProjects.map((p) => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </select>
+          )}
+        </div>
+      )}
+
+      {bcProjectId && (
+        <div>
+          <label className="field-label">Card Table(s) — fuente real del "sprint actual"</label>
+          {cardTablesError && <div className="flag">{AlertIcon} {cardTablesError}</div>}
+          {cardTables === null && !cardTablesError && <div className="loading">Cargando Card Tables reales...</div>}
+          {cardTables && cardTables.length === 0 && !cardTablesError && (
+            <div className="empty-state">Este proyecto de Basecamp no tiene Card Tables.</div>
+          )}
+          {cardTables && cardTables.length > 0 && (
+            <div className="basecamp-card-table-picker">
+              {cardTables.map((t) => (
+                <label key={t.id} className="basecamp-card-table-option">
+                  <input
+                    type="checkbox"
+                    checked={selectedCardTableIds.includes(t.id)}
+                    onChange={() => toggleCardTable(t.id)}
+                  />
+                  {t.title}
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {error && <div className="flag">{AlertIcon} {error}</div>}
+      <div className="modal-actions">
+        <button type="button" className="btn-secondary" onClick={onCancel}>Cancelar</button>
+        <button type="submit" className="btn-success" disabled={busy || !bcProjectId}>
+          {busy ? "Guardando..." : "Vincular"}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function BasecampSection({ api, project, onProjectUpdated }) {
+  const existing = project.basecamp;
+  const [showForm, setShowForm] = useState(false);
+
   const handleUnlink = async () => {
-    setBusy(true);
-    setError("");
-    try {
-      const fresh = await api.unlinkBasecampProject(project.id);
-      setAccountId("");
-      setBasecampProjectId("");
-      onProjectUpdated?.(fresh);
-      setShowForm(false);
-    } catch (err) {
-      setError(err.message);
-    }
-    setBusy(false);
+    const fresh = await api.unlinkBasecampProject(project.id);
+    onProjectUpdated?.(fresh);
+    setShowForm(false);
+  };
+
+  const handleLinked = async () => {
+    const fresh = await api.getProject(project.id);
+    onProjectUpdated?.(fresh);
+    setShowForm(false);
   };
 
   const icon = (
@@ -725,15 +1033,27 @@ function BasecampSection({ api, project, onProjectUpdated }) {
             rel="noreferrer"
           >
             https://3.basecamp.com/{existing.account_id}/projects/{existing.project_id}
-          </a>
+          </a>{" "}
+          <button type="button" className="btn-link" onClick={handleUnlink}>Desvincular</button>
+          <BasecampMirrorCard api={api} project={project} />
           <BasecampSprintCard api={api} project={project} />
+          <BasecampPublishSettings api={api} project={project} />
+          {(existing.selectedCardTableIds || []).map((sprintId) => (
+            <SprintPublicationStatus
+              key={sprintId}
+              api={api}
+              project={project}
+              sprintId={sprintId}
+              publishEnabled={!!(existing.publish || {}).enabled}
+            />
+          ))}
         </div>
       ) : (
         <div className="pv-empty-cta-list">
           <div className="pv-eic-item">
             <div className="pv-eic-text">
               <strong>Sin Basecamp vinculado</strong>
-              <span>Sin esto no se puede mostrar el sprint abierto ni el link a tareas.</span>
+              <span>Sin esto no se puede mostrar el espejo real del proyecto ni sus Card Tables.</span>
             </div>
             <button className="btn-primary" onClick={() => setShowForm(true)}>
               Integrar Basecamp
@@ -744,41 +1064,7 @@ function BasecampSection({ api, project, onProjectUpdated }) {
 
       {showForm && (
         <Modal open onClose={() => setShowForm(false)} title="Vincular Basecamp" icon={icon}>
-          <form onSubmit={handleLink} className="pd-connect-repo-form">
-            <div>
-              <label className="field-label">account_id</label>
-              <input
-                className="field-input"
-                type="text"
-                placeholder="ej. 5172885"
-                value={accountId}
-                onChange={(e) => setAccountId(e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <label className="field-label">project_id</label>
-              <input
-                className="field-input"
-                type="text"
-                placeholder="ej. 44382327"
-                value={basecampProjectId}
-                onChange={(e) => setBasecampProjectId(e.target.value)}
-                required
-              />
-            </div>
-            {error && <div className="flag">{AlertIcon} {error}</div>}
-            <div className="modal-actions">
-              {existing && (
-                <button type="button" className="btn-danger" onClick={handleUnlink} disabled={busy}>
-                  Desvincular
-                </button>
-              )}
-              <button type="submit" className="btn-success" disabled={busy}>
-                {busy ? "Guardando..." : existing ? "Actualizar" : "Vincular"}
-              </button>
-            </div>
-          </form>
+          <BasecampLinkForm api={api} project={project} onLinked={handleLinked} onCancel={() => setShowForm(false)} />
         </Modal>
       )}
     </div>
@@ -863,7 +1149,7 @@ export default function ProjectDetailDrillDown({ api, project, agents = [], phas
       </div>
 
       <div className="pd-tab-content">
-        {activeSection === "fases" && <FasesYAgentesSection project={currentProject} phases={phases} />}
+        {activeSection === "fases" && <FasesYAgentesSection api={api} project={currentProject} phases={phases} />}
         {activeSection === "brain" && (
           <ProjectBrainSection api={api} project={currentProject} onProjectUpdated={handleProjectUpdated} />
         )}

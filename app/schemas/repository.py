@@ -37,3 +37,18 @@ class FileNode(BaseModel):
     path: str
     type: str  # "file" | "dir"
     size: int | None = None
+
+
+class RepoSummary(BaseModel):
+    """One repo from the connected account's real list — Tarea 2 Gap 2
+    (2026-08-21): 'jalar (pull) los repos que existen en la cuenta' instead
+    of typing owner/repo by hand. Extra metadata (description/language/
+    default branch) becomes real project context, not just an identifier."""
+
+    owner: str
+    repo: str
+    description: str | None = None
+    language: str | None = None
+    defaultBranch: str = "main"
+    private: bool = False
+    url: str | None = None

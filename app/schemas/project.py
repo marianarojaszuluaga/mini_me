@@ -123,11 +123,41 @@ class Timeline(BaseModel):
     activities: list[TimelineActivity] = Field(default_factory=list)
 
 
+class BasecampCardTableCard(BaseModel):
+    title: str
+    dueOn: str | None = None
+    assignees: list[str] = Field(default_factory=list)
+
+
+class BasecampCardTableColumn(BaseModel):
+    name: str
+    cards: list[BasecampCardTableCard] = Field(default_factory=list)
+
+
+class BasecampMirror(BaseModel):
+    """Real snapshot of the linked Basecamp project — Tarea 2 Gap 3: name/
+    description/status plus the selected Card Tables' real columns+cards.
+    Refreshed on every Dashboard load; never fabricated if Basecamp doesn't
+    respond (the router surfaces an explicit error instead)."""
+
+    name: str | None = None
+    description: str | None = None
+    cardTables: list[dict[str, Any]] = Field(default_factory=list)
+    lastSyncAt: str | None = None
+
+
 class ProjectMemory(BaseModel):
     projectBrain: ProjectBrain = Field(default_factory=ProjectBrain)
     backlogs: Backlogs = Field(default_factory=Backlogs)
     sprints: Sprints = Field(default_factory=Sprints)
     timeline: Timeline = Field(default_factory=Timeline)
+    # Tarea 2 Gap 3 — real Basecamp mirror, separate from projectBrain/
+    # backlogs (doesn't overwrite either), None until first synced.
+    basecampMirror: BasecampMirror | None = None
+    # Tarea 3 — persisted QaSweepReport history (app/schemas/qa.py), kept as
+    # plain dicts here to avoid a schema-module cycle; the real shape is
+    # enforced where it's written (app/routers/agents.py).
+    qaSweeps: list[dict[str, Any]] = Field(default_factory=list)
 
 
 # ---------------------------------------------------------------------------
@@ -172,9 +202,31 @@ class Repository(BaseModel):
 # ---------------------------------------------------------------------------
 
 
+class BasecampPublishConfig(BaseModel):
+    """Basecamp Message Board Publisher (2026-09-07) — config por proyecto,
+    adaptado de SPEC-basecamp-message-board-publisher.md §1.9. Default
+    `enabled=False`: ningún proyecto empieza a publicar sin activación
+    explícita (HU-043 CA-1)."""
+
+    enabled: bool = False
+    publish_on_start: bool = True
+    publish_on_close: bool = True
+    category_id: int | None = None
+    notify_person_ids: list[int] = Field(default_factory=list)
+
+
 class BasecampLink(BaseModel):
     account_id: str
     project_id: str
+    # Tarea 2 Gap 3 (2026-08-21, corrección de Mariana): la fuente real de
+    # "sprint actual" son las Card Tables (Kanban), nunca el todolist — un
+    # proyecto puede tener más de una, así que se guarda cuáles quedaron
+    # elegidas como fuente en vez de asumir "la primera que aparezca".
+    selectedCardTableIds: list[str] = Field(default_factory=list)
+    # Cacheado desde el `dock` del proyecto real de Basecamp — evita pegarle
+    # a GET /projects/{id}.json en cada publicación (SPEC §1.3, §1.7).
+    message_board_id: str | None = None
+    publish: BasecampPublishConfig = Field(default_factory=BasecampPublishConfig)
 
 
 # ---------------------------------------------------------------------------
