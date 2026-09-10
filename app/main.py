@@ -26,6 +26,7 @@ from app.routers import (
     orchestrator,
     projects,
     repositories,
+    velocity,
 )
 
 settings = get_settings()
@@ -96,6 +97,11 @@ app.include_router(changelog.router)
 # /orchestrator/(.*)). No auth dependency, same as today's src/orchestrator.js
 # behavior for these routes.
 app.include_router(orchestrator.router, prefix="/orchestrator")
+
+# velocity.py: /projects/{id}/velocity/commitments, /projects/{id}/velocity —
+# Velocity/Speed/Rollover/Completion (Tarea 2, CTO QA/KPI 2026-09-10) —
+# behind the same authenticate_api_key_or_user dependency as projects.py.
+app.include_router(velocity.router)
 
 
 # HU-003-JarvisMode: Project Brain scheduled sync (app/cron/sync_scheduler.py)

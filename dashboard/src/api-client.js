@@ -255,6 +255,19 @@ export default class ApiClient {
     return this.request("/metrics/reconciliation-runs");
   }
 
+  // ---- new: velocity (Tarea 2, CTO QA/KPI 2026-09-10) ----
+
+  getVelocity(projectId) {
+    return this.request(`/projects/${encodeURIComponent(projectId)}/velocity`);
+  }
+
+  registerVelocityCommitment(projectId, commitment) {
+    return this.request(`/projects/${encodeURIComponent(projectId)}/velocity/commitments`, {
+      method: "POST",
+      body: JSON.stringify(commitment),
+    });
+  }
+
   getUsageEvents() {
     return this.request("/metrics/usage-events");
   }

@@ -324,6 +324,17 @@
       "done": "Done",
       "archived": "Archived"
     },
+    "velocity": {
+      "title": "Velocity — 3-line burndown",
+      "loading": "Loading velocity...",
+      "error": "Error loading velocity: {{error}}",
+      "empty": "No weekly commitments registered yet for this project.",
+      "planned": "Planned",
+      "reported": "Reported",
+      "derived": "Derived from code (reconciliation)",
+      "rollover": "Rollover",
+      "completionRate": "Completion rate"
+    },
     "outputTypes": {
       "hu": "# HUs generated",
       "spec": "Specs generated",

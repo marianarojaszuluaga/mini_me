@@ -324,6 +324,17 @@
       "done": "Completado",
       "archived": "Archivado"
     },
+    "velocity": {
+      "title": "Velocity — burndown de 3 líneas",
+      "loading": "Cargando velocity...",
+      "error": "Error cargando velocity: {{error}}",
+      "empty": "Sin compromisos semanales registrados todavía para este proyecto.",
+      "planned": "Planeado",
+      "reported": "Reportado",
+      "derived": "Derivado del código (reconciliación)",
+      "rollover": "Rollover",
+      "completionRate": "Completion rate"
+    },
     "outputTypes": {
       "hu": "# HU generadas",
       "spec": "Specs generadas",

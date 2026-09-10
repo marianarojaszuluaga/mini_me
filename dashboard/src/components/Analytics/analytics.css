@@ -443,3 +443,59 @@
   background: hsl(var(--ds-green-200));
   color: hsl(var(--ds-green-900));
 }
+
+/* Velocity burndown (Tarea 2, CTO QA/KPI 2026-09-10) */
+.velocity-legend {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+}
+.velocity-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.velocity-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.velocity-dot-planned { background: hsl(var(--ds-blue-500, 220 80% 55%)); }
+.velocity-dot-reported { background: hsl(var(--ds-green-500, 140 60% 45%)); }
+.velocity-dot-derived { background: hsl(var(--ds-orange-500, 30 90% 55%)); }
+
+.velocity-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.velocity-row {
+  display: grid;
+  grid-template-columns: 90px 1fr auto;
+  align-items: center;
+  gap: 10px;
+}
+.velocity-week-label {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+.velocity-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.velocity-bar {
+  height: 6px;
+  border-radius: 3px;
+  min-width: 2px;
+}
+.velocity-bar-planned { background: hsl(var(--ds-blue-500, 220 80% 55%)); }
+.velocity-bar-reported { background: hsl(var(--ds-green-500, 140 60% 45%)); }
+.velocity-bar-derived { background: hsl(var(--ds-orange-500, 30 90% 55%)); }
+.velocity-stats {
+  font-size: 0.75rem;
+  opacity: 0.8;
+  white-space: nowrap;
+}

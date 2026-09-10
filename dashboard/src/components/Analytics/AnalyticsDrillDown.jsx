@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import DrillDown from "../CommandCenter/DrillDown.jsx";
+import VelocitySection from "./VelocitySection.jsx";
 import ApiClient from "../../api-client.js";
 import { AlertIcon } from "../icons.jsx";
 import "./analytics.css";
@@ -662,6 +663,16 @@ function DashboardBody({ api, projects, projectId, onProjectIdChange }) {
               projectId={projectId}
             />
           </section>
+
+          {projectId && (
+            <section className="analytics-section">
+              <h2 className="analytics-section-title">
+                {t("analytics.velocity.title")}
+                {selectedProjectName && <span className="scope-badge">{selectedProjectName}</span>}
+              </h2>
+              <VelocitySection api={api} projectId={projectId} />
+            </section>
+          )}
 
           <P2Section
             changelog={changelog}
