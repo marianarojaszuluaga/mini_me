@@ -17,14 +17,16 @@ from anthropic import AsyncAnthropic
 from fastapi import APIRouter, Body, Depends, HTTPException
 
 from app.core.config import Settings, get_settings
-from app.core.security import authenticate_token
+from app.core.security import authenticate_api_key_or_user
 from app.core.storage import get_storage
 from app.schemas.auth_profile import AuthProfile
 from app.schemas.project import ProjectCreateRequest
+from app.schemas.user import User
 from app.services import agent_registry
+from app.services.auth_service import get_current_user_optional
 from app.services.basecamp_client import BasecampError, get_active_sprint
 
-router = APIRouter(dependencies=[Depends(authenticate_token)])
+router = APIRouter(dependencies=[Depends(authenticate_api_key_or_user)])
 
 
 def _get_anthropic_client(settings: Settings = Depends(get_settings)) -> AsyncAnthropic:
@@ -87,23 +89,44 @@ def _new_project_id() -> str:
 
 
 @router.get("/projects")
-async def list_projects() -> list[dict[str, Any]]:
+async def list_projects(
+    current_user: User | None = Depends(get_current_user_optional),
+) -> list[dict[str, Any]]:
     storage = get_storage()
-    return storage.read_projects()
+    projects = storage.read_projects()
+    # Multi-usuario (2026-09-09): when a real user JWT is present, only that
+    # user's own projects are returned. A project with no owner_user_id
+    # (pre-migration data) is only visible to API-key-only callers, not
+    # filtered into any one user's list — see PLAN-i18n-multiusuario.md's
+    # migration seed, which backfills these for Mariana's existing data.
+    if current_user is not None:
+        projects = [p for p in projects if p.get("owner_user_id") == current_user.id]
+    return projects
 
 
 @router.get("/projects/{project_id}")
-async def get_project(project_id: str) -> dict[str, Any]:
+async def get_project(
+    project_id: str,
+    current_user: User | None = Depends(get_current_user_optional),
+) -> dict[str, Any]:
     storage = get_storage()
     projects = storage.read_projects()
     project = next((p for p in projects if p.get("id") == project_id), None)
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
+    if current_user is not None and project.get("owner_user_id") not in (
+        None,
+        current_user.id,
+    ):
+        raise HTTPException(status_code=404, detail="Project not found")
     return project
 
 
 @router.post("/projects", status_code=201)
-async def create_project(body: ProjectCreateRequest) -> dict[str, Any]:
+async def create_project(
+    body: ProjectCreateRequest,
+    current_user: User | None = Depends(get_current_user_optional),
+) -> dict[str, Any]:
     storage = get_storage()
     new_project = _new_project_record(
         id_=_new_project_id(),
@@ -112,6 +135,8 @@ async def create_project(body: ProjectCreateRequest) -> dict[str, Any]:
         description=body.description,
         phase=body.phase,
     )
+    if current_user is not None:
+        new_project["owner_user_id"] = current_user.id
 
     projects = storage.read_projects()
     projects.append(new_project)

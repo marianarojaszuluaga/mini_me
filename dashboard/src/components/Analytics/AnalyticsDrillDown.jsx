@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import DrillDown from "../CommandCenter/DrillDown.jsx";
 import ApiClient from "../../api-client.js";
 import { AlertIcon } from "../icons.jsx";
@@ -27,6 +28,7 @@ function defaultApi() {
 // backend's own note verbatim — never a fabricated breakdown.
 // ----------------------------------------------------------------------------
 const RawEventsPanel = ({ api, row, eventType }) => {
+  const { t } = useTranslation();
   const [state, setState] = useState({ loading: true, events: [], error: "" });
 
   useEffect(() => {
@@ -58,12 +60,12 @@ const RawEventsPanel = ({ api, row, eventType }) => {
   }, [api, row, eventType]);
 
   if (!row.eventsAvailable) {
-    return <div className="analytics-note">{row.note || "sin eventos crudos disponibles"}</div>;
+    return <div className="analytics-note">{row.note || t("analytics.rawEvents.notAvailable")}</div>;
   }
-  if (state.loading) return <div className="analytics-note">Cargando eventos...</div>;
+  if (state.loading) return <div className="analytics-note">{t("analytics.rawEvents.loading")}</div>;
   if (state.error) return <div className="analytics-note analytics-note-error">{AlertIcon} {state.error}</div>;
   if (state.events.length === 0) {
-    return <div className="analytics-note">Sin eventos crudos encontrados para este dato.</div>;
+    return <div className="analytics-note">{t("analytics.rawEvents.noneFound")}</div>;
   }
   return (
     <div className="analytics-raw-events">
@@ -80,6 +82,7 @@ const RawEventsPanel = ({ api, row, eventType }) => {
 // ExpandableMetric — one clickable number that expands into RawEventsPanel
 // ----------------------------------------------------------------------------
 const ExpandableMetric = ({ api, label, value, sublabel, row, eventType, accent }) => {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
   const canExpand = !!row;
 
@@ -95,7 +98,11 @@ const ExpandableMetric = ({ api, label, value, sublabel, row, eventType, accent 
         <div className="metric-tile-value">{value}</div>
         <div className="metric-tile-label">{label}</div>
         {sublabel && <div className="metric-tile-sublabel">{sublabel}</div>}
-        {canExpand && <div className="metric-tile-hint">{expanded ? "ocultar eventos ▲" : "ver eventos crudos ▼"}</div>}
+        {canExpand && (
+          <div className="metric-tile-hint">
+            {expanded ? t("analytics.metricTile.hide") : t("analytics.metricTile.show")}
+          </div>
+        )}
       </button>
       {expanded && canExpand && (
         <div className="metric-tile-detail">
@@ -124,6 +131,7 @@ const AGENT_DIM_COLORS = {
 // ----------------------------------------------------------------------------
 
 const P0Section = ({ api, outputCounts, usageEvents, reconciliationRuns }) => {
+  const { t } = useTranslation();
   const byType = {};
   for (const row of outputCounts) {
     byType[row.type] = byType[row.type] || { count: 0, rows: [] };
@@ -139,11 +147,11 @@ const P0Section = ({ api, outputCounts, usageEvents, reconciliationRuns }) => {
 
   return (
     <section className="analytics-section analytics-section-p0">
-      <h2 className="analytics-section-title">P0 — Lo esencial: ¿existe, se usa, encuentra desalineación real?</h2>
+      <h2 className="analytics-section-title">{t("analytics.p0.title")}</h2>
 
-      <h3 className="analytics-subtitle">Outputs por tipo</h3>
+      <h3 className="analytics-subtitle">{t("analytics.p0.outputsByType")}</h3>
       <div className="metric-grid">
-        {Object.keys(byType).length === 0 && <div className="analytics-note">Sin outputs registrados todavía.</div>}
+        {Object.keys(byType).length === 0 && <div className="analytics-note">{t("analytics.p0.noOutputs")}</div>}
         {Object.entries(byType).map(([type, agg]) => (
           <ExpandableMetric
             key={type}
@@ -156,29 +164,29 @@ const P0Section = ({ api, outputCounts, usageEvents, reconciliationRuns }) => {
         ))}
       </div>
 
-      <h3 className="analytics-subtitle">Número de usos</h3>
+      <h3 className="analytics-subtitle">{t("analytics.p0.usageCount")}</h3>
       <div className="metric-grid">
         <ExpandableMetric
           api={api}
-          label="Invocaciones de agente (acumulado)"
+          label={t("analytics.p0.agentInvocations")}
           value={totalInvocations}
           row={lastUsage}
           eventType="usage_event"
         />
         <ExpandableMetric
           api={api}
-          label="Mensajes de chat (acumulado)"
+          label={t("analytics.p0.chatMessages")}
           value={totalChatMessages}
           row={lastUsage}
           eventType="usage_event"
         />
       </div>
 
-      <h3 className="analytics-subtitle">Reconciliación — gaps encontrados vs. cerrados</h3>
+      <h3 className="analytics-subtitle">{t("analytics.p0.reconciliationTitle")}</h3>
       <div className="metric-grid">
         <ExpandableMetric
           api={api}
-          label="Gaps encontrados (acumulado)"
+          label={t("analytics.p0.gapsFound")}
           value={gapsFound}
           row={lastRecon}
           eventType="reconciliation_run"
@@ -186,7 +194,7 @@ const P0Section = ({ api, outputCounts, usageEvents, reconciliationRuns }) => {
         />
         <ExpandableMetric
           api={api}
-          label="Gaps cerrados desde la última corrida (acumulado)"
+          label={t("analytics.p0.gapsClosed")}
           value={gapsClosed}
           row={lastRecon}
           eventType="reconciliation_run"
@@ -198,6 +206,7 @@ const P0Section = ({ api, outputCounts, usageEvents, reconciliationRuns }) => {
 };
 
 const P1Section = ({ api, agentEvaluations }) => {
+  const { t } = useTranslation();
   const byAgent = {};
   for (const row of agentEvaluations) {
     byAgent[row.agent] = byAgent[row.agent] || [];
@@ -206,33 +215,30 @@ const P1Section = ({ api, agentEvaluations }) => {
 
   return (
     <section className="analytics-section analytics-section-p1">
-      <h2 className="analytics-section-title">P1 — Valor, no solo actividad</h2>
+      <h2 className="analytics-section-title">{t("analytics.p1.title")}</h2>
 
-      <div className="analytics-note">
-        Tasa de aceptación por tipo de output y costo por output (tokens/USD) todavía no tienen un
-        evento correspondiente en el backend — no se muestra un número aquí para no inventar uno.
-      </div>
+      <div className="analytics-note">{t("analytics.p1.acceptanceRateNote")}</div>
 
-      <h3 className="analytics-subtitle">Calidad en el tiempo por agente (4 dimensiones, HU-008)</h3>
-      {Object.keys(byAgent).length === 0 && <div className="analytics-note">Sin evaluaciones registradas todavía.</div>}
+      <h3 className="analytics-subtitle">{t("analytics.p1.qualityOverTime")}</h3>
+      {Object.keys(byAgent).length === 0 && <div className="analytics-note">{t("analytics.p1.noEvaluations")}</div>}
       {Object.entries(byAgent).map(([agent, rows]) => {
         const last = rows[rows.length - 1];
         return (
           <div key={agent} className="agent-quality-card">
             <div className="agent-quality-header">
               <strong>{agent}</strong>
-              <span className="analytics-note-inline">{rows.length} evaluaciones</span>
+              <span className="analytics-note-inline">{t("analytics.p1.evaluationsCount", { count: rows.length })}</span>
             </div>
             {["eficiencia", "acertividad", "formato", "calidad"].map((dim) => (
               <div key={dim} className="agent-quality-dim">
-                <span className="agent-quality-dim-label">{dim}</span>
+                <span className="agent-quality-dim-label">{t(`analytics.dimensions.${dim}`)}</span>
                 <Bar pct={last[dim]} colorVar={AGENT_DIM_COLORS[dim]} />
                 <span className="agent-quality-dim-value">{Math.round(last[dim])}</span>
               </div>
             ))}
             <ExpandableMetric
               api={api}
-              label="ver evaluación cruda más reciente"
+              label={t("analytics.p1.viewLatestEvaluation")}
               value=""
               row={last}
               eventType="agent_evaluation"
@@ -244,20 +250,21 @@ const P1Section = ({ api, agentEvaluations }) => {
   );
 };
 
-const weekKey = (dateStr) => {
+const weekKey = (dateStr, noDateLabel) => {
   const d = new Date(dateStr);
-  if (Number.isNaN(d.getTime())) return "sin fecha";
+  if (Number.isNaN(d.getTime())) return noDateLabel;
   const onejan = new Date(d.getFullYear(), 0, 1);
   const week = Math.ceil(((d - onejan) / 86400000 + onejan.getDay() + 1) / 7);
   return `${d.getFullYear()}-W${String(week).padStart(2, "0")}`;
 };
 
 const P2Section = ({ changelog, outputCounts, reconciliationRuns }) => {
+  const { t } = useTranslation();
   const measured = changelog.filter((c) => c.after_scores);
 
   const weekly = {};
   for (const row of outputCounts) {
-    const wk = weekKey(row.date);
+    const wk = weekKey(row.date, t("analytics.p2.noDate"));
     weekly[wk] = (weekly[wk] || 0) + row.count;
   }
   const weeks = Object.keys(weekly).sort();
@@ -271,14 +278,11 @@ const P2Section = ({ changelog, outputCounts, reconciliationRuns }) => {
 
   return (
     <section className="analytics-section analytics-section-p2">
-      <h2 className="analytics-section-title">P2 — Contexto y tendencia</h2>
+      <h2 className="analytics-section-title">{t("analytics.p2.title")}</h2>
 
-      <h3 className="analytics-subtitle">Antes vs. después (changelog de mejoras medido)</h3>
+      <h3 className="analytics-subtitle">{t("analytics.p2.beforeAfterTitle")}</h3>
       {measured.length === 0 ? (
-        <div className="analytics-note">
-          Ninguna entrada del changelog tiene "después" medido todavía — se muestra "en progreso",
-          no un número inventado.
-        </div>
+        <div className="analytics-note">{t("analytics.p2.beforeAfterEmpty")}</div>
       ) : (
         measured.map((c) => (
           <div key={c.id} className="before-after-card">
@@ -286,7 +290,7 @@ const P2Section = ({ changelog, outputCounts, reconciliationRuns }) => {
             <div className="before-after-grid">
               {["eficiencia", "acertividad", "formato", "calidad"].map((dim) => (
                 <div key={dim} className="before-after-row">
-                  <span>{dim}</span>
+                  <span>{t(`analytics.dimensions.${dim}`)}</span>
                   <span>{Math.round(c.before_scores[dim])} → {Math.round(c.after_scores[dim])}</span>
                 </div>
               ))}
@@ -295,9 +299,9 @@ const P2Section = ({ changelog, outputCounts, reconciliationRuns }) => {
         ))
       )}
 
-      <h3 className="analytics-subtitle">Tendencia semanal de outputs</h3>
+      <h3 className="analytics-subtitle">{t("analytics.p2.weeklyTrendTitle")}</h3>
       {weeks.length === 0 ? (
-        <div className="analytics-note">Sin datos suficientes todavía.</div>
+        <div className="analytics-note">{t("analytics.p2.noDataYet")}</div>
       ) : (
         <div className="weekly-trend">
           {weeks.map((wk) => (
@@ -310,9 +314,9 @@ const P2Section = ({ changelog, outputCounts, reconciliationRuns }) => {
         </div>
       )}
 
-      <h3 className="analytics-subtitle">Distribución de gaps de reconciliación por proyecto</h3>
+      <h3 className="analytics-subtitle">{t("analytics.p2.byProjectTitle")}</h3>
       {Object.keys(byProject).length === 0 ? (
-        <div className="analytics-note">Sin corridas de reconciliación todavía.</div>
+        <div className="analytics-note">{t("analytics.p2.byProjectEmpty")}</div>
       ) : (
         <div className="weekly-trend">
           {Object.entries(byProject).map(([projectId, count]) => (
@@ -328,18 +332,18 @@ const P2Section = ({ changelog, outputCounts, reconciliationRuns }) => {
   );
 };
 
-const P3Section = () => (
-  <section className="analytics-section analytics-section-p3">
-    <h2 className="analytics-section-title">P3 — Lo más blando</h2>
-    <div className="analytics-note">
-      Tiempo ahorrado estimado (aproximado, nunca medición exacta): el backend todavía no expone un
-      evento de baseline vs. tiempo real de invocación para calcularlo — se omite en lugar de
-      mostrar una estimación inventada.
-    </div>
-  </section>
-);
+const P3Section = () => {
+  const { t } = useTranslation();
+  return (
+    <section className="analytics-section analytics-section-p3">
+      <h2 className="analytics-section-title">{t("analytics.p3.title")}</h2>
+      <div className="analytics-note">{t("analytics.p3.note")}</div>
+    </section>
+  );
+};
 
 const ChangelogSection = ({ api, changelog, onApprove }) => {
+  const { t } = useTranslation();
   const [busyId, setBusyId] = useState(null);
   const [error, setError] = useState("");
 
@@ -357,9 +361,9 @@ const ChangelogSection = ({ api, changelog, onApprove }) => {
 
   return (
     <section className="analytics-section analytics-section-changelog">
-      <h2 className="analytics-section-title">Changelog de mejoras del sistema</h2>
+      <h2 className="analytics-section-title">{t("analytics.changelog.title")}</h2>
       {error && <div className="analytics-note analytics-note-error">{AlertIcon} {error}</div>}
-      {changelog.length === 0 && <div className="analytics-note">Sin propuestas de mejora todavía.</div>}
+      {changelog.length === 0 && <div className="analytics-note">{t("analytics.changelog.empty")}</div>}
       {changelog.map((entry) => (
         <div key={entry.id} className="changelog-entry">
           <div className="changelog-entry-header">
@@ -367,7 +371,7 @@ const ChangelogSection = ({ api, changelog, onApprove }) => {
             <span className={`changelog-status changelog-status-${entry.status}`}>{entry.status}</span>
           </div>
           <div className="changelog-entry-what">{entry.what_changed}</div>
-          <div className="analytics-note-inline">Razón: {entry.reason}</div>
+          <div className="analytics-note-inline">{t("analytics.changelog.reason", { reason: entry.reason })}</div>
           {!entry.approved_at && (
             <button
               type="button"
@@ -375,7 +379,7 @@ const ChangelogSection = ({ api, changelog, onApprove }) => {
               onClick={() => handleApprove(entry.id)}
               disabled={busyId === entry.id}
             >
-              {busyId === entry.id ? "Aprobando..." : "Aprobar"}
+              {busyId === entry.id ? t("analytics.changelog.approving") : t("analytics.changelog.approve")}
             </button>
           )}
         </div>
@@ -391,6 +395,7 @@ const ChangelogSection = ({ api, changelog, onApprove }) => {
 // usados + outputs -> Salud del sistema (global, badged as such).
 // ----------------------------------------------------------------------------
 function DashboardBody({ api, projects, projectId, onProjectIdChange }) {
+  const { t } = useTranslation();
   const [data, setData] = useState(null);
   const [changelog, setChangelog] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -403,7 +408,7 @@ function DashboardBody({ api, projects, projectId, onProjectIdChange }) {
 
   const load = useCallback(async () => {
     if (!api) {
-      setError("No hay App API Key configurada.");
+      setError(t("analytics.dashboard.noApiKey"));
       return;
     }
     setLoading(true);
@@ -419,7 +424,7 @@ function DashboardBody({ api, projects, projectId, onProjectIdChange }) {
       setError(err.message);
     }
     setLoading(false);
-  }, [api, projectId]);
+  }, [api, projectId, t]);
 
   useEffect(() => {
     load();
@@ -450,7 +455,7 @@ function DashboardBody({ api, projects, projectId, onProjectIdChange }) {
     <div className="analytics-drilldown">
       {projects.length > 0 && (
         <div className="dash-project-picker">
-          <span className="dash-project-picker-label">Mostrando datos de:</span>
+          <span className="dash-project-picker-label">{t("analytics.dashboard.showingDataFor")}</span>
           <select
             className="dash-project-select"
             value={projectId || ""}
@@ -465,20 +470,20 @@ function DashboardBody({ api, projects, projectId, onProjectIdChange }) {
         </div>
       )}
 
-      {loading && <div className="analytics-note">Cargando métricas...</div>}
+      {loading && <div className="analytics-note">{t("analytics.dashboard.loadingMetrics")}</div>}
       {error && <div className="analytics-note analytics-note-error">{AlertIcon} {error}</div>}
 
       {data && (
         <>
           <section className="analytics-section">
             <h2 className="analytics-section-title">
-              Estadísticas del proyecto
+              {t("analytics.dashboard.projectStats")}
               {selectedProjectName && <span className="scope-badge">{selectedProjectName}</span>}
             </h2>
             <div className="metric-grid">
               <ExpandableMetric
                 api={api}
-                label="Gaps encontrados (este proyecto)"
+                label={t("analytics.dashboard.gapsFoundProject")}
                 value={data.reconciliationRuns.reduce((acc, r) => acc + (r.gaps_found || 0), 0)}
                 row={data.reconciliationRuns[data.reconciliationRuns.length - 1]}
                 eventType="reconciliation_run"
@@ -486,7 +491,7 @@ function DashboardBody({ api, projects, projectId, onProjectIdChange }) {
               />
               <ExpandableMetric
                 api={api}
-                label="Gaps cerrados (este proyecto)"
+                label={t("analytics.dashboard.gapsClosedProject")}
                 value={data.reconciliationRuns.reduce((acc, r) => acc + (r.gaps_closed_since_last || 0), 0)}
                 row={data.reconciliationRuns[data.reconciliationRuns.length - 1]}
                 eventType="reconciliation_run"
@@ -498,33 +503,37 @@ function DashboardBody({ api, projects, projectId, onProjectIdChange }) {
                 <div className="metric-value">
                   {sprint ? `${sprint.tasks_done}/${sprint.tasks_total}` : <span className="metric-value metric-empty">—</span>}
                 </div>
-                <div className="metric-label">Tareas de sprint</div>
+                <div className="metric-label">{t("analytics.dashboard.sprintTasks")}</div>
               </div>
               <div className="tile">
                 <div className="metric-value" style={{ fontSize: 16 }}>
-                  {selectedProject ? SEMAPHORE_LABEL_ES[selectedProject.status] || selectedProject.status : "—"}
+                  {selectedProject
+                    ? t(`analytics.projectStatus.${selectedProject.status}`, {
+                        defaultValue: SEMAPHORE_LABEL_ES[selectedProject.status] || selectedProject.status
+                      })
+                    : "—"}
                 </div>
-                <div className="metric-label">Status del proyecto</div>
+                <div className="metric-label">{t("analytics.dashboard.projectStatus")}</div>
               </div>
               <div className="tile">
                 <div className="metric-value metric-empty">—</div>
-                <div className="metric-label">Tiempo de trabajo (7 días)</div>
+                <div className="metric-label">{t("analytics.dashboard.workTime7d")}</div>
               </div>
             </div>
             {sprintError && (
               <div className="analytics-note-inline" style={{ marginTop: 8 }}>
-                Tareas de sprint: {sprintError}
+                {t("analytics.dashboard.sprintTasksError", { error: sprintError })}
               </div>
             )}
           </section>
 
           <section className="analytics-section">
             <h2 className="analytics-section-title">
-              Últimos agentes usados
+              {t("analytics.dashboard.recentAgentsUsed")}
               {selectedProjectName && <span className="scope-badge">{selectedProjectName}</span>}
             </h2>
             <AgentAvatarGroup agentEvaluations={data.agentEvaluations} />
-            <h3 className="analytics-subtitle"># de outputs</h3>
+            <h3 className="analytics-subtitle">{t("analytics.dashboard.outputsCount")}</h3>
             <div className="metric-grid">
               {(() => {
                 const byType = {};
@@ -534,13 +543,13 @@ function DashboardBody({ api, projects, projectId, onProjectIdChange }) {
                   byType[row.type].rows.push(row);
                 }
                 if (Object.keys(byType).length === 0) {
-                  return <div className="analytics-note">Sin outputs registrados todavía para este proyecto.</div>;
+                  return <div className="analytics-note">{t("analytics.dashboard.noOutputsProject")}</div>;
                 }
                 return Object.entries(byType).map(([type, agg]) => (
                   <ExpandableMetric
                     key={type}
                     api={api}
-                    label={OUTPUT_TYPE_LABELS[type] || type}
+                    label={t(`analytics.outputTypes.${type}`, { defaultValue: OUTPUT_TYPE_LABELS[type] || type })}
                     value={agg.count}
                     row={agg.rows[agg.rows.length - 1]}
                     eventType="output_count"
@@ -552,11 +561,11 @@ function DashboardBody({ api, projects, projectId, onProjectIdChange }) {
 
           <section className="analytics-section">
             <h2 className="analytics-section-title">
-              Salud del sistema
-              <span className="scope-badge scope-badge-global">Todos los proyectos</span>
+              {t("analytics.dashboard.systemHealth")}
+              <span className="scope-badge scope-badge-global">{t("analytics.dashboard.allProjects")}</span>
             </h2>
             <div className="analytics-note-inline" style={{ marginBottom: 8 }}>
-              Explora la calidad de los agentes
+              {t("analytics.dashboard.exploreAgentQuality")}
             </div>
             <P1Section api={api} agentEvaluations={data.agentEvaluations} />
           </section>
@@ -605,6 +614,7 @@ const AGENT_COLORS = {
 };
 
 function AgentAvatarGroup({ agentEvaluations }) {
+  const { t } = useTranslation();
   const seen = new Map();
   for (const row of agentEvaluations) {
     if (!seen.has(row.agent)) seen.set(row.agent, row);
@@ -612,7 +622,7 @@ function AgentAvatarGroup({ agentEvaluations }) {
   const agents = Array.from(seen.keys()).slice(-5);
 
   if (agents.length === 0) {
-    return <div className="analytics-note">Sin agentes invocados todavía para este proyecto.</div>;
+    return <div className="analytics-note">{t("analytics.avatars.noAgentsYet")}</div>;
   }
 
   const missingPhoto = agents.filter((agent) => !AGENT_PHOTOS[agent]);
@@ -635,7 +645,7 @@ function AgentAvatarGroup({ agentEvaluations }) {
       )}
       {missingPhoto.length > 0 && (
         <div className="agent-note">
-          Sin foto real todavía: {missingPhoto.join(", ")} — placeholder de color mientras tanto.
+          {t("analytics.avatars.noPhotoYet", { agents: missingPhoto.join(", ") })}
         </div>
       )}
     </div>
@@ -648,6 +658,7 @@ function AgentAvatarGroup({ agentEvaluations }) {
 // caller that hasn't migrated yet.
 // ----------------------------------------------------------------------------
 export default function AnalyticsDrillDown({ open, onClose, api: apiProp, fullPage = false, projects = [] }) {
+  const { t } = useTranslation();
   const api = apiProp || defaultApi();
   const [projectId, setProjectId] = useState(projects[0]?.id || "");
 
@@ -660,12 +671,12 @@ export default function AnalyticsDrillDown({ open, onClose, api: apiProp, fullPa
   }
 
   return (
-    <DrillDown open={open} onClose={onClose} label="Analítica completa">
+    <DrillDown open={open} onClose={onClose} label={t("analytics.fullAnalytics")}>
       <div className="analytics-drilldown">
         <div className="analytics-header">
-          <h1>📈 Analítica completa</h1>
+          <h1>📈 {t("analytics.fullAnalytics")}</h1>
           <button type="button" className="btn-cancel" onClick={onClose}>
-            Cerrar
+            {t("analytics.close")}
           </button>
         </div>
         {open && (

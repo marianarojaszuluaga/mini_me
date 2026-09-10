@@ -15,6 +15,7 @@ from app.core.config import get_settings
 from app.cron.sync_scheduler import start_scheduler
 from app.routers import (
     agents,
+    auth,
     brain,
     changelog,
     health,
@@ -41,6 +42,11 @@ app.add_middleware(
 
 # health.py has no auth dependency (deploy platforms probe it with no key).
 app.include_router(health.router)
+
+# auth.py: /auth/register, /auth/login, /auth/google, /auth/me — multi-usuario
+# (2026-09-09). No `authenticate_token` dependency: these ARE the login
+# routes, gated only by their own body (or nothing, for /me's JWT check).
+app.include_router(auth.router)
 
 # agents.py: /agents, /phases, /phases/{id_or_key}, /agents/{name}/invoke,
 # /orchestrate, /evaluate — all behind the auth dependency.

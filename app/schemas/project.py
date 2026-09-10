@@ -186,6 +186,15 @@ class Project(BaseModel):
     id: str
     name: str
     owner: str | None = None
+    # Real user ownership (multi-usuario, 2026-09-09) — the `owner` field
+    # above stays as the free-text label already in use; this is the actual
+    # User.id used to filter GET /projects per authenticated user. Optional
+    # so existing projects (pre-migration) keep loading; the migration seed
+    # (see PLAN-i18n-multiusuario.md) backfills it for Mariana's data.
+    # TODO(fase futura): today a project has exactly one owner_user_id
+    # (single-owner). Shared/team ownership (multiple users per project) is
+    # out of scope for this pass — see PLAN-i18n-multiusuario.md.
+    owner_user_id: str | None = None
     description: str | None = None
     currentPhase: int = 1
     currentStep: str = "iniciando"

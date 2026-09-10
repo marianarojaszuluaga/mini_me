@@ -16,15 +16,17 @@ from typing import Any
 
 from fastapi import APIRouter, Body, Depends, HTTPException
 
-from app.core.security import authenticate_token
+from app.core.security import authenticate_api_key_or_user
 from app.core.storage import get_storage
 from app.cron.sync_scheduler import sync_one_repository
 from app.schemas.auth_profile import AuthProfileCreateRequest
 from app.schemas.project import Repository
+from app.schemas.user import User
 from app.services import auth_profiles
+from app.services.auth_service import get_current_user_optional
 from app.services.repositories import get_adapter
 
-router = APIRouter(dependencies=[Depends(authenticate_token)])
+router = APIRouter(dependencies=[Depends(authenticate_api_key_or_user)])
 
 
 def _new_repo_id(provider: str, repo: str) -> str:
@@ -42,15 +44,35 @@ def _find_project(projects: list[dict[str, Any]], project_id: str) -> dict[str, 
 
 
 @router.get("/auth-profiles")
-async def list_auth_profiles() -> list[dict[str, Any]]:
+async def list_auth_profiles(
+    current_user: User | None = Depends(get_current_user_optional),
+) -> list[dict[str, Any]]:
     # to_public_dict() strips access_token/refresh_token — real OAuth tokens
     # (app/routers/oauth.py) must never leave the server (SPEC_JARVIS.md §11).
-    return [p.to_public_dict() for p in auth_profiles.list_auth_profiles()]
+    # Multi-usuario (2026-09-09): a logged-in user only sees their own
+    # profiles; a pre-migration profile with no user_id stays hidden from
+    # per-user views (same convention as Project.owner_user_id filtering).
+    profiles = auth_profiles.list_auth_profiles()
+    if current_user is not None:
+        profiles = [p for p in profiles if p.user_id == current_user.id]
+    return [p.to_public_dict() for p in profiles]
 
 
 @router.post("/auth-profiles", status_code=201)
-async def create_auth_profile(body: AuthProfileCreateRequest) -> dict[str, Any]:
-    return auth_profiles.create_auth_profile(body).to_public_dict()
+async def create_auth_profile(
+    body: AuthProfileCreateRequest,
+    current_user: User | None = Depends(get_current_user_optional),
+) -> dict[str, Any]:
+    profile = auth_profiles.create_auth_profile(body)
+    if current_user is not None:
+        storage = get_storage()
+        records = storage.read_auth_profiles()
+        for record in records:
+            if record.get("id") == profile.id:
+                record["user_id"] = current_user.id
+        storage.write_auth_profiles(records)
+        profile.user_id = current_user.id
+    return profile.to_public_dict()
 
 
 @router.delete("/auth-profiles/{profile_id}")

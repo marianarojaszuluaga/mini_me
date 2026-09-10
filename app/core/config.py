@@ -46,6 +46,13 @@ class Settings(BaseSettings):
     # fields read from env vars).
     APP_API_KEYS: str = ""
 
+    # Multi-usuario (2026-09-09): secret used to sign the app's own user JWTs
+    # (app/services/auth_service.py). Separate from APP_API_KEYS, which stays
+    # as the shared server-to-server key. MUST be overridden in production —
+    # this default is dev-only, same "clearly a placeholder" pattern as
+    # elsewhere in this file.
+    JWT_SECRET: str = "dev-insecure-change-me"
+
     # MAP server port.
     PORT: int = 3001
 

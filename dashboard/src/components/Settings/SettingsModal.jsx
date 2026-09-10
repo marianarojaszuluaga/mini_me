@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Modal from "../Modal/Modal.jsx";
 import "./settings.css";
 
@@ -8,10 +9,10 @@ const ACCENT_KEY = "ORQ_ACCENT"; // "h,s,l" e.g. "133,50%,32%"
 // Valores exactos del mockup acordado (Rediseño Geist v2) — verde oscuro por
 // default, SIN rojo (Mariana: "elimina el rojo, deja el amarillo o naranja").
 const ACCENT_OPTIONS = [
-  { name: "Verde (default)", hsl: "133,50%,28%" },
-  { name: "Azul", hsl: "212,100%,48%" },
-  { name: "Púrpura", hsl: "272,51%,44%" },
-  { name: "Naranja", hsl: "35,100%,45%" }
+  { nameKey: "settings.accents.green", hsl: "133,50%,28%" },
+  { nameKey: "settings.accents.blue", hsl: "212,100%,48%" },
+  { nameKey: "settings.accents.purple", hsl: "272,51%,44%" },
+  { nameKey: "settings.accents.orange", hsl: "35,100%,45%" }
 ];
 
 export function applyStoredAppearance() {
@@ -29,6 +30,7 @@ export function applyStoredAppearance() {
 }
 
 export default function SettingsModal({ open, onClose }) {
+  const { t } = useTranslation();
   const [theme, setTheme] = useState(localStorage.getItem(THEME_KEY) || "auto");
   const [accent, setAccent] = useState(localStorage.getItem(ACCENT_KEY) || ACCENT_OPTIONS[0].hsl);
 
@@ -67,26 +69,26 @@ export default function SettingsModal({ open, onClose }) {
     <Modal
       open={open}
       onClose={onClose}
-      title="Configuración"
+      title={t("settings.title")}
       icon={icon}
       actions={
         <>
           <button type="button" className="btn-cancel" onClick={onClose}>
-            Cancelar
+            {t("settings.cancel")}
           </button>
           <button type="button" className="btn-accent" onClick={handleSave}>
-            Guardar
+            {t("settings.save")}
           </button>
         </>
       }
     >
       <div className="settings-field">
-        <label className="settings-field-label">Tema</label>
+        <label className="settings-field-label">{t("settings.themeLabel")}</label>
         <div className="settings-theme-toggle">
           {[
-            { value: "auto", label: "Auto" },
-            { value: "light", label: "Claro" },
-            { value: "dark", label: "Oscuro" }
+            { value: "auto", labelKey: "settings.themeOptions.auto" },
+            { value: "light", labelKey: "settings.themeOptions.light" },
+            { value: "dark", labelKey: "settings.themeOptions.dark" }
           ].map((opt) => (
             <button
               key={opt.value}
@@ -94,14 +96,14 @@ export default function SettingsModal({ open, onClose }) {
               className={theme === opt.value ? "active" : ""}
               onClick={() => previewTheme(opt.value)}
             >
-              {opt.label}
+              {t(opt.labelKey)}
             </button>
           ))}
         </div>
       </div>
 
       <div className="settings-field">
-        <label className="settings-field-label">Color principal</label>
+        <label className="settings-field-label">{t("settings.accentLabel")}</label>
         <div className="settings-accent-swatches">
           {ACCENT_OPTIONS.map((opt) => (
             <button
@@ -109,13 +111,13 @@ export default function SettingsModal({ open, onClose }) {
               type="button"
               className={`settings-accent-swatch ${accent === opt.hsl ? "active" : ""}`}
               style={{ background: `hsl(${opt.hsl})` }}
-              title={opt.name}
+              title={t(opt.nameKey)}
               onClick={() => previewAccent(opt.hsl)}
             />
           ))}
         </div>
         <div className="settings-field-hint">
-          Se guarda por usuario — la próxima vez que abras la app, arranca con esta config.
+          {t("settings.hint")}
         </div>
       </div>
     </Modal>

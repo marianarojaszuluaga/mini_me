@@ -21,6 +21,11 @@ dependencies = [
     # once the real Upstash Redis resource was connected. Moved to base deps so
     # it's actually present at runtime.
     "upstash-redis>=1.1.0",
+    # Multi-usuario (2026-09-09): email+password + Google-login JWT auth.
+    "python-jose[cryptography]>=3.3.0",
+    "bcrypt>=4.0.0",
+    "google-auth>=2.35.0",
+    "pydantic[email]>=2.8.0",
 ]
 
 [build-system]

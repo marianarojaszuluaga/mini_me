@@ -33,6 +33,10 @@ def _now_iso() -> str:
 
 class AuthProfile(BaseModel):
     id: str
+    # Multi-usuario (2026-09-09): Auth Profiles now belong to a user instead
+    # of being global. Optional so profiles created before this field existed
+    # keep loading (backfilled to Mariana's user id by the migration seed).
+    user_id: str | None = None
     provider: Provider
     account: str
     # Free-form label, e.g. "personal-github", "org:imagineappsdev" —

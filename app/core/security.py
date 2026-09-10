@@ -54,3 +54,41 @@ async def authenticate_token(
         )
 
     return token
+
+
+async def authenticate_api_key_or_user(
+    credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
+    settings: Settings = Depends(get_settings),
+) -> str:
+    """Multi-usuario (2026-09-09): accepts EITHER a shared APP_API_KEYS token
+    (server-to-server / admin callers, `authenticate_token`'s old behavior)
+    OR a valid per-user JWT (app/services/auth_service.create_access_token).
+    Used as the router-level dependency for user-facing routes (projects,
+    repositories) so end users authenticate with their own JWT while
+    existing API-key-only callers keep working unchanged.
+
+    Route handlers that need to know the actual user (for per-user
+    filtering) should ALSO depend on
+    `app.services.auth_service.get_current_user_optional` — this dependency
+    only gates access, it doesn't identify who's calling.
+    """
+    if credentials is not None and credentials.credentials:
+        allowed_keys = settings.allowed_api_keys
+        if allowed_keys and any(
+            _timing_safe_equal(credentials.credentials, key) for key in allowed_keys
+        ):
+            return credentials.credentials
+
+        # Not a valid API key — try it as a user JWT instead.
+        from app.services.auth_service import AuthError, decode_access_token
+
+        try:
+            decode_access_token(credentials.credentials, settings)
+            return credentials.credentials
+        except AuthError:
+            pass
+
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="No valid API key or user token provided",
+    )
