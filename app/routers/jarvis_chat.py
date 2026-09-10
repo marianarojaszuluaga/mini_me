@@ -26,7 +26,7 @@ from anthropic.types import MessageParam
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.core.config import Settings, get_settings
-from app.core.security import authenticate_token
+from app.core.security import authenticate_api_key_or_user
 from app.core.storage import get_storage
 from app.schemas.chat import ChatRequest, ChatSession, ChatTurn, ChatTurnResponse, SourceCitation, ToolCallRecord
 from app.services import mar_memory
@@ -34,7 +34,7 @@ from app.services.jarvis_chat import session_manager
 from app.services.jarvis_chat.tools import TOOL_SCHEMAS, dispatch_tool
 from app.services.metrics import collector
 
-router = APIRouter(dependencies=[Depends(authenticate_token)])
+router = APIRouter(dependencies=[Depends(authenticate_api_key_or_user)])
 
 CHAT_MODEL = "claude-sonnet-4-6"
 CHAT_MAX_TOKENS = 4096

@@ -105,9 +105,32 @@ export default function Landing({ onAuthenticated, onUseAppKey, externalError })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentLang]);
 
+  // Validación propia (2026-09-10): los <input required/type="email"> disparaban
+  // el tooltip nativo del navegador (icono naranja, fuente/colores del OS) al
+  // enviar el form — no sigue el diseño de la app. Con noValidate en el <form>
+  // el navegador ya no lo muestra, y este chequeo cae en el mismo bloque de
+  // error (.flag + AlertIcon) que ya se usaba para errores del backend.
+  function validateCredentials() {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return t("landing.errors.invalidEmail");
+    }
+    if (password.length < 8) {
+      return t("landing.errors.passwordTooShort");
+    }
+    if (mode === "register" && !name.trim()) {
+      return t("landing.errors.nameRequired");
+    }
+    return "";
+  }
+
   async function submitCredentials(e) {
     e.preventDefault();
     setError("");
+    const validationError = validateCredentials();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
     setLoading(true);
     try {
       const path = mode === "login" ? "/auth/login" : "/auth/register";
@@ -170,7 +193,7 @@ export default function Landing({ onAuthenticated, onUseAppKey, externalError })
       <section className="landing-access">
         <div className="landing-access-card">
           <h2>{mode === "login" ? t("landing.loginTitle") : t("landing.registerTitle")}</h2>
-          <form onSubmit={submitCredentials}>
+          <form onSubmit={submitCredentials} noValidate>
             {mode === "register" && (
               <input
                 type="text"
@@ -180,19 +203,16 @@ export default function Landing({ onAuthenticated, onUseAppKey, externalError })
               />
             )}
             <input
-              type="email"
+              type="text"
               placeholder={t("landing.email")}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
             />
             <input
               type="password"
               placeholder={t("landing.password")}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={8}
             />
             <button type="submit" disabled={loading}>
               {mode === "login" ? t("landing.loginButton") : t("landing.registerButton")}

@@ -16,10 +16,10 @@ from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from app.core.security import authenticate_token
+from app.core.security import authenticate_api_key_or_user
 from app.services.brain import ingest, reconciliation
 
-router = APIRouter(dependencies=[Depends(authenticate_token)])
+router = APIRouter(dependencies=[Depends(authenticate_api_key_or_user)])
 
 
 @router.get("/projects/{project_id}/timeline")

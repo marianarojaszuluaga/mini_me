@@ -16,7 +16,7 @@ from anthropic import AsyncAnthropic
 from fastapi import APIRouter, Body, Depends, HTTPException, Query
 
 from app.core.config import Settings, get_settings
-from app.core.security import authenticate_token
+from app.core.security import authenticate_api_key_or_user
 from app.core.storage import get_storage
 from app.phases import phase_contracts
 from app.schemas.qa import Finding, QaSweepReport, Signoff
@@ -26,7 +26,7 @@ from app.services.brain.reconciliation import run_reconciliation
 from app.services.metrics import collector
 from app.services.metrics.evaluate_invocation import evaluate_and_check
 
-router = APIRouter(dependencies=[Depends(authenticate_token)])
+router = APIRouter(dependencies=[Depends(authenticate_api_key_or_user)])
 
 # Which agent produces which OutputCount type (SPEC_JARVIS.md §7, resolved
 # 2026-08-14 — record_output() previously had zero callers anywhere in the

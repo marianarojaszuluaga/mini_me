@@ -34,7 +34,12 @@
     "switchToRegister": "¿No tenés cuenta? Creá una",
     "switchToLogin": "¿Ya tenés cuenta? Iniciá sesión",
     "orAppKey": "¿Preferís entrar con tu App API Key?",
-    "appKeyPlaceholder": "App API Key"
+    "appKeyPlaceholder": "App API Key",
+    "errors": {
+      "invalidEmail": "Ingresá un correo electrónico válido.",
+      "passwordTooShort": "La contraseña debe tener al menos 8 caracteres.",
+      "nameRequired": "Ingresá tu nombre."
+    }
   },
   "sidebar": {
     "brandName": "Mar en internet",

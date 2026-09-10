@@ -23,10 +23,10 @@ from typing import Any
 
 from fastapi import APIRouter, Depends, Query
 
-from app.core.security import authenticate_token
+from app.core.security import authenticate_api_key_or_user
 from app.services.metrics import collector
 
-router = APIRouter(dependencies=[Depends(authenticate_token)])
+router = APIRouter(dependencies=[Depends(authenticate_api_key_or_user)])
 
 _NO_RAW_EVENTS_NOTE = (
     "sin eventos crudos disponibles, agregado antes de la capa de drill-down"

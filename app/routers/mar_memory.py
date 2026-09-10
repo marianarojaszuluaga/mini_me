@@ -11,11 +11,11 @@ from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.core.security import authenticate_token
+from app.core.security import authenticate_api_key_or_user
 from app.schemas.mar_memory import MarMemoryEntry, MarMemoryWriteRequest
 from app.services import mar_memory
 
-router = APIRouter(dependencies=[Depends(authenticate_token)])
+router = APIRouter(dependencies=[Depends(authenticate_api_key_or_user)])
 
 
 @router.get("/mar/memory")

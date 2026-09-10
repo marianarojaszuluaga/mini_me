@@ -34,7 +34,12 @@
     "switchToRegister": "Don't have an account? Create one",
     "switchToLogin": "Already have an account? Sign in",
     "orAppKey": "Prefer to sign in with your App API Key?",
-    "appKeyPlaceholder": "App API Key"
+    "appKeyPlaceholder": "App API Key",
+    "errors": {
+      "invalidEmail": "Enter a valid email address.",
+      "passwordTooShort": "Password must be at least 8 characters.",
+      "nameRequired": "Enter your name."
+    }
   },
   "sidebar": {
     "brandName": "Mar en internet",
