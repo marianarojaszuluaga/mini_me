@@ -15,3 +15,8 @@ python-jose[cryptography]==3.5.0
 bcrypt==4.2.1
 google-auth==2.35.0
 pydantic[email]==2.13.4
+# NOTE: playwright is intentionally NOT listed here — this file is read by
+# Vercel's production build (@vercel/python) and playwright is a test-only
+# dependency (qa_e2e_runner.py). It's declared under pyproject.toml's
+# [project.optional-dependencies] "test" extra instead — see that file and
+# PLAN-qa-automation.md.

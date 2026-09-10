@@ -28,6 +28,18 @@ dependencies = [
     "pydantic[email]>=2.8.0",
 ]
 
+[project.optional-dependencies]
+# QA-E2E agent (Tarea 3, PLAN-qa-automation.md): Playwright as a *test-only*
+# dependency — the package is declared here so `qa_e2e_runner.py` can import
+# it, but the actual Chromium browser binary is NOT installed by this
+# dependency alone. Deploy/CI environments that want to actually run E2E
+# checks must run `playwright install chromium` separately (a ~150MB binary
+# download, not something to do implicitly on every `pip install`).
+test = [
+    "pytest>=8.0.0",
+    "playwright>=1.47.0",
+]
+
 [build-system]
 requires = ["setuptools>=68.0"]
 build-backend = "setuptools.build_meta"
