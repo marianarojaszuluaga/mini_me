@@ -289,6 +289,147 @@ async def list_recent_messages(
     ]
 
 
+async def create_card(
+    auth_profile: AuthProfile,
+    account_id: str,
+    project_id: str,
+    list_id: str,
+    title: str,
+    content_html: str | None = None,
+    due_on: str | None = None,
+    assignee_ids: list[int] | None = None,
+) -> dict[str, Any]:
+    """POST real .../card_tables/lists/{id}/cards.json — Autobasecamp SPEC
+    §4.1. Mismo patrón de error explícito que el resto del archivo: nunca
+    inventa éxito sobre un 401/4xx real."""
+    if not auth_profile.access_token:
+        raise BasecampError("El Auth Profile de Basecamp no tiene un access_token real conectado.")
+
+    payload: dict[str, Any] = {"title": title}
+    if content_html is not None:
+        payload["content"] = content_html
+    if due_on is not None:
+        payload["due_on"] = due_on
+    if assignee_ids:
+        payload["assignee_ids"] = assignee_ids
+
+    headers = {
+        "Authorization": f"Bearer {auth_profile.access_token}",
+        "User-Agent": _USER_AGENT,
+        "Content-Type": "application/json",
+    }
+    async with httpx.AsyncClient(timeout=15.0) as client:
+        response = await client.post(
+            f"{_API_BASE}/{account_id}/buckets/{project_id}/card_tables/lists/{list_id}/cards.json",
+            headers=headers,
+            json=payload,
+        )
+    if response.status_code == 401:
+        raise BasecampError("El token de Basecamp expiró o fue revocado — reconectá el Auth Profile.")
+    if response.status_code == 404:
+        raise BasecampError("La columna (list_id) indicada no existe o no es accesible con este token.")
+    if response.status_code >= 400:
+        raise BasecampError(f"Basecamp respondió {response.status_code} al crear la card: {_safe_json(response)}")
+
+    return response.json()
+
+
+async def update_card(
+    auth_profile: AuthProfile,
+    account_id: str,
+    project_id: str,
+    card_id: str,
+    title: str | None = None,
+    content_html: str | None = None,
+    due_on: str | None = None,
+) -> dict[str, Any]:
+    """PUT real .../card_tables/cards/{id}.json — Autobasecamp SPEC §4.1."""
+    if not auth_profile.access_token:
+        raise BasecampError("El Auth Profile de Basecamp no tiene un access_token real conectado.")
+
+    payload: dict[str, Any] = {}
+    if title is not None:
+        payload["title"] = title
+    if content_html is not None:
+        payload["content"] = content_html
+    if due_on is not None:
+        payload["due_on"] = due_on
+
+    headers = {
+        "Authorization": f"Bearer {auth_profile.access_token}",
+        "User-Agent": _USER_AGENT,
+        "Content-Type": "application/json",
+    }
+    async with httpx.AsyncClient(timeout=15.0) as client:
+        response = await client.put(
+            f"{_API_BASE}/{account_id}/buckets/{project_id}/card_tables/cards/{card_id}.json",
+            headers=headers,
+            json=payload,
+        )
+    if response.status_code == 401:
+        raise BasecampError("El token de Basecamp expiró o fue revocado — reconectá el Auth Profile.")
+    if response.status_code == 404:
+        raise BasecampError("La card indicada no existe o no es accesible con este token.")
+    if response.status_code >= 400:
+        raise BasecampError(f"Basecamp respondió {response.status_code} al editar la card: {_safe_json(response)}")
+
+    return response.json()
+
+
+async def move_card(
+    auth_profile: AuthProfile,
+    account_id: str,
+    project_id: str,
+    card_id: str,
+    target_list_id: str,
+) -> dict[str, Any]:
+    """POST real .../card_tables/lists/{list_id}/cards/{card_id}/moves.json
+    — mueve una card a otra columna del mismo Card Table."""
+    if not auth_profile.access_token:
+        raise BasecampError("El Auth Profile de Basecamp no tiene un access_token real conectado.")
+
+    headers = {
+        "Authorization": f"Bearer {auth_profile.access_token}",
+        "User-Agent": _USER_AGENT,
+        "Content-Type": "application/json",
+    }
+    async with httpx.AsyncClient(timeout=15.0) as client:
+        response = await client.post(
+            f"{_API_BASE}/{account_id}/buckets/{project_id}/card_tables/cards/{card_id}/moves.json",
+            headers=headers,
+            json={"column_id": target_list_id},
+        )
+    if response.status_code == 401:
+        raise BasecampError("El token de Basecamp expiró o fue revocado — reconectá el Auth Profile.")
+    if response.status_code == 404:
+        raise BasecampError("La card o la columna destino no existen o no son accesibles con este token.")
+    if response.status_code >= 400:
+        raise BasecampError(f"Basecamp respondió {response.status_code} al mover la card: {_safe_json(response)}")
+
+    return _safe_json(response) or {"status_code": response.status_code}
+
+
+async def list_people(auth_profile: AuthProfile, account_id: str, project_id: str) -> list[dict[str, Any]]:
+    """GET real .../projects/{id}/people.json — picker de responsables
+    (Autobasecamp SPEC §4.1)."""
+    if not auth_profile.access_token:
+        raise BasecampError("El Auth Profile de Basecamp no tiene un access_token real conectado.")
+
+    headers = {"Authorization": f"Bearer {auth_profile.access_token}", "User-Agent": _USER_AGENT}
+    async with httpx.AsyncClient(timeout=15.0) as client:
+        response = await client.get(
+            f"{_API_BASE}/{account_id}/projects/{project_id}/people.json", headers=headers
+        )
+    if response.status_code == 401:
+        raise BasecampError("El token de Basecamp expiró o fue revocado — reconectá el Auth Profile.")
+    response.raise_for_status()
+
+    return [
+        {"id": item.get("id"), "name": item.get("name", ""), "email": item.get("email_address")}
+        for item in response.json()
+    ]
+
+
 def _safe_json(response: httpx.Response) -> Any:
     try:
         return response.json()

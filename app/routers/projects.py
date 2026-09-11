@@ -25,13 +25,26 @@ from app.schemas.project import BasecampMirror, ProjectCreateRequest
 from app.schemas.user import User
 from app.services import agent_registry
 from app.services.auth_service import get_current_user_optional
+from app.schemas.basecamp_nomenclature import BasecampNomenclatureRule
 from app.services.basecamp_client import (
     BasecampError,
+    create_card,
     get_active_sprint,
     get_card_table_snapshot,
     list_basecamp_projects,
     list_card_tables,
     list_categories,
+    list_people,
+    move_card,
+    update_card,
+)
+from app.services.basecamp_nomenclature import (
+    Card as NomenclatureCard,
+)
+from app.services.basecamp_nomenclature import (
+    audit_card_tables,
+    looks_spanish,
+    suggest_translation,
 )
 from app.services.basecamp_publisher import _PUBLICATIONS_SERIES, _rebuild_payload, retry_publication
 from app.services.project_scaffold import scaffold_project_repo, write_phase_artifact
@@ -631,6 +644,357 @@ async def retry_basecamp_publication(
     except BasecampError as error:
         raise HTTPException(status_code=502, detail=str(error)) from error
     return publication.model_dump(mode="json")
+
+
+# ---------------------------------------------------------------------------
+# Autobasecamp — SPEC_AUTOBASECAMP.md §4.3. Todo reusa _get_basecamp_auth_profile
+# / _get_owned_project — mismo Auth Profile, misma regla de ownership que el
+# resto de este router; ningún token nuevo.
+# ---------------------------------------------------------------------------
+
+
+def _project_basecamp_or_501(project: dict[str, Any]) -> dict[str, Any]:
+    basecamp = project.get("basecamp")
+    if not basecamp:
+        raise HTTPException(status_code=501, detail="Este proyecto no tiene un proyecto de Basecamp vinculado.")
+    return basecamp
+
+
+@router.post("/projects/{project_id}/basecamp-card-tables/{table_id}/cards")
+async def create_basecamp_card(
+    project_id: str,
+    table_id: str,
+    body: dict[str, Any] = Body(...),
+    current_user: User | None = Depends(get_current_user_optional),
+) -> dict[str, Any]:
+    """§4.3 — crea una card en la columna (`list_id`) indicada del Card
+    Table `table_id`. `list_id` es el id de la columna dentro de la tabla,
+    tomado del snapshot ya pintado en el UI."""
+    list_id = body.get("list_id")
+    title = body.get("title")
+    if not list_id or not title:
+        raise HTTPException(status_code=400, detail="list_id y title son requeridos")
+
+    storage = get_storage()
+    projects = storage.read_projects()
+    project = _get_owned_project(projects, project_id, current_user)
+    basecamp = _project_basecamp_or_501(project)
+
+    account_id = str(basecamp["account_id"])
+    auth_profile = _get_basecamp_auth_profile(storage, account_id)
+    try:
+        return await create_card(
+            auth_profile,
+            account_id,
+            str(basecamp["project_id"]),
+            str(list_id),
+            title,
+            content_html=body.get("content"),
+            due_on=body.get("due_on"),
+            assignee_ids=body.get("assignee_ids"),
+        )
+    except BasecampError as error:
+        raise HTTPException(status_code=502, detail=str(error)) from error
+
+
+@router.put("/projects/{project_id}/basecamp-cards/{card_id}")
+async def update_basecamp_card(
+    project_id: str,
+    card_id: str,
+    body: dict[str, Any] = Body(...),
+    current_user: User | None = Depends(get_current_user_optional),
+) -> dict[str, Any]:
+    storage = get_storage()
+    projects = storage.read_projects()
+    project = _get_owned_project(projects, project_id, current_user)
+    basecamp = _project_basecamp_or_501(project)
+
+    account_id = str(basecamp["account_id"])
+    auth_profile = _get_basecamp_auth_profile(storage, account_id)
+    try:
+        return await update_card(
+            auth_profile,
+            account_id,
+            str(basecamp["project_id"]),
+            card_id,
+            title=body.get("title"),
+            content_html=body.get("content"),
+            due_on=body.get("due_on"),
+        )
+    except BasecampError as error:
+        raise HTTPException(status_code=502, detail=str(error)) from error
+
+
+@router.post("/projects/{project_id}/basecamp-cards/{card_id}/move")
+async def move_basecamp_card(
+    project_id: str,
+    card_id: str,
+    body: dict[str, Any] = Body(...),
+    current_user: User | None = Depends(get_current_user_optional),
+) -> dict[str, Any]:
+    target_list_id = body.get("target_list_id")
+    if not target_list_id:
+        raise HTTPException(status_code=400, detail="target_list_id es requerido")
+
+    storage = get_storage()
+    projects = storage.read_projects()
+    project = _get_owned_project(projects, project_id, current_user)
+    basecamp = _project_basecamp_or_501(project)
+
+    account_id = str(basecamp["account_id"])
+    auth_profile = _get_basecamp_auth_profile(storage, account_id)
+    try:
+        return await move_card(auth_profile, account_id, str(basecamp["project_id"]), card_id, str(target_list_id))
+    except BasecampError as error:
+        raise HTTPException(status_code=502, detail=str(error)) from error
+
+
+@router.get("/projects/{project_id}/basecamp-people")
+async def list_basecamp_people(
+    project_id: str,
+    current_user: User | None = Depends(get_current_user_optional),
+) -> list[dict[str, Any]]:
+    storage = get_storage()
+    projects = storage.read_projects()
+    project = _get_owned_project(projects, project_id, current_user)
+    basecamp = _project_basecamp_or_501(project)
+
+    account_id = str(basecamp["account_id"])
+    auth_profile = _get_basecamp_auth_profile(storage, account_id)
+    try:
+        return await list_people(auth_profile, account_id, str(basecamp["project_id"]))
+    except BasecampError as error:
+        raise HTTPException(status_code=502, detail=str(error)) from error
+
+
+@router.get("/basecamp-nomenclature-rules")
+async def list_basecamp_nomenclature_rules(account_id: str) -> list[dict[str, Any]]:
+    """§4.3 — reglas de rango de nomenclatura, a nivel de cuenta de
+    Basecamp (§7.1: no por proyecto de Minime; cada rule ya es
+    per-card_table_key, lo que da independencia por cliente/proyecto)."""
+    storage = get_storage()
+    rules = storage.read_basecamp_nomenclature_rules()
+    return [r for r in rules if r.get("account_id") == account_id]
+
+
+@router.put("/basecamp-nomenclature-rules/{card_table_key}")
+async def upsert_basecamp_nomenclature_rule(
+    card_table_key: str,
+    body: dict[str, Any] = Body(...),
+) -> dict[str, Any]:
+    """Crea/edita una regla de rango. Valida solapamiento de rangos con
+    otras tablas de la misma cuenta (§5.3) — advierte, no bloquea: guarda
+    igual pero devuelve `overlap_warnings` para que el UI lo muestre antes
+    de confiar en el resultado."""
+    body = {**body, "card_table_key": card_table_key}
+    try:
+        rule = BasecampNomenclatureRule(**body)
+    except Exception as error:  # noqa: BLE001 - surfaced as a clean 400, not a 500
+        raise HTTPException(status_code=400, detail=f"Regla inválida: {error}") from error
+
+    storage = get_storage()
+    rules = storage.read_basecamp_nomenclature_rules()
+    others = [r for r in rules if r.get("account_id") == rule.account_id and r.get("card_table_key") != card_table_key]
+
+    overlap_warnings = []
+    for other in others:
+        other_ranges = other.get("reserved_ranges") or []
+        for start, end in rule.reserved_ranges:
+            for other_start, other_end in other_ranges:
+                if start <= other_end and other_start <= end:
+                    overlap_warnings.append(
+                        f"Rango ({start},{end}) se solapa con '{other.get('label')}' ({other_start},{other_end})."
+                    )
+
+    rules = [r for r in rules if r.get("card_table_key") != card_table_key]
+    rules.append(rule.model_dump(mode="json"))
+    storage.write_basecamp_nomenclature_rules(rules)
+
+    return {**rule.model_dump(mode="json"), "overlap_warnings": overlap_warnings}
+
+
+@router.post("/projects/{project_id}/basecamp-nomenclature-audit")
+async def run_basecamp_nomenclature_audit(
+    project_id: str,
+    body: dict[str, Any] = Body(...),
+    current_user: User | None = Depends(get_current_user_optional),
+) -> dict[str, Any]:
+    """§4.3 / §7.1 — opera SOLO sobre los `card_table_ids` explícitamente
+    pasados en el body; nunca cruza automáticamente con Card Tables de
+    otros proyectos/clientes aunque compartan cuenta."""
+    card_table_ids = body.get("card_table_ids")
+    if not isinstance(card_table_ids, list) or not card_table_ids:
+        raise HTTPException(status_code=400, detail="card_table_ids (lista no vacía) es requerido")
+
+    storage = get_storage()
+    projects = storage.read_projects()
+    project = _get_owned_project(projects, project_id, current_user)
+    basecamp = _project_basecamp_or_501(project)
+
+    account_id = str(basecamp["account_id"])
+    real_project_id = str(basecamp["project_id"])
+    auth_profile = _get_basecamp_auth_profile(storage, account_id)
+
+    all_rules = [BasecampNomenclatureRule(**r) for r in storage.read_basecamp_nomenclature_rules() if r.get("account_id") == account_id]
+
+    cards_by_table: dict[str, list[NomenclatureCard]] = {}
+    try:
+        for table_id in card_table_ids:
+            table_id = str(table_id)
+            snapshot = await get_card_table_snapshot(auth_profile, account_id, real_project_id, table_id)
+            card_table_key = f"{real_project_id}:{table_id}"
+            cards: list[NomenclatureCard] = []
+            for column in snapshot.get("columns", []):
+                for card in column.get("cards", []):
+                    cards.append(
+                        NomenclatureCard(
+                            id=str(card.get("id", card.get("title", ""))),
+                            title=card.get("title", ""),
+                            card_table_key=card_table_key,
+                            url=card.get("url"),
+                        )
+                    )
+            cards_by_table[card_table_key] = cards
+    except BasecampError as error:
+        raise HTTPException(status_code=502, detail=str(error)) from error
+
+    result = audit_card_tables(cards_by_table, all_rules)
+
+    # §7.3 — traducción ES->EN opcional, solo si la tabla de la card la
+    # tiene prendida (translate_to_english=True). Best-effort: nunca rompe
+    # el audit si el LLM falla.
+    rules_by_key = {r.card_table_key: r for r in all_rules}
+    for finding in [*result.duplicates, *result.missing]:
+        rule = rules_by_key.get(finding.card.card_table_key)
+        if rule and rule.translate_to_english:
+            text = finding.suggested_title or finding.card.title
+            if looks_spanish(text):
+                finding.suggested_translation = await suggest_translation(text)
+
+    return result.model_dump(mode="json")
+
+
+@router.post("/projects/{project_id}/basecamp-nomenclature-audit/apply")
+async def apply_basecamp_nomenclature_fixes(
+    project_id: str,
+    body: dict[str, Any] = Body(...),
+    current_user: User | None = Depends(get_current_user_optional),
+) -> dict[str, Any]:
+    """Aplica una selección explícita de `{card_id, new_title}` — nunca
+    todo por default (§5.2). Batch con manejo de error por-card: una card
+    que falla no aborta el resto, y el resultado lista éxitos/fallos
+    reales, nunca fabricados."""
+    fixes = body.get("fixes")
+    if not isinstance(fixes, list) or not fixes:
+        raise HTTPException(status_code=400, detail="fixes (lista no vacía de {card_id, new_title}) es requerido")
+
+    storage = get_storage()
+    projects = storage.read_projects()
+    project = _get_owned_project(projects, project_id, current_user)
+    basecamp = _project_basecamp_or_501(project)
+
+    account_id = str(basecamp["account_id"])
+    real_project_id = str(basecamp["project_id"])
+    auth_profile = _get_basecamp_auth_profile(storage, account_id)
+
+    applied: list[dict[str, Any]] = []
+    failed: list[dict[str, Any]] = []
+    for fix in fixes:
+        card_id = fix.get("card_id")
+        new_title = fix.get("new_title")
+        if not card_id or not new_title:
+            failed.append({"card_id": card_id, "error": "card_id y new_title son requeridos"})
+            continue
+        try:
+            await update_card(auth_profile, account_id, real_project_id, str(card_id), title=new_title)
+            applied.append({"card_id": card_id, "new_title": new_title})
+        except BasecampError as error:
+            failed.append({"card_id": card_id, "error": str(error)})
+
+    return {"applied": applied, "failed": failed}
+
+
+def _parse_bulk_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Formato intermedio genérico compartido por AMBOS parsers de bulk
+    create (§7.4): [{list_id/column, title, content, due_on}]. Usado tanto
+    por el CSV genérico como por el parser de milestones-v2.md — ambos
+    producen esta misma forma para no duplicar la lógica de creación."""
+    parsed = []
+    for row in rows:
+        title = row.get("title")
+        if not title:
+            continue
+        parsed.append(
+            {
+                "list_id": str(row.get("list_id") or row.get("column") or ""),
+                "title": title,
+                "content": row.get("content"),
+                "due_on": row.get("due_on") or row.get("date"),
+            }
+        )
+    return parsed
+
+
+@router.post("/projects/{project_id}/basecamp-cards/bulk/preview")
+async def preview_basecamp_bulk_cards(
+    project_id: str,
+    body: dict[str, Any] = Body(...),
+    current_user: User | None = Depends(get_current_user_optional),
+) -> dict[str, Any]:
+    """§5.4 — preview antes de crear, nunca se crea directo. Acepta `rows`
+    ya en el formato intermedio genérico (columna/list_id, title, content,
+    due_on) — la fuente (CSV pegado, o el parser de milestones-v2.md,
+    ambos en el frontend/§7.4) ya convirtió a esta forma antes de llamar acá."""
+    rows = body.get("rows")
+    if not isinstance(rows, list):
+        raise HTTPException(status_code=400, detail="rows (lista) es requerido")
+    return {"preview": _parse_bulk_rows(rows)}
+
+
+@router.post("/projects/{project_id}/basecamp-cards/bulk")
+async def bulk_create_basecamp_cards(
+    project_id: str,
+    body: dict[str, Any] = Body(...),
+    current_user: User | None = Depends(get_current_user_optional),
+) -> dict[str, Any]:
+    """§5.4/§7.4 — crea N cards desde una lista estructurada ya en el
+    formato intermedio genérico. Reusa create_card por-fila; una fila que
+    falla no aborta el resto (mismo patrón de error explícito por-ítem que
+    /apply)."""
+    rows = body.get("rows")
+    if not isinstance(rows, list) or not rows:
+        raise HTTPException(status_code=400, detail="rows (lista no vacía) es requerido")
+
+    storage = get_storage()
+    projects = storage.read_projects()
+    project = _get_owned_project(projects, project_id, current_user)
+    basecamp = _project_basecamp_or_501(project)
+
+    account_id = str(basecamp["account_id"])
+    real_project_id = str(basecamp["project_id"])
+    auth_profile = _get_basecamp_auth_profile(storage, account_id)
+
+    created: list[dict[str, Any]] = []
+    failed: list[dict[str, Any]] = []
+    for row in _parse_bulk_rows(rows):
+        if not row["list_id"]:
+            failed.append({"title": row["title"], "error": "list_id/column vacío"})
+            continue
+        try:
+            result = await create_card(
+                auth_profile,
+                account_id,
+                real_project_id,
+                row["list_id"],
+                row["title"],
+                content_html=row.get("content"),
+                due_on=row.get("due_on"),
+            )
+            created.append(result)
+        except BasecampError as error:
+            failed.append({"title": row["title"], "error": str(error)})
+
+    return {"created": created, "failed": failed}
 
 
 async def _ingest_event(

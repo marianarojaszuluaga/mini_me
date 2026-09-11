@@ -226,6 +226,16 @@ class Storage:
     def write_changelog(self, entries: list[dict[str, Any]]) -> None:
         self._write_dict("changelog", {"entries": entries})
 
+    # -- Basecamp nomenclature rules (Autobasecamp SPEC §3.1, 2026-09-11) --
+    # Account-level (not per-project), keyed by card_table_key inside each
+    # rule — plain list, same convention as auth-profiles.
+
+    def read_basecamp_nomenclature_rules(self) -> list[dict[str, Any]]:
+        return self._read_list("basecamp_nomenclature_rules")
+
+    def write_basecamp_nomenclature_rules(self, rules: list[dict[str, Any]]) -> None:
+        self._write_list("basecamp_nomenclature_rules", rules)
+
     def _read_dict(self, name: str) -> dict[str, Any]:
         if self.using_kv and self._redis is not None:
             try:

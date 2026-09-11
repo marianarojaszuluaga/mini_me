@@ -148,6 +148,72 @@ export default class ApiClient {
     return this.request(`/publications/${publicationId}/retry`, { method: "POST" });
   }
 
+  // ---- Autobasecamp (SPEC_AUTOBASECAMP.md, 2026-09-11): cards + nomenclatura ----
+
+  createBasecampCard(projectId, tableId, card) {
+    return this.request(`/projects/${projectId}/basecamp-card-tables/${tableId}/cards`, {
+      method: "POST",
+      body: JSON.stringify(card)
+    });
+  }
+
+  updateBasecampCard(projectId, cardId, fields) {
+    return this.request(`/projects/${projectId}/basecamp-cards/${cardId}`, {
+      method: "PUT",
+      body: JSON.stringify(fields)
+    });
+  }
+
+  moveBasecampCard(projectId, cardId, targetListId) {
+    return this.request(`/projects/${projectId}/basecamp-cards/${cardId}/move`, {
+      method: "POST",
+      body: JSON.stringify({ target_list_id: targetListId })
+    });
+  }
+
+  listBasecampPeople(projectId) {
+    return this.request(`/projects/${projectId}/basecamp-people`);
+  }
+
+  listBasecampNomenclatureRules(accountId) {
+    return this.request(`/basecamp-nomenclature-rules?account_id=${encodeURIComponent(accountId)}`);
+  }
+
+  upsertBasecampNomenclatureRule(cardTableKey, rule) {
+    return this.request(`/basecamp-nomenclature-rules/${encodeURIComponent(cardTableKey)}`, {
+      method: "PUT",
+      body: JSON.stringify(rule)
+    });
+  }
+
+  runBasecampNomenclatureAudit(projectId, cardTableIds) {
+    return this.request(`/projects/${projectId}/basecamp-nomenclature-audit`, {
+      method: "POST",
+      body: JSON.stringify({ card_table_ids: cardTableIds })
+    });
+  }
+
+  applyBasecampNomenclatureFixes(projectId, fixes) {
+    return this.request(`/projects/${projectId}/basecamp-nomenclature-audit/apply`, {
+      method: "POST",
+      body: JSON.stringify({ fixes })
+    });
+  }
+
+  previewBasecampBulkCards(projectId, rows) {
+    return this.request(`/projects/${projectId}/basecamp-cards/bulk/preview`, {
+      method: "POST",
+      body: JSON.stringify({ rows })
+    });
+  }
+
+  bulkCreateBasecampCards(projectId, rows) {
+    return this.request(`/projects/${projectId}/basecamp-cards/bulk`, {
+      method: "POST",
+      body: JSON.stringify({ rows })
+    });
+  }
+
   invokeAgent(agentName, projectId, input, context) {
     return this.request(`/agents/${agentName}/invoke`, {
       method: "POST",

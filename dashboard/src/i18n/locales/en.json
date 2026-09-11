@@ -411,6 +411,61 @@
       "failed": "Failed",
       "retry": "Retry",
       "retrying": "Retrying..."
+    },
+    "cardsPanel": {
+      "title": "Basecamp Cards",
+      "noCardTables": "Pick at least one linked Card Table to create or edit cards.",
+      "auditButton": "Audit nomenclature",
+      "bulkButton": "Bulk create",
+      "newCardButton": "+ New card",
+      "tableSelectLabel": "Card Table",
+      "editButton": "Edit",
+      "newCardModalTitle": "New card",
+      "editCardModalTitle": "Edit card"
+    },
+    "cardForm": {
+      "typeLabel": "Type",
+      "moduleLabel": "Module",
+      "descriptorLabel": "Descriptor",
+      "columnLabel": "Target column",
+      "preview": "Title",
+      "contentLabel": "Description",
+      "dueOnLabel": "Due date",
+      "assigneeLabel": "Assignee",
+      "assigneeNone": "Unassigned",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving..."
+    },
+    "audit": {
+      "title": "Nomenclature audit",
+      "run": "Run audit",
+      "running": "Auditing...",
+      "duplicates": "Duplicates",
+      "missing": "Missing nomenclature",
+      "crossTable": "Out of range / cross-table",
+      "translationSuggestion": "Translation suggestion",
+      "viewInBasecamp": "View in Basecamp ↗",
+      "applySelected": "Apply selected"
+    },
+    "bulk": {
+      "title": "Bulk create cards",
+      "helpText": "Paste rows with column, title, content (optional) and date (optional), comma-separated — one per line.",
+      "placeholder": "list-123, HU-10-Module: descriptor, optional content, 2026-10-01",
+      "parse": "Read rows",
+      "preview": "Preview",
+      "create": "Create cards",
+      "creating": "Creating...",
+      "created": "{{count}} cards created.",
+      "failed": "{{count}} rows failed."
+    },
+    "rules": {
+      "title": "Nomenclature range rules",
+      "loading": "Loading rules...",
+      "rangesLabel": "Reserved ranges (e.g. 1-199, 302-1000)",
+      "translateLabel": "Suggest ES→EN translation in the audit",
+      "save": "Save rule",
+      "saving": "Saving..."
     }
   }
 }

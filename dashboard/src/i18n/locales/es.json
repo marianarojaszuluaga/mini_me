@@ -411,6 +411,61 @@
       "failed": "Falló",
       "retry": "Reintentar",
       "retrying": "Reintentando..."
+    },
+    "cardsPanel": {
+      "title": "Basecamp Cards",
+      "noCardTables": "Elegí al menos una Card Table vinculada para poder crear o editar cards.",
+      "auditButton": "Auditar nomenclatura",
+      "bulkButton": "Crear en lote",
+      "newCardButton": "+ Nueva card",
+      "tableSelectLabel": "Card Table",
+      "editButton": "Editar",
+      "newCardModalTitle": "Nueva card",
+      "editCardModalTitle": "Editar card"
+    },
+    "cardForm": {
+      "typeLabel": "Tipo",
+      "moduleLabel": "Módulo",
+      "descriptorLabel": "Descriptor",
+      "columnLabel": "Columna destino",
+      "preview": "Título",
+      "contentLabel": "Descripción",
+      "dueOnLabel": "Fecha límite",
+      "assigneeLabel": "Responsable",
+      "assigneeNone": "Sin asignar",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "saving": "Guardando..."
+    },
+    "audit": {
+      "title": "Auditoría de nomenclatura",
+      "run": "Correr auditoría",
+      "running": "Auditando...",
+      "duplicates": "Duplicados",
+      "missing": "Sin nomenclatura",
+      "crossTable": "Fuera de rango / cruzados entre tablas",
+      "translationSuggestion": "Sugerencia de traducción",
+      "viewInBasecamp": "Ver en Basecamp ↗",
+      "applySelected": "Aplicar seleccionados"
+    },
+    "bulk": {
+      "title": "Crear cards en lote",
+      "helpText": "Pegá filas con columna, título, contenido (opcional) y fecha (opcional), separadas por coma — una por línea.",
+      "placeholder": "list-123, HU-10-Modulo: descriptor, contenido opcional, 2026-10-01",
+      "parse": "Leer filas",
+      "preview": "Ver preview",
+      "create": "Crear cards",
+      "creating": "Creando...",
+      "created": "{{count}} cards creadas.",
+      "failed": "{{count}} filas fallaron."
+    },
+    "rules": {
+      "title": "Reglas de rango de nomenclatura",
+      "loading": "Cargando reglas...",
+      "rangesLabel": "Rangos reservados (ej. 1-199, 302-1000)",
+      "translateLabel": "Sugerir traducción ES→EN en la auditoría",
+      "save": "Guardar regla",
+      "saving": "Guardando..."
     }
   }
 }

@@ -3,6 +3,8 @@ import Modal from "../Modal/Modal.jsx";
 import DestructiveActionModal from "../Modal/DestructiveActionModal.jsx";
 import { AlertIcon, CheckIcon } from "../icons.jsx";
 import { BasecampPublishSettings, SprintPublicationStatus } from "./BasecampPublishSettings.jsx";
+import { BasecampCardsPanel } from "./BasecampCardsPanel.jsx";
+import { BasecampNomenclatureRules } from "./BasecampNomenclatureRules.jsx";
 import "../CommandCenter/command-center.css";
 
 // Tarea 2 Gap 1 (2026-08-21) — nombre legible por proveedor real, usado en
@@ -1075,6 +1077,17 @@ function BasecampSection({ api, project, onProjectUpdated }) {
               publishEnabled={!!(existing.publish || {}).enabled}
             />
           ))}
+          <BasecampCardsPanel api={api} project={project} />
+          {(existing.selectedCardTableIds || []).length > 0 && (
+            <BasecampNomenclatureRules
+              api={api}
+              accountId={existing.account_id}
+              cardTables={existing.selectedCardTableIds.map((id) => ({
+                key: `${existing.project_id}:${id}`,
+                label: id,
+              }))}
+            />
+          )}
         </div>
       ) : (
         <div className="pv-empty-cta-list">
