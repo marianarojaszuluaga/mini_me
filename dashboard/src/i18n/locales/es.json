@@ -21,6 +21,23 @@
         "body": "Reconciliación automática entre lo que se dice hecho y la evidencia real."
       }
     },
+    "how": {
+      "title": "Cómo funciona",
+      "steps": {
+        "connect": {
+          "title": "Conectá tus repos y Basecamp",
+          "body": "GitHub, Bitbucket, Basecamp y Google, con integraciones reales — un solo lugar para todo tu contexto de proyecto."
+        },
+        "work": {
+          "title": "Jarvis y los agentes trabajan",
+          "body": "Le pedís algo a Jarvis en lenguaje natural y los agentes especializados ejecutan las fases del proyecto por vos."
+        },
+        "review": {
+          "title": "Vos revisás y aprobás",
+          "body": "Cada resultado queda a la vista antes de activarse — vos decidís qué se sube al repo y qué no."
+        }
+      }
+    },
     "loginTitle": "Iniciar sesión",
     "registerTitle": "Crear cuenta",
     "email": "Correo electrónico",
@@ -74,6 +91,10 @@
       "new": "+ Nuevo proyecto"
     },
     "defaultOwner": "sin asignar",
+    "empty": {
+      "title": "Todavía no tenés proyectos",
+      "body": "Un proyecto en Mini me agrupa un repo, sus agentes y su ciclo de vida en un solo lugar. Creá el primero para empezar."
+    },
     "semaphore": {
       "onTrack": "En curso",
       "attention": "Atención",
@@ -374,9 +395,11 @@
       "running": "Corriendo...",
       "activate": "Activar resultado",
       "activated": "Activado",
+      "activatedConfirm": "Resultado activado y registrado en el Project Brain.",
       "uploadToRepo": "Subir a repo",
       "uploading": "Subiendo...",
-      "uploaded": "Subido a {{path}}"
+      "uploaded": "Subido",
+      "uploadedConfirm": "Subido al repo en {{path}}."
     }
   },
   "basecamp": {

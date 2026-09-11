@@ -231,9 +231,10 @@
 }
 .sidebar-account-logout {
   flex-shrink: 0;
-  padding: 3px 8px;
-  font-size: 11px;
-  border-radius: 6px;
+  min-height: 36px;
+  padding: 8px 12px;
+  font-size: 12px;
+  border-radius: 8px;
   border: 1px solid hsl(var(--border));
   background: transparent;
   color: hsl(var(--text-2));

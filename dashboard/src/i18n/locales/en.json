@@ -21,6 +21,23 @@
         "body": "Automatic reconciliation between what's claimed done and the real evidence."
       }
     },
+    "how": {
+      "title": "How it works",
+      "steps": {
+        "connect": {
+          "title": "Connect your repos and Basecamp",
+          "body": "GitHub, Bitbucket, Basecamp and Google, with real integrations — one place for all your project context."
+        },
+        "work": {
+          "title": "Jarvis and the agents work",
+          "body": "Ask Jarvis in plain language and specialized agents run the project's phases for you."
+        },
+        "review": {
+          "title": "You review and approve",
+          "body": "Every result stays visible before it's activated — you decide what gets uploaded to the repo and what doesn't."
+        }
+      }
+    },
     "loginTitle": "Sign in",
     "registerTitle": "Create account",
     "email": "Email",
@@ -74,6 +91,10 @@
       "new": "+ New project"
     },
     "defaultOwner": "unassigned",
+    "empty": {
+      "title": "You don't have any projects yet",
+      "body": "A project in Mini me groups a repo, its agents, and its lifecycle in one place. Create your first one to get started."
+    },
     "semaphore": {
       "onTrack": "On track",
       "attention": "Attention",
@@ -374,9 +395,11 @@
       "running": "Running...",
       "activate": "Activate result",
       "activated": "Activated",
+      "activatedConfirm": "Result activated and logged to the Project Brain.",
       "uploadToRepo": "Upload to repo",
       "uploading": "Uploading...",
-      "uploaded": "Uploaded to {{path}}"
+      "uploaded": "Uploaded",
+      "uploadedConfirm": "Uploaded to the repo at {{path}}."
     }
   },
   "basecamp": {

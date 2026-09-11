@@ -16,10 +16,12 @@
 .landing-lang-option {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
-  padding: 4px 10px;
+  min-height: 38px;
+  padding: 8px 14px;
   font-size: 12px;
-  border-radius: 6px;
+  border-radius: 8px;
   border: 1px solid hsl(var(--border));
   background: transparent;
   color: hsl(var(--text-2));
@@ -57,6 +59,179 @@
   margin: 0 auto;
 }
 
+/* Mockup del producto real (2026-09-11) — device frame + recreación fiel del
+   AppShell (Sidebar real + cards de proyecto de ejemplo). HTML/CSS, no una
+   captura real; nunca un bloque gris/gradiente genérico. */
+.landing-mockup-section {
+  margin: 40px 0;
+}
+
+.landing-device-frame {
+  max-width: 720px;
+  margin: 0 auto;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid hsl(var(--border));
+  box-shadow: 0 24px 60px -24px hsl(var(--text) / 0.25);
+}
+
+.landing-device-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: hsl(var(--bg-2));
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.landing-device-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: hsl(var(--border-strong));
+}
+
+.landing-device-url {
+  margin: 0 auto;
+  font-size: 11px;
+  color: hsl(var(--text-3));
+}
+
+.landing-device-body {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  background: hsl(var(--bg));
+  min-height: 260px;
+}
+
+.landing-mock-sidebar {
+  background: hsl(var(--sidebar-bg));
+  border-right: 1px solid hsl(var(--border));
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 10.5px;
+}
+
+.landing-mock-brand {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 11.5px;
+  color: hsl(var(--text));
+  padding-bottom: 10px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.landing-mock-brand-mark {
+  width: 16px;
+  height: 16px;
+  color: hsl(var(--accent));
+}
+.landing-mock-brand-mark svg {
+  width: 100%;
+  height: 100%;
+}
+
+.landing-mock-cta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: hsl(var(--accent));
+  color: hsl(var(--accent-ink));
+  border-radius: 6px;
+  padding: 6px 8px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+.landing-mock-cta svg {
+  width: 12px;
+  height: 12px;
+}
+
+.landing-mock-nav-label {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 9px;
+  color: hsl(var(--text-3));
+  margin: 6px 2px 2px;
+}
+
+.landing-mock-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 6px;
+  border-radius: 6px;
+  color: hsl(var(--text-2));
+}
+.landing-mock-nav-item svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+.landing-mock-nav-item.active {
+  background: hsl(var(--accent-soft));
+  color: hsl(var(--accent));
+}
+
+.landing-mock-main {
+  padding: 16px;
+}
+
+.landing-mock-heading {
+  font-size: 13px;
+  font-weight: 700;
+  color: hsl(var(--text));
+  margin-bottom: 10px;
+}
+
+.landing-mock-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.landing-mock-card {
+  border: 1px solid hsl(var(--border));
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.landing-mock-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.landing-mock-card-name {
+  font-size: 11.5px;
+  font-weight: 650;
+  color: hsl(var(--text));
+}
+
+.landing-mock-card-sub {
+  font-size: 10px;
+  color: hsl(var(--text-3));
+}
+
+.landing-mock-pill {
+  font-size: 9.5px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 100px;
+  flex-shrink: 0;
+}
+.landing-mock-pill-ok { background: hsl(var(--green-soft)); color: hsl(var(--green)); }
+.landing-mock-pill-warn { background: hsl(var(--amber-soft)); color: hsl(var(--amber)); }
+
 .landing-features {
   margin: 32px 0;
 }
@@ -73,6 +248,22 @@
   padding: 16px;
   border-radius: 10px;
   border: 1px solid hsl(var(--border));
+  /* Motion mínimo pero real (2026-09-11): fade-in + slide sutil al entrar en
+     viewport, vía IntersectionObserver (ver Landing.jsx useRevealOnScroll). */
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.landing-feature-card.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .landing-feature-card {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
 .landing-feature-icon {
   width: 28px;
@@ -92,6 +283,46 @@
   margin: 0;
   font-size: 0.9rem;
   opacity: 0.8;
+}
+
+/* "Cómo funciona" (2026-09-11) — claridad de propósito, antes del acceso. */
+.landing-how {
+  margin: 40px 0;
+  text-align: center;
+}
+.landing-how h2 {
+  margin-bottom: 20px;
+}
+.landing-how-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  max-width: 780px;
+  margin: 0 auto;
+  text-align: left;
+}
+.landing-how-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: hsl(var(--accent));
+  color: hsl(var(--accent-ink));
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.landing-how-step h3 {
+  font-family: "Montserrat", var(--font-sans, sans-serif);
+  font-size: 0.95rem;
+  margin: 0 0 6px;
+}
+.landing-how-step p {
+  font-size: 0.85rem;
+  opacity: 0.8;
+  margin: 0;
 }
 
 .landing-access {

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { BrandIcon, AlertIcon, IntegrationsIcon, AgentsIcon, ChatIcon, QaIcon } from "../components/icons.jsx";
+import { BrandIcon, AlertIcon, IntegrationsIcon, AgentsIcon, ChatIcon, QaIcon, FolderIcon } from "../components/icons.jsx";
 import "./landing.css";
 
 const FEATURE_ICONS = {
@@ -11,6 +11,47 @@ const FEATURE_ICONS = {
 };
 
 const LANG_FLAGS = { es: "🇪🇸", en: "🇺🇸" };
+
+/**
+ * Reveal-on-scroll (2026-09-11, auditoría de usabilidad): fade-in + slide
+ * sutil para las feature cards cuando entran en viewport. Motion mínimo pero
+ * real — un solo IntersectionObserver, sin scroll-jacking. `prefers-reduced-
+ * motion` se respeta en CSS (ver landing.css), no acá: el observer sigue
+ * agregando la clase, pero la media query anula la transición.
+ */
+function useRevealOnScroll(count) {
+  const refs = useRef([]);
+  const [revealed, setRevealed] = useState(() => new Array(count).fill(false));
+  refs.current = [];
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const idx = Number(entry.target.dataset.revealIndex);
+          setRevealed((prev) => {
+            if (prev[idx]) return prev;
+            const next = [...prev];
+            next[idx] = true;
+            return next;
+          });
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.2 }
+    );
+    refs.current.forEach((el) => el && observer.observe(el));
+    return () => observer.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const registerRef = (index) => (el) => {
+    refs.current[index] = el;
+  };
+
+  return { registerRef, revealed };
+}
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001";
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID || "";
@@ -56,6 +97,7 @@ export default function Landing({ onAuthenticated, onUseAppKey, externalError })
   const [appKey, setAppKey] = useState("");
   const [googleReady, setGoogleReady] = useState(false);
   const googleBtnRef = useRef(null);
+  const { registerRef, revealed } = useRevealOnScroll(4);
 
   const currentLang = i18n.resolvedLanguage?.startsWith("en") ? "en" : "es";
 
@@ -177,14 +219,82 @@ export default function Landing({ onAuthenticated, onUseAppKey, externalError })
         <p className="landing-tagline">{t("landing.tagline")}</p>
       </section>
 
+      {/* Mockup del producto real (2026-09-11, auditoría): recreación fiel en
+          HTML/CSS del AppShell real dentro de un device frame — no una
+          captura de pantalla real, pero tampoco un bloque gris genérico. */}
+      <section className="landing-mockup-section">
+        <div className="landing-device-frame">
+          <div className="landing-device-titlebar">
+            <span className="landing-device-dot" />
+            <span className="landing-device-dot" />
+            <span className="landing-device-dot" />
+            <span className="landing-device-url">app.minime.io</span>
+          </div>
+          <div className="landing-device-body">
+            <div className="landing-mock-sidebar">
+              <div className="landing-mock-brand">
+                <span className="landing-mock-brand-mark">{BrandIcon}</span>
+                Mini me
+              </div>
+              <div className="landing-mock-cta">{ChatIcon} Hablar con Jarvis</div>
+              <div className="landing-mock-nav-label">Trabajo</div>
+              <div className="landing-mock-nav-item active">{FolderIcon} Proyectos</div>
+              <div className="landing-mock-nav-item">{AgentsIcon} Ciclo de vida</div>
+              <div className="landing-mock-nav-label">Analítica</div>
+              <div className="landing-mock-nav-item">{QaIcon} Dashboard</div>
+              <div className="landing-mock-nav-item">{IntegrationsIcon} Integraciones</div>
+            </div>
+            <div className="landing-mock-main">
+              <div className="landing-mock-heading">3 proyectos</div>
+              <div className="landing-mock-cards">
+                <div className="landing-mock-card">
+                  <div className="landing-mock-card-top">
+                    <span className="landing-mock-card-name">Rediseño App Móvil</span>
+                    <span className="landing-mock-pill landing-mock-pill-ok">En curso</span>
+                  </div>
+                  <span className="landing-mock-card-sub">Fase 2 · desarrollo</span>
+                </div>
+                <div className="landing-mock-card">
+                  <div className="landing-mock-card-top">
+                    <span className="landing-mock-card-name">Backend Facturación</span>
+                    <span className="landing-mock-pill landing-mock-pill-warn">Atención</span>
+                  </div>
+                  <span className="landing-mock-card-sub">Fase 3 · QA</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="landing-features">
         <h2>{t("landing.featuresTitle")}</h2>
         <div className="landing-features-grid">
-          {["integrations", "agents", "chat", "qa"].map((key) => (
-            <div className="landing-feature-card" key={key}>
+          {["integrations", "agents", "chat", "qa"].map((key, index) => (
+            <div
+              className={`landing-feature-card ${revealed[index] ? "is-revealed" : ""}`}
+              key={key}
+              ref={registerRef(index)}
+              data-reveal-index={index}
+            >
               <div className="landing-feature-icon">{FEATURE_ICONS[key]}</div>
               <h3>{t(`landing.features.${key}.title`)}</h3>
               <p>{t(`landing.features.${key}.body`)}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Claridad de propósito (2026-09-11): "no se ve muy directo el
+          entendimiento de lo que se hace" — 3 pasos, antes del formulario. */}
+      <section className="landing-how">
+        <h2>{t("landing.how.title")}</h2>
+        <div className="landing-how-steps">
+          {["connect", "work", "review"].map((key, i) => (
+            <div className="landing-how-step" key={key}>
+              <span className="landing-how-step-num">{i + 1}</span>
+              <h3>{t(`landing.how.steps.${key}.title`)}</h3>
+              <p>{t(`landing.how.steps.${key}.body`)}</p>
             </div>
           ))}
         </div>

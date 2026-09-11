@@ -212,3 +212,14 @@
   border-radius: 6px;
   padding: 8px;
 }
+
+/* Confirmación inline tras "Activar resultado" / "Subir a repo" — feedback
+   explícito de qué pasó, no solo el cambio de texto del botón (2026-09-11). */
+.lifecycle-console-confirm {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: hsl(var(--green));
+  background: hsl(var(--green-soft));
+  border-radius: 6px;
+  padding: 6px 8px;
+}

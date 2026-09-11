@@ -199,13 +199,25 @@ function PhaseConsole({ api, project, phase, onProjectUpdated, t }) {
             {activated && (
               <button className="btn-secondary" onClick={handleUploadToRepo} disabled={uploading || !!uploadedPath}>
                 {uploadedPath
-                  ? t("lifecycle.console.uploaded", { path: uploadedPath })
+                  ? t("lifecycle.console.uploaded")
                   : uploading
                   ? t("lifecycle.console.uploading")
                   : t("lifecycle.console.uploadToRepo")}
               </button>
             )}
           </div>
+          {/* Confirmación explícita de qué pasó, no solo el cambio de label del
+              botón — pedido de claridad de flujo (2026-09-11). */}
+          {activated && (
+            <div className="lifecycle-console-confirm">
+              ✓ {t("lifecycle.console.activatedConfirm")}
+            </div>
+          )}
+          {uploadedPath && (
+            <div className="lifecycle-console-confirm">
+              ✓ {t("lifecycle.console.uploadedConfirm", { path: uploadedPath })}
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -200,6 +200,15 @@ export default function ProjectsView({ api, agents, phases, initialProjectId, on
       {error && <div className="flag">{AlertIcon} {error}</div>}
       {loading ? (
         <div className="loading">{t("projects.loading")}</div>
+      ) : visibleProjects.length === 0 ? (
+        <div className="pv-empty-state">
+          <div className="pv-empty-state-icon">{NEW_PROJECT_ICON}</div>
+          <h2>{t("projects.empty.title")}</h2>
+          <p>{t("projects.empty.body")}</p>
+          <button className="btn-accent" onClick={() => setShowNewProjectModal(true)}>
+            {t("projects.actions.new")}
+          </button>
+        </div>
       ) : (
         <div className="pv-grid">
           {visibleProjects.map((project) => {
