@@ -34,6 +34,7 @@ from app.services.basecamp_client import (
     list_categories,
 )
 from app.services.basecamp_publisher import _PUBLICATIONS_SERIES, _rebuild_payload, retry_publication
+from app.services.project_scaffold import scaffold_project_repo, write_phase_artifact
 
 router = APIRouter(dependencies=[Depends(authenticate_api_key_or_user)])
 
@@ -191,6 +192,82 @@ async def delete_project(
     project["status"] = "archived"
     storage.write_projects(projects)
     return project
+
+
+@router.post("/projects/{project_id}/scaffold")
+async def scaffold_project(
+    project_id: str,
+    current_user: User | None = Depends(get_current_user_optional),
+) -> dict[str, Any]:
+    """TAREA A (onboarding, 2026-09-11): writes the standard 6-folder project
+    structure (01-Planning..06-FollowUp, each with a placeholder README.md)
+    into the project's first connected repo, reusing the existing
+    GitHub/Bitbucket adapters (project_scaffold.scaffold_project_repo)."""
+    storage = get_storage()
+    projects = storage.read_projects()
+    project = _get_owned_project(projects, project_id, current_user)
+
+    repositories = project.get("repositories", [])
+    if not repositories:
+        raise HTTPException(status_code=400, detail="Project has no connected repository")
+
+    repository = repositories[0]
+    auth_profiles = storage.read_auth_profiles()
+    try:
+        written = await scaffold_project_repo(repository, auth_profiles)
+    except Exception as error:  # noqa: BLE001 - surfaced as a clean 502, not a 500
+        raise HTTPException(status_code=502, detail=f"Failed to write scaffold: {error}") from error
+
+    timestamp = _now_iso()
+    project.setdefault("memory", {}).setdefault("timeline", {}).setdefault("activities", []).append(
+        {
+            "timestamp": timestamp,
+            "agent": "scaffold",
+            "action": "Aplicó estructura estándar de carpetas (01-Planning..06-FollowUp)",
+            "status": "completed",
+        }
+    )
+    storage.write_projects(projects)
+
+    return {
+        "projectId": project_id,
+        "repository": {"owner": repository.get("owner"), "repo": repository.get("repo")},
+        "filesWritten": written,
+    }
+
+
+@router.post("/projects/{project_id}/phase-artifact")
+async def upload_phase_artifact(
+    project_id: str,
+    body: dict[str, Any] = Body(...),
+    current_user: User | None = Depends(get_current_user_optional),
+) -> dict[str, Any]:
+    """TAREA B, pieza 7 ("Subir a repo"): commits one user-activated agent
+    result into the phase's mapped folder (project_scaffold.PHASE_KEY_TO_FOLDER)
+    of the project's first connected repo. The frontend only calls this
+    after the person explicitly clicked "Activar" on a result — never
+    automatically."""
+    phase = body.get("phase")
+    filename = body.get("filename")
+    content = body.get("content")
+    if not (phase and filename and content):
+        raise HTTPException(status_code=400, detail="phase, filename and content are required")
+
+    storage = get_storage()
+    projects = storage.read_projects()
+    project = _get_owned_project(projects, project_id, current_user)
+
+    repositories = project.get("repositories", [])
+    if not repositories:
+        raise HTTPException(status_code=400, detail="Project has no connected repository")
+
+    auth_profiles = storage.read_auth_profiles()
+    try:
+        path = await write_phase_artifact(repositories[0], auth_profiles, phase, filename, content)
+    except Exception as error:  # noqa: BLE001 - surfaced as a clean 502, not a 500
+        raise HTTPException(status_code=502, detail=f"Failed to write phase artifact: {error}") from error
+
+    return {"projectId": project_id, "path": path}
 
 
 @router.put("/projects/{project_id}/basecamp")

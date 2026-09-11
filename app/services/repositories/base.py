@@ -38,3 +38,14 @@ class RepoAdapter(Protocol):
     async def get_file_content(
         self, auth_profile: AuthProfile, owner: str, repo: str, path: str, branch: str
     ) -> str: ...
+
+    async def create_or_update_file(
+        self,
+        auth_profile: AuthProfile,
+        owner: str,
+        repo: str,
+        path: str,
+        content: str,
+        message: str,
+        branch: str,
+    ) -> None: ...

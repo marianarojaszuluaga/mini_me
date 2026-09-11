@@ -358,7 +358,26 @@
     "projectCount_one": "{{count}} proyecto",
     "projectCount_other": "{{count}} proyectos",
     "noProjectsHere": "Sin proyectos acá",
-    "startingStep": "iniciando"
+    "startingStep": "iniciando",
+    "console": {
+      "expand": "Ver consola de fase",
+      "collapse": "Cerrar consola",
+      "mainAssistant": "Asistente principal: {{agent}}",
+      "runAgent": "Correr {{agent}}",
+      "activateProjectBrain": "Activar Project Brain",
+      "brainName": "Nombre del proyecto",
+      "brainObjective": "Objetivo",
+      "brainScope": "Alcance",
+      "inputPlaceholder": "Input para el agente (HU, texto, contexto)...",
+      "cancel": "Cancelar",
+      "run": "Correr",
+      "running": "Corriendo...",
+      "activate": "Activar resultado",
+      "activated": "Activado",
+      "uploadToRepo": "Subir a repo",
+      "uploading": "Subiendo...",
+      "uploaded": "Subido a {{path}}"
+    }
   },
   "basecamp": {
     "errors": {

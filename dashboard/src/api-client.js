@@ -69,6 +69,28 @@ export default class ApiClient {
     return this.request(`/projects/${projectId}`, { method: "DELETE" });
   }
 
+  // TAREA A (onboarding, 2026-09-11): writes the standard 01-Planning..
+  // 06-FollowUp folders into the project's first connected repo.
+  scaffoldProject(projectId) {
+    return this.request(`/projects/${projectId}/scaffold`, { method: "POST" });
+  }
+
+  // TAREA B (LifecycleView rediseño, 2026-09-11): commits one activated
+  // agent-result artifact into the phase's mapped folder.
+  uploadPhaseArtifact(projectId, phase, filename, content) {
+    return this.request(`/projects/${projectId}/phase-artifact`, {
+      method: "POST",
+      body: JSON.stringify({ phase, filename, content })
+    });
+  }
+
+  ingestEvent(type, projectName, content, metadata) {
+    return this.request("/brain/ingest-event", {
+      method: "POST",
+      body: JSON.stringify({ type, projectName, content, metadata })
+    });
+  }
+
   linkBasecampProject(projectId, accountId, basecampProjectId) {
     return this.request(`/projects/${projectId}/basecamp`, {
       method: "PUT",

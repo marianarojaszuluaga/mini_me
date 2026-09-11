@@ -54,6 +54,8 @@ export default function AppShell({ api, agents, phases, onLogout }) {
         )}
         {view === "lifecycle" && (
           <LifecycleView
+            api={api}
+            agents={agents}
             projects={projects.filter((p) => p.status !== "archived")}
             phases={phases}
             onOpenProject={(project) => {

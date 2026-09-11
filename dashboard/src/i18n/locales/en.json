@@ -358,7 +358,26 @@
     "projectCount_one": "{{count}} project",
     "projectCount_other": "{{count}} projects",
     "noProjectsHere": "No projects here",
-    "startingStep": "starting"
+    "startingStep": "starting",
+    "console": {
+      "expand": "View phase console",
+      "collapse": "Close console",
+      "mainAssistant": "Main assistant: {{agent}}",
+      "runAgent": "Run {{agent}}",
+      "activateProjectBrain": "Activate Project Brain",
+      "brainName": "Project name",
+      "brainObjective": "Objective",
+      "brainScope": "Scope",
+      "inputPlaceholder": "Input for the agent (HU, text, context)...",
+      "cancel": "Cancel",
+      "run": "Run",
+      "running": "Running...",
+      "activate": "Activate result",
+      "activated": "Activated",
+      "uploadToRepo": "Upload to repo",
+      "uploading": "Uploading...",
+      "uploaded": "Uploaded to {{path}}"
+    }
   },
   "basecamp": {
     "errors": {

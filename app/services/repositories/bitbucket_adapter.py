@@ -163,3 +163,26 @@ class BitbucketAdapter:
             )
         response.raise_for_status()
         return response.text
+
+    async def create_or_update_file(
+        self,
+        auth_profile: AuthProfile,
+        owner: str,
+        repo: str,
+        path: str,
+        content: str,
+        message: str,
+        branch: str,
+    ) -> None:
+        """Bitbucket's `/src` endpoint is a single multipart POST that both
+        creates a new file and updates an existing one (no separate sha/
+        lookup step needed, unlike GitHub) — used by the project-scaffold
+        endpoint (TAREA A)."""
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            response = await client.post(
+                f"{_API_BASE}/repositories/{owner}/{repo}/src",
+                headers=_headers(auth_profile),
+                data={"message": message, "branch": branch},
+                files={path: content.encode("utf-8")},
+            )
+        response.raise_for_status()

@@ -526,6 +526,21 @@ function RepositoriosSection({ api, project, onProjectUpdated }) {
   const [error, setError] = useState("");
   const [retryingId, setRetryingId] = useState(null);
   const [branchDrafts, setBranchDrafts] = useState({});
+  const [scaffolding, setScaffolding] = useState(false);
+  const [scaffoldResult, setScaffoldResult] = useState(null);
+
+  const handleScaffold = async () => {
+    setScaffolding(true);
+    setScaffoldResult(null);
+    setError("");
+    try {
+      const result = await api.scaffoldProject(project.id);
+      setScaffoldResult(result);
+    } catch (err) {
+      setError(err.message);
+    }
+    setScaffolding(false);
+  };
 
   const handleAddBranchToRepo = async (repoId) => {
     const value = (branchDrafts[repoId] || "").trim();
@@ -591,13 +606,26 @@ function RepositoriosSection({ api, project, onProjectUpdated }) {
     <div className="pd-subsection">
       <div className="pd-subsection-header">
         <h3>Repositorios ({repositories.length})</h3>
-        <button className="btn-primary" onClick={handleOpenForm}>
-          {REPO_ICON}
-          Agregar repositorio
-        </button>
+        <div style={{ display: "flex", gap: "8px" }}>
+          {repositories.length > 0 && (
+            <button className="btn-secondary" onClick={handleScaffold} disabled={scaffolding}>
+              {scaffolding ? "Aplicando…" : "Aplicar estructura estándar"}
+            </button>
+          )}
+          <button className="btn-primary" onClick={handleOpenForm}>
+            {REPO_ICON}
+            Agregar repositorio
+          </button>
+        </div>
       </div>
 
       {error && <div className="flag">{AlertIcon} {error}</div>}
+      {scaffoldResult && (
+        <div className="flag flag-success">
+          {CheckIcon} Estructura aplicada en {scaffoldResult.repository.owner}/{scaffoldResult.repository.repo}:{" "}
+          {scaffoldResult.filesWritten.join(", ")}
+        </div>
+      )}
 
       {repositories.length === 0 ? (
         <div className="pv-empty-cta-list">

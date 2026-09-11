@@ -169,3 +169,34 @@ class GitHubAdapter:
         if encoding == "base64":
             return base64.b64decode(content).decode("utf-8", errors="replace")
         return content
+
+    async def create_or_update_file(
+        self,
+        auth_profile: AuthProfile,
+        owner: str,
+        repo: str,
+        path: str,
+        content: str,
+        message: str,
+        branch: str,
+    ) -> None:
+        """Creates (or updates, if it already exists) a single file via the
+        Contents API — used by the project-scaffold endpoint (TAREA A) to
+        write the standard 6-folder structure into a connected repo. GitHub
+        requires the existing file's blob `sha` on an update, so this reads
+        the current file first (404 -> new file, no sha needed)."""
+        import base64
+
+        url = f"{_API_BASE}/repos/{owner}/{repo}/contents/{path}"
+        headers = _headers(auth_profile)
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            existing = await client.get(url, headers=headers, params={"ref": branch})
+            body: dict[str, object] = {
+                "message": message,
+                "content": base64.b64encode(content.encode("utf-8")).decode("ascii"),
+                "branch": branch,
+            }
+            if existing.status_code == 200:
+                body["sha"] = existing.json().get("sha")
+            response = await client.put(url, headers=headers, json=body)
+        response.raise_for_status()
