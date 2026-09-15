@@ -1256,3 +1256,90 @@ introducir i18n en el dashboard. Detalle completo en `PLAN-i18n-multiusuario.md`
   Strategic Operations with Jarvis Mode." — con selector de idioma, sección de
   features/integraciones reales (GitHub/Bitbucket/Basecamp/Google, agentes, chat Jarvis, QA)
   y acceso con email+password o Google, redirigiendo al AppShell existente tras login.
+
+## 19. HU-013 en adelante (2026-09-15)
+
+> **Nota honesta sobre origen**: a diferencia de HU-001–HU-012 (generadas invocando al
+> agente Gimena), esta ronda de HUs se escribió directamente en sesión de código por Claude,
+> documentando features ya implementadas y verificadas contra el repo real — no se invocó el
+> flujo normal de Gimena. Se mantiene el mismo formato para no romper el backlog.
+
+| HU | Título | Feature |
+|---|---|---|
+| HU-013-JarvisMode | Registro e inicio de sesión con email/contraseña | F8 — Multi-usuario |
+| HU-014-JarvisMode | Inicio de sesión con Google (Sign-In) | F8 — Multi-usuario |
+| HU-015-JarvisMode | Ver mi cuenta y cerrar sesión desde el Sidebar | F8 — Multi-usuario |
+| HU-016-JarvisMode | Landing pública con marketing + acceso | F9 — Landing/Marketing/i18n |
+| HU-017-JarvisMode | Cambiar el idioma de la interfaz (ES/EN) | F9 — Landing/Marketing/i18n |
+| HU-018-JarvisMode | Ver velocidad, desvío y avance de mi proyecto (burndown de 3 líneas) | F10 — Métricas de ejecución |
+| HU-019-JarvisMode | Correr una prueba automatizada E2E contra una URL del proyecto | F10 — Métricas de ejecución |
+| HU-020-JarvisMode | Aplicar estructura estándar de carpetas a un proyecto nuevo | F11 — Onboarding y Ciclo de vida |
+| HU-021-JarvisMode | Consola de fase en Ciclo de vida (progreso, agentes, correr/activar resultado, subir a repo) | F11 — Onboarding y Ciclo de vida |
+| HU-022-JarvisMode | Crear y editar cards de Basecamp desde el UI | F12 — Autobasecamp |
+| HU-023-JarvisMode | Auditar nomenclatura de cards entre varios Card Tables | F12 — Autobasecamp |
+
+**F8 — Multi-usuario**: ver §18 arriba para el detalle técnico completo (modelo de Usuario,
+JWT, convivencia con `APP_API_KEYS`, ownership de proyectos/Auth Profiles, migración de datos
+existentes). HU-013/014/015 son la cara de usuario de esa misma feature:
+- **HU-013**: formulario de registro (nombre/email/contraseña) y login en la Landing
+  (`dashboard/src/pages/Landing.jsx`), validación propia (no el tooltip nativo del navegador),
+  contra `POST /auth/register`/`POST /auth/login`.
+- **HU-014**: botón "Continuar con Google" vía Google Identity Services, solo activo si
+  `VITE_GOOGLE_OAUTH_CLIENT_ID` está configurado — si no, muestra el estado "no configurado"
+  explícito en vez de fallar en silencio.
+- **HU-015**: sección de cuenta en el Sidebar (email del usuario vía `GET /auth/me`) + botón
+  "Cerrar sesión" que limpia el token y devuelve a la Landing. **Gap conocido**: sin este
+  botón, un usuario ya logueado nunca volvía a ver la Landing (bug real encontrado y corregido
+  en esta misma ronda).
+
+**F9 — Landing/Marketing/i18n**:
+- **HU-016**: hero + 4 feature cards (integraciones, agentes, chat Jarvis, QA) + sección
+  "Cómo funciona" (3 pasos) + mockup del producto real (recreación HTML/CSS fiel al AppShell,
+  no una captura automatizada) + acceso. Motion sutil (fade/slide al entrar en viewport) que
+  respeta `prefers-reduced-motion`, evaluado contra las skills `apple-design` (ver `CLAUDE.md`
+  del repo).
+- **HU-017**: toggle ES/EN visible en Landing y Sidebar, persistido vía
+  `i18next-browser-languagedetector`.
+
+**F10 — Métricas de ejecución**:
+- **HU-018**: `GET /projects/{id}/velocity` — velocity semanal, rollover (ítems no completados
+  que pasan a la semana siguiente), completion rate, y una 3ª línea derivada de
+  `reconciliation.gaps` real (no un input manual) junto al compromiso semanal que sí carga a
+  mano el PM (`POST /projects/{id}/velocity/commitments`). Visualizado en
+  `AnalyticsDrillDown.jsx` → `VelocitySection.jsx`.
+- **HU-019**: `app/services/qa_e2e_runner.py` — corre Playwright headless contra una URL +
+  plan de pasos simple, guarda evidencia en `qa/evidence/<run_id>/`, devuelve `Finding[]` en
+  el mismo esquema de severidad S1-S5 que ya usa el QA sweep. **Gap conocido**: Playwright
+  queda como dependencia de test (`pyproject.toml` extra `test`), no de producción — Chromium
+  no está instalado en el entorno de deploy todavía, correrlo ahí es un paso manual pendiente.
+
+**F11 — Onboarding y Ciclo de vida**:
+- **HU-020**: `POST /projects/{id}/scaffold` crea `01-Planning`, `02-UX UI`, `03-Development`,
+  `04-QA`, `05-Deliveries`, `06-FollowUp` (con README por carpeta) en el primer repo conectado
+  del proyecto, vía los adapters de GitHub/Bitbucket existentes. Botón "Aplicar estructura
+  estándar" en `ProjectDetailDrillDown.jsx`. Documenta explícitamente que 3 de las 6 carpetas
+  (UX UI, Deliveries, FollowUp) no tienen fase equivalente 1:1 en `phase_contracts` hoy.
+- **HU-021**: cada tarjeta de `LifecycleView.jsx` se expande a una `PhaseConsole` con: (1)
+  progreso real del proyecto, (2) un botón por agente disponible en esa fase, (3) avatar+nombre
+  del agente principal, (4) modal para correr un agente (input de texto libre — **gap
+  conocido**: no hay todavía un formulario tipado por agente, ej. un campo específico de "HUs"
+  para Gimena), (5) resultado visible con activación explícita (nunca automática), (6) cada
+  acción registrada en el Project Brain vía `POST /brain/ingest-event`, (7) "Subir a repo" con
+  confirmación inline visible tras la acción (antes no había ningún feedback de que la subida
+  hubiera ocurrido).
+
+**F12 — Autobasecamp**: ver [`SPEC_AUTOBASECAMP.md`](SPEC_AUTOBASECAMP.md) para el diseño
+completo (modelo de datos, decisiones abiertas §7, fuera de alcance §8). Implementado en esta
+ronda:
+- **HU-022**: crear/editar/mover cards de Basecamp (`BasecampCardsPanel.jsx`), reusando el
+  Auth Profile de Basecamp ya vinculado al proyecto — sin OAuth nuevo.
+- **HU-023**: `app/services/basecamp_nomenclature.py` — parser tolerante a typos reales
+  (`HORFIX`, `FotFix`, `Hot Fix`, `%Hotfix%`), detección de duplicados/sin nomenclatura/cruces
+  entre Card Tables, reglas de rango por tabla (`BasecampNomenclatureRules.jsx`, con aviso si
+  dos rangos se solapan) y sugerencia opcional de traducción ES→EN (activable por tabla, no
+  automática). Auditoría scoped estrictamente a los `card_table_ids` que el usuario pasa
+  explícitamente — nunca cruza con tablas de otros proyectos por defecto. Incluye creación
+  masiva de cards vía CSV/pegado con preview antes de crear. **Gap conocido**: el parser
+  específico para `milestones-v2.md`/`dod-by-milestone/*.md` de Finanz Butik no se construyó
+  todavía — no hay archivos de muestra reales en este repo para darle forma; el endpoint
+  `/bulk` ya es agnóstico al formato y queda listo para conectarlo.

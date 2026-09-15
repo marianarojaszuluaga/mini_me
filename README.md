@@ -1,7 +1,14 @@
-# Orquestrador 360
+# Mini me (orquestrador-360)
 
-Orquestador SDLC end-to-end para Imagine Apps: 19 agentes (5 de gestión de proyecto + 14 del
-spec-kit de [`ia-hybrid-teams`](../ia-hybrid-teams)) a través de las 5 fases del ciclo de
+> **Actualizado 2026-09-15**: el producto se renombró a **Mini me** — "Everything in one
+> place. Orquestrador for Strategic Operations with Jarvis Mode." Desde el 2026-09-09 también
+> es **multi-usuario real** (registro/login con email+contraseña o Google, JWT propio,
+> proyectos con dueño) y tiene **i18n** (ES/EN) en el dashboard. Ver `SPEC_JARVIS.md` §18-19
+> (HU-013 a HU-023) para el detalle completo de estas features y de Autobasecamp (creación y
+> auditoría de nomenclatura de cards de Basecamp, ver `SPEC_AUTOBASECAMP.md`).
+
+Orquestador SDLC end-to-end para Imagine Apps: 22 agentes (5 de gestión de proyecto + los
+del spec-kit de [`ia-hybrid-teams`](../ia-hybrid-teams)) a través de las 5 fases del ciclo de
 desarrollo (Planeación → Backend → Frontend → Integración/Calidad → Deploy).
 
 Este repo consolida y corrige un prototipo previo (`minime_AKA_jarvis/outputs/`) que tenía
