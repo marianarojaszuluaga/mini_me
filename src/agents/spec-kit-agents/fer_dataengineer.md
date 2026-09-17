@@ -5,6 +5,23 @@
 
 ---
 
+## Historial de Cambios
+
+| Versión | Fecha | Cambios |
+|:---|:---|:---|
+| 1.1.0 | 2026-09-17 | Catalogado en `qa/test-design/agentes-mini-me-input-output-handoff.xlsx` con id `fer_dataengineer_V1_1_0` (roster de Input/Output/Handoff de los 22 agentes, esquema nombre_función). Sin cambios funcionales. |
+
+---
+
+## Posición en el Flujo de Agentes
+- **Fase:** 1 — Planning, sub-paso 3 (Data definition)
+- **Agente anterior:** `sofi` (Architect) — entrega el stack técnico y los Bounded Contexts ya definidos.
+- **Agente siguiente:** `gabi` (Work Planner) — el modelo de datos y los pipelines definidos acá alimentan la estimación y el plan de trabajo.
+- **Tipo de handoff:** Manual via Human in the Loop.
+
+---
+
+
 ## Suggested Input
 
 > "Design an idempotent data pipeline. Optimize auth queries with covered indexes. Ensure password hashing uses collision-resistant algorithms (Argon2 or Bcrypt). Define session audit schema and connection pool settings."

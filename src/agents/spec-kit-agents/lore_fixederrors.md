@@ -5,6 +5,23 @@
 
 ---
 
+## Historial de Cambios
+
+| Versión | Fecha | Cambios |
+|:---|:---|:---|
+| 1.1.0 | 2026-09-17 | Catalogado en `qa/test-design/agentes-mini-me-input-output-handoff.xlsx` con id `lore_fixederrors_V1_1_0` (roster de Input/Output/Handoff de los 22 agentes, esquema nombre_función). Sin cambios funcionales. |
+
+
+---
+
+## Posición en el Flujo de Agentes
+- **Fase:** Calidad — entre `rena` y `sara`/`xime`. NO es parte del `qa-sweep` automatizado (`run_qa_sweep`) todavía — es un paso manual real que hoy vive fuera de ese endpoint.
+- **Agente anterior:** `rena` (Integration) — termina la integración y entrega el DoD (definido por `diana` en Planning) para que `lore` verifique completitud del código contra ese DoD.
+- **Agente siguiente:** continúa hacia `sara`/`xime` (los checks automatizados en paralelo) una vez el código cumple el DoD.
+- **Tipo de handoff:** Manual — Mariana: "una vez el integrador de código termina, revisa el DoD y le pasa a lore el DoD para verificar completitud en el código".
+---
+
+
 ## Suggested Input
 
 > "Analyze this stack trace and compare it with OWASP Top 10 vulnerabilities. Apply a patch that fixes the bug and refactors toward SOLID to prevent regressions. Document what was fixed and how to verify."

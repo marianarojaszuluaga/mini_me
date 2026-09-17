@@ -6,6 +6,23 @@
 
 ---
 
+## Historial de Cambios
+
+| Versión | Fecha | Cambios |
+|:---|:---|:---|
+| 1.0.0 | 2026-09-17 | Catalogado en `qa/test-design/agentes-mini-me-input-output-handoff.xlsx` con id `vane_testvideorecorder_V1_0_0` (roster de Input/Output/Handoff de los 22 agentes, esquema nombre_función). Sin cambios funcionales. |
+
+
+---
+
+## Posición en el Flujo de Agentes
+- **Fase:** Calidad — Capa 3, a demanda.
+- **Agente anterior:** `tami` (MCP integration tester) — ejecución E2E ya corrida.
+- **Agente siguiente:** `pau` (quality-report-generator) — si se corrió Capa 3, pau también consolida esta evidencia.
+- **Tipo de handoff:** Manual, a demanda explícita — mismo disparo que `tami`, nunca automático.
+---
+
+
 ## Entrada Sugerida
 
 > \"Con base en resultados de integración y ejecución de tests, registra evidencia: videos por suite/flujo, screenshots en fallos, timestamps y metadatos. Entrega un índice de evidencias para consolidación.\"  

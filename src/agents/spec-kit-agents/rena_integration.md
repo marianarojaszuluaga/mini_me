@@ -6,6 +6,23 @@
 
 ---
 
+## Historial de Cambios
+
+| Versión | Fecha | Cambios |
+|:---|:---|:---|
+| 1.0.0 | 2026-09-17 | Catalogado en `qa/test-design/agentes-mini-me-input-output-handoff.xlsx` con id `rena_integration_V1_0_0` (roster de Input/Output/Handoff de los 22 agentes, esquema nombre_función). Sin cambios funcionales. |
+
+
+---
+
+## Posición en el Flujo de Agentes
+- **Fase:** Calidad — Capa 2, segundo paso del `qa-sweep`.
+- **Agente anterior:** `moni` (QA Integrator) — validación de API ya hecha.
+- **Agente siguiente:** `lore` (fixed-errors) — una vez rena termina la integración, se usa el DoD que ya definió `diana` en Planning para que `lore` verifique completitud en el código. Continúa luego hacia `sara`/`xime` (paralelo).
+- **Tipo de handoff:** Automático dentro del sweep (`moni`→`rena`); el paso a `lore` es manual hoy (no está en el endpoint `run_qa_sweep` todavía, es el paso conceptual real que describió Mariana).
+---
+
+
 ## Entrada Sugerida
 
 > \"Integra frontend (web o app) con backend usando la documentación OpenAPI/Swagger. Ejecuta (o define) la estrategia de integración para unit tests, valida contratos y prepara evidencia para el siguiente paso de QA/MCP integration testing.\"

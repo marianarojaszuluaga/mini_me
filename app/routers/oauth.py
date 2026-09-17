@@ -103,7 +103,19 @@ _PROVIDER_CONFIGS: dict[str, _ProviderConfig] = {
     "google": _ProviderConfig(
         authorize_url="https://accounts.google.com/o/oauth2/v2/auth",
         token_url="https://oauth2.googleapis.com/token",
-        scope="openid email profile",
+        # 2026-09-17: added Drive scopes to unblock `mia` (reads meeting notes)
+        # and `nico` (writes finalized docs) — see google_drive_client.py.
+        # `drive.file` (not full `drive`) so this only ever touches files the
+        # app itself created or that the user explicitly opened with it —
+        # never a blanket read/write grant over the whole Drive.
+        # Any Google Auth Profile connected BEFORE this change must be
+        # reconnected to pick up the new scopes (existing tokens don't
+        # retroactively gain them) — real manual step, not a code gap.
+        scope=(
+            "openid email profile "
+            "https://www.googleapis.com/auth/drive.readonly "
+            "https://www.googleapis.com/auth/drive.file"
+        ),
         extra_authorize_params={"access_type": "offline", "prompt": "consent"},
     ),
     # Basecamp 5 (bc-api) — 37signals' Launchpad OAuth, per

@@ -1,0 +1,174 @@
+<title>Ciclo De Vida Mini Me</title>
+<style>
+  :root{
+    --bg:#faf9f6; --surface:#ffffff; --ink:#1c1f1a; --ink-2:#565f52; --border:#dcded6;
+    --accent:#2f6d3e; --accent-ink:#ffffff; --amber:#9a6b12; --amber-fill:#fbf0dc;
+    --grey:#8b8f85; --track:#eef1ea;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#14150f; --surface:#1c1e17; --ink:#eef0e7; --ink-2:#a9ad9f; --border:#33362c;
+      --accent:#6fbf7f; --accent-ink:#0c1a0f; --amber:#e0ac52; --amber-fill:#332711;
+      --grey:#767a6f; --track:#22241c;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#14150f; --surface:#1c1e17; --ink:#eef0e7; --ink-2:#a9ad9f; --border:#33362c;
+    --accent:#6fbf7f; --accent-ink:#0c1a0f; --amber:#e0ac52; --amber-fill:#332711;
+    --grey:#767a6f; --track:#22241c;
+  }
+  *{box-sizing:border-box}
+  body{background:var(--bg); color:var(--ink); font:15px/1.5 "Inter", -apple-system, sans-serif; margin:0; padding:24px 16px 48px}
+  .wrap{max-width:1180px; margin:0 auto}
+  h1{font-family:"Manrope","Inter",sans-serif; font-size:1.7rem; margin:0 0 4px; text-wrap:balance; letter-spacing:-0.01em}
+  .sub{color:var(--ink-2); font-size:0.95rem; margin:0 0 24px; max-width:70ch}
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px; overflow-x:auto}
+  svg{display:block; min-width:1080px}
+  .legend{display:flex; flex-wrap:wrap; gap:18px 28px; margin-top:18px; font-size:0.85rem; color:var(--ink-2)}
+  .legend span{display:inline-flex; align-items:center; gap:8px}
+  .swatch{width:22px; height:2px; border-radius:1px; flex:none}
+  .dot{width:9px; height:9px; border-radius:50%; flex:none}
+  figcaption{color:var(--ink-2); font-size:0.85rem; margin-top:10px}
+  footer{margin-top:22px; font-size:0.82rem; color:var(--ink-2)}
+  footer code{background:var(--track); padding:1px 5px; border-radius:4px}
+</style>
+
+<div class="wrap">
+  <h1>Ciclo de vida de un proyecto en Mini me — 26 agentes</h1>
+  <p class="sub">Quién actúa en cada momento, de la HU a la publicación del release. Verde = automático y ya implementado. Ámbar = manual hoy. Gris punteado = bloqueado, pendiente de una integración que todavía no existe.</p>
+
+  <figure class="card">
+    <svg viewBox="0 0 1080 760" role="img" aria-label="Diagrama de secuencia del ciclo de vida de un proyecto en Mini me, desde Planning hasta CI/CD, mostrando los 26 agentes y en qué momento actúa cada uno">
+      <defs>
+        <marker id="arrGreen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/>
+        </marker>
+        <marker id="arrAmber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--amber)"/>
+        </marker>
+        <marker id="arrGrey" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--grey)"/>
+        </marker>
+      </defs>
+
+      <!-- phase bands -->
+      <g font-family="Inter, sans-serif">
+        <rect x="8" y="8" width="1064" height="130" rx="10" fill="var(--track)"/>
+        <text x="24" y="30" font-size="12" font-weight="700" letter-spacing="0.06em" fill="var(--ink-2)">1 · PLANNING</text>
+
+        <rect x="8" y="150" width="330" height="230" rx="10" fill="var(--track)"/>
+        <text x="24" y="172" font-size="12" font-weight="700" letter-spacing="0.06em" fill="var(--ink-2)">2 · DESARROLLO</text>
+
+        <rect x="350" y="150" width="490" height="230" rx="10" fill="var(--track)"/>
+        <text x="366" y="172" font-size="12" font-weight="700" letter-spacing="0.06em" fill="var(--ink-2)">3 · CALIDAD — CAPA 2 (AUTOMÁTICO)</text>
+
+        <rect x="852" y="150" width="220" height="230" rx="10" fill="var(--track)"/>
+        <text x="866" y="172" font-size="12" font-weight="700" letter-spacing="0.06em" fill="var(--ink-2)">CAPA 3 (A DEMANDA)</text>
+
+        <rect x="8" y="400" width="1064" height="90" rx="10" fill="var(--track)"/>
+        <text x="24" y="422" font-size="12" font-weight="700" letter-spacing="0.06em" fill="var(--ink-2)">CI/CD — RELEASE</text>
+
+        <rect x="8" y="508" width="520" height="110" rx="10" fill="var(--track)"/>
+        <text x="24" y="530" font-size="12" font-weight="700" letter-spacing="0.06em" fill="var(--ink-2)">TESTEO MANUAL (EN PARALELO A DESARROLLO)</text>
+
+        <rect x="546" y="508" width="526" height="110" rx="10" fill="var(--track)"/>
+        <text x="562" y="530" font-size="12" font-weight="700" letter-spacing="0.06em" fill="var(--ink-2)">TRANSVERSALES — BLOQUEADOS (integraciones pendientes)</text>
+      </g>
+
+      <!-- reusable agent node -->
+      <!-- Planning row -->
+      <g font-family="Inter, sans-serif" font-size="12.5">
+        <!-- nodes: x,y,w,h,label,sub -->
+        <g id="p-gime"><rect x="24" y="50" width="108" height="52" rx="9" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.6"/><text x="78" y="72" text-anchor="middle" font-weight="700" fill="var(--ink)">gime</text><text x="78" y="88" text-anchor="middle" font-size="10.5" fill="var(--ink-2)">HU + AC</text></g>
+        <g><rect x="150" y="50" width="108" height="52" rx="9" fill="var(--surface)" stroke="var(--border)"/><text x="204" y="72" text-anchor="middle" font-weight="700" fill="var(--ink)">sofi</text><text x="204" y="88" text-anchor="middle" font-size="10.5" fill="var(--ink-2)">stack técnico</text></g>
+        <g><rect x="276" y="50" width="108" height="52" rx="9" fill="var(--surface)" stroke="var(--border)"/><text x="330" y="72" text-anchor="middle" font-weight="700" fill="var(--ink)">fer</text><text x="330" y="88" text-anchor="middle" font-size="10.5" fill="var(--ink-2)">datos</text></g>
+        <g><rect x="402" y="50" width="108" height="52" rx="9" fill="var(--surface)" stroke="var(--border)"/><text x="456" y="72" text-anchor="middle" font-weight="700" fill="var(--ink)">gabi</text><text x="456" y="88" text-anchor="middle" font-size="10.5" fill="var(--ink-2)">work plan</text></g>
+        <g><rect x="528" y="50" width="108" height="52" rx="9" fill="var(--surface)" stroke="var(--border)"/><text x="582" y="72" text-anchor="middle" font-weight="700" fill="var(--ink)">mila</text><text x="582" y="88" text-anchor="middle" font-size="10.5" fill="var(--ink-2)">milestones</text></g>
+        <g><rect x="654" y="50" width="108" height="52" rx="9" fill="var(--surface)" stroke="var(--border)"/><text x="708" y="72" text-anchor="middle" font-weight="700" fill="var(--ink)">diana</text><text x="708" y="88" text-anchor="middle" font-size="10.5" fill="var(--ink-2)">DoD</text></g>
+        <g><rect x="780" y="50" width="108" height="52" rx="9" fill="var(--surface)" stroke="var(--border)"/><text x="834" y="72" text-anchor="middle" font-weight="700" fill="var(--ink)">cami</text><text x="834" y="88" text-anchor="middle" font-size="10.5" fill="var(--ink-2)">reconcilia</text></g>
+        <g><rect x="936" y="50" width="120" height="52" rx="9" fill="var(--surface)" stroke="var(--border)"/><text x="996" y="72" text-anchor="middle" font-weight="700" fill="var(--ink)">gina</text><text x="996" y="88" text-anchor="middle" font-size="10.5" fill="var(--ink-2)">cronograma</text></g>
+
+        <line x1="132" y1="76" x2="150" y2="76" stroke="var(--accent)" stroke-width="1.6" marker-end="url(#arrGreen)"/>
+        <line x1="258" y1="76" x2="276" y2="76" stroke="var(--accent)" stroke-width="1.6" marker-end="url(#arrGreen)"/>
+        <line x1="384" y1="76" x2="402" y2="76" stroke="var(--accent)" stroke-width="1.6" marker-end="url(#arrGreen)"/>
+        <line x1="510" y1="76" x2="528" y2="76" stroke="var(--accent)" stroke-width="1.6" marker-end="url(#arrGreen)"/>
+        <line x1="636" y1="76" x2="654" y2="76" stroke="var(--accent)" stroke-width="1.6" marker-end="url(#arrGreen)"/>
+        <line x1="762" y1="76" x2="780" y2="76" stroke="var(--accent)" stroke-width="1.6" marker-end="url(#arrGreen)"/>
+        <line x1="888" y1="76" x2="936" y2="76" stroke="var(--accent)" stroke-width="1.6" marker-end="url(#arrGreen)"/>
+        <text x="996" y="115" text-anchor="middle" font-size="10.5" fill="var(--ink-2)">dispara Desarrollo →</text>
+
+        <!-- Desarrollo -->
+        <g><rect x="24" y="196" width="130" height="46" rx="9" fill="var(--surface)" stroke="var(--border)"/><text x="89" y="215" text-anchor="middle" font-weight="700" fill="var(--ink)">mafe</text><text x="89" y="230" text-anchor="middle" font-size="10" fill="var(--ink-2)">web (Figma)</text></g>
+        <g><rect x="24" y="252" width="130" height="46" rx="9" fill="var(--surface)" stroke="var(--border)"/><text x="89" y="271" text-anchor="middle" font-weight="700" fill="var(--ink)">isa</text><text x="89" y="286" text-anchor="middle" font-size="10" fill="var(--ink-2)">app (Figma)</text></g>
+        <g><rect x="24" y="308" width="130" height="46" rx="9" fill="var(--surface)" stroke="var(--border)"/><text x="89" y="327" text-anchor="middle" font-weight="700" fill="var(--ink)">moni</text><text x="89" y="342" text-anchor="middle" font-size="10" fill="var(--ink-2)">API/contrato</text></g>
+        <g><rect x="216" y="252" width="120" height="46" rx="9" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.6"/><text x="276" y="271" text-anchor="middle" font-weight="700" fill="var(--ink)">rena</text><text x="276" y="286" text-anchor="middle" font-size="10" fill="var(--ink-2)">integración</text></g>
+
+        <line x1="154" y1="219" x2="216" y2="264" stroke="var(--accent)" stroke-width="1.6" marker-end="url(#arrGreen)"/>
+        <line x1="154" y1="275" x2="216" y2="275" stroke="var(--accent)" stroke-width="1.6" marker-end="url(#arrGreen)"/>
+        <line x1="154" y1="331" x2="216" y2="286" stroke="var(--accent)" stroke-width="1.6" marker-end="url(#arrGreen)"/>
+
+        <!-- Calidad chain -->
+        <g><rect x="366" y="252" width="100" height="46" rx="9" fill="var(--surface)" stroke="var(--amber)" stroke-width="1.6"/><text x="416" y="271" text-anchor="middle" font-weight="700" fill="var(--ink)">lore</text><text x="416" y="286" text-anchor="middle" font-size="10" fill="var(--ink-2)">DoD fix</text></g>
+        <g><rect x="500" y="196" width="100" height="46" rx="9" fill="var(--surface)" stroke="var(--border)"/><text x="550" y="215" text-anchor="middle" font-weight="700" fill="var(--ink)">sara</text><text x="550" y="230" text-anchor="middle" font-size="10" fill="var(--ink-2)">Sonar gate</text></g>
+        <g><rect x="500" y="252" width="100" height="46" rx="9" fill="var(--surface)" stroke="var(--border)"/><text x="550" y="271" text-anchor="middle" font-weight="700" fill="var(--ink)">xime</text><text x="550" y="286" text-anchor="middle" font-size="10" fill="var(--ink-2)">unit tests</text></g>
+        <g><rect x="634" y="252" width="100" height="46" rx="9" fill="var(--surface)" stroke="var(--border)"/><text x="684" y="271" text-anchor="middle" font-weight="700" fill="var(--ink)">vale</text><text x="684" y="286" text-anchor="middle" font-size="10" fill="var(--ink-2)">reconcilia</text></g>
+        <g><rect x="768" y="252" width="100" height="46" rx="9" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.6"/><text x="818" y="271" text-anchor="middle" font-weight="700" fill="var(--ink)">pau</text><text x="818" y="286" text-anchor="middle" font-size="10" fill="var(--ink-2)">Go/No-Go</text></g>
+
+        <line x1="336" y1="275" x2="366" y2="275" stroke="var(--accent)" stroke-width="1.6" marker-end="url(#arrGreen)"/>
+        <line x1="466" y1="266" x2="500" y2="220" stroke="var(--amber)" stroke-width="1.6" marker-end="url(#arrAmber)"/>
+        <line x1="466" y1="280" x2="500" y2="275" stroke="var(--amber)" stroke-width="1.6" marker-end="url(#arrAmber)"/>
+        <line x1="600" y1="220" x2="634" y2="266" stroke="var(--accent)" stroke-width="1.6" marker-end="url(#arrGreen)"/>
+        <line x1="600" y1="275" x2="634" y2="275" stroke="var(--accent)" stroke-width="1.6" marker-end="url(#arrGreen)"/>
+        <line x1="734" y1="275" x2="768" y2="275" stroke="var(--accent)" stroke-width="1.6" marker-end="url(#arrGreen)"/>
+        <text x="416" y="316" text-anchor="middle" font-size="10" fill="var(--ink-2)">verifica DoD</text>
+
+        <!-- Capa 3 -->
+        <g><rect x="868" y="196" width="90" height="46" rx="9" fill="var(--surface)" stroke="var(--grey)" stroke-dasharray="3 3"/><text x="913" y="215" text-anchor="middle" font-weight="700" fill="var(--ink)">tami</text><text x="913" y="230" text-anchor="middle" font-size="10" fill="var(--ink-2)">E2E MCP</text></g>
+        <g><rect x="868" y="252" width="90" height="46" rx="9" fill="var(--surface)" stroke="var(--grey)" stroke-dasharray="3 3"/><text x="913" y="271" text-anchor="middle" font-weight="700" fill="var(--ink)">vane</text><text x="913" y="286" text-anchor="middle" font-size="10" fill="var(--ink-2)">video</text></g>
+        <line x1="913" y1="242" x2="913" y2="252" stroke="var(--grey)" stroke-width="1.4" stroke-dasharray="3 3" marker-end="url(#arrGrey)"/>
+        <line x1="868" y1="275" x2="818" y2="290" stroke="var(--grey)" stroke-width="1.2" stroke-dasharray="2 3" marker-end="url(#arrGrey)"/>
+        <text x="913" y="316" text-anchor="middle" font-size="9.5" fill="var(--ink-2)">a demanda, nunca solo</text>
+
+        <!-- CI/CD -->
+        <g><rect x="380" y="440" width="100" height="46" rx="9" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.6"/><text x="430" y="459" text-anchor="middle" font-weight="700" fill="var(--ink)">dani</text><text x="430" y="474" text-anchor="middle" font-size="10" fill="var(--ink-2)">release notes</text></g>
+        <g><rect x="530" y="440" width="130" height="46" rx="9" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.6"/><text x="595" y="459" text-anchor="middle" font-weight="700" fill="var(--ink)">Basecamp</text><text x="595" y="474" text-anchor="middle" font-size="10" fill="var(--ink-2)">webhook real</text></g>
+        <g><rect x="700" y="440" width="100" height="46" rx="9" fill="var(--surface)" stroke="var(--border)"/><text x="750" y="459" text-anchor="middle" font-weight="700" fill="var(--ink)">gaby</text><text x="750" y="474" text-anchor="middle" font-size="10" fill="var(--ink-2)">Project Brain</text></g>
+
+        <line x1="818" y1="298" x2="430" y2="440" stroke="var(--accent)" stroke-width="1.6" marker-end="url(#arrGreen)"/>
+        <line x1="480" y1="463" x2="530" y2="463" stroke="var(--accent)" stroke-width="1.6" marker-end="url(#arrGreen)"/>
+        <line x1="660" y1="463" x2="700" y2="463" stroke="var(--ink-2)" stroke-width="1.4" marker-end="url(#arrAmber)"/>
+
+        <!-- Manual testing track -->
+        <g><rect x="24" y="548" width="90" height="46" rx="9" fill="var(--surface)" stroke="var(--amber)" stroke-width="1.6"/><text x="69" y="567" text-anchor="middle" font-weight="700" fill="var(--ink)">cata</text><text x="69" y="582" text-anchor="middle" font-size="10" fill="var(--ink-2)">test design</text></g>
+        <g><rect x="150" y="548" width="150" height="46" rx="9" fill="var(--surface)" stroke="var(--amber)" stroke-width="1.6" stroke-dasharray="4 3"/><text x="225" y="567" text-anchor="middle" font-weight="700" fill="var(--ink)">Testeo manual</text><text x="225" y="582" text-anchor="middle" font-size="10" fill="var(--ink-2)">humano, plantilla FB</text></g>
+        <g><rect x="336" y="548" width="90" height="46" rx="9" fill="var(--surface)" stroke="var(--amber)" stroke-width="1.6"/><text x="381" y="567" text-anchor="middle" font-weight="700" fill="var(--ink)">leo</text><text x="381" y="582" text-anchor="middle" font-size="10" fill="var(--ink-2)">consolida</text></g>
+
+        <line x1="24" y1="76" x2="24" y2="548" stroke="var(--amber)" stroke-width="1.2" stroke-dasharray="2 4" fill="none"/>
+        <path d="M24,548 L24,571 L24,571" stroke="none"/>
+        <line x1="24" y1="548" x2="24" y2="571" stroke="var(--amber)" stroke-width="1.4" marker-end="url(#arrAmber)"/>
+        <text x="10" y="520" font-size="9.5" fill="var(--ink-2)" transform="rotate(-90 10 520)" text-anchor="middle">en paralelo desde gime</text>
+        <line x1="114" y1="571" x2="150" y2="571" stroke="var(--amber)" stroke-width="1.6" marker-end="url(#arrAmber)"/>
+        <line x1="300" y1="571" x2="336" y2="571" stroke="var(--amber)" stroke-width="1.6" marker-end="url(#arrAmber)"/>
+
+        <!-- Transversal blocked -->
+        <g><rect x="562" y="548" width="70" height="46" rx="9" fill="var(--amber-fill)" stroke="var(--grey)" stroke-dasharray="3 3"/><text x="597" y="567" text-anchor="middle" font-weight="700" fill="var(--ink)">mia</text><text x="597" y="582" text-anchor="middle" font-size="9.5" fill="var(--ink-2)">Drive↔santi</text></g>
+        <g><rect x="648" y="548" width="70" height="46" rx="9" fill="var(--amber-fill)" stroke="var(--grey)" stroke-dasharray="3 3"/><text x="683" y="567" text-anchor="middle" font-weight="700" fill="var(--ink)">nico</text><text x="683" y="582" text-anchor="middle" font-size="9.5" fill="var(--ink-2)">docs→Drive</text></g>
+        <g><rect x="734" y="548" width="90" height="46" rx="9" fill="var(--amber-fill)" stroke="var(--grey)" stroke-dasharray="3 3"/><text x="779" y="567" text-anchor="middle" font-weight="700" fill="var(--ink)">santi</text><text x="779" y="582" text-anchor="middle" font-size="9.5" fill="var(--ink-2)">actas</text></g>
+        <g><rect x="850" y="548" width="90" height="46" rx="9" fill="var(--amber-fill)" stroke="var(--grey)" stroke-dasharray="3 3"/><text x="895" y="567" text-anchor="middle" font-weight="700" fill="var(--ink)">leo</text><text x="895" y="582" text-anchor="middle" font-size="9.5" fill="var(--ink-2)">→ G.Chat</text></g>
+
+        <line x1="632" y1="571" x2="648" y2="571" stroke="var(--grey)" stroke-width="1.2" stroke-dasharray="2 3"/>
+        <line x1="718" y1="571" x2="734" y2="571" stroke="var(--grey)" stroke-width="1.2" stroke-dasharray="2 3" marker-end="url(#arrGrey)"/>
+        <line x1="824" y1="571" x2="850" y2="571" stroke="var(--grey)" stroke-width="1.2" stroke-dasharray="2 3" marker-end="url(#arrGrey)"/>
+      </g>
+    </svg>
+    <figcaption>Verde sólido = automático, ya implementado (<code>run_qa_sweep</code>, <code>basecamp_publisher.py</code>). Ámbar = manual hoy, con destino claro. Gris punteado = bloqueado por una integración que falta (Google Drive / Google Chat).</figcaption>
+  </figure>
+
+  <div class="legend">
+    <span><span class="swatch" style="background:var(--accent)"></span> Automático / implementado</span>
+    <span><span class="swatch" style="background:var(--amber)"></span> Manual, con destino definido</span>
+    <span><span class="swatch" style="background:var(--grey); background-image:repeating-linear-gradient(90deg, var(--grey) 0 4px, transparent 4px 7px)"></span> Bloqueado — falta integración</span>
+  </div>
+
+  <footer>Fuente: <code>qa/test-design/agentes-mini-me-input-output-handoff.xlsx</code> + <code>qa/QA_FLOW_README.md</code> + los 26 <code>.md</code> de <code>src/agents/</code>. Generado 2026-09-17.</footer>
+</div>

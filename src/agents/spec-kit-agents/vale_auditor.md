@@ -5,6 +5,23 @@
 
 ---
 
+## Historial de Cambios
+
+| Versión | Fecha | Cambios |
+|:---|:---|:---|
+| 1.1.0 | 2026-09-17 | Catalogado en `qa/test-design/agentes-mini-me-input-output-handoff.xlsx` con id `vale_auditor_V1_1_0` (roster de Input/Output/Handoff de los 22 agentes, esquema nombre_función). Sin cambios funcionales. |
+
+
+---
+
+## Posición en el Flujo de Agentes
+- **Fase:** Calidad — Capa 2, penúltimo paso del `qa-sweep` (reconciliación código↔spec).
+- **Agente anterior:** `sara` y `xime` (en paralelo) — ya corrieron sus checks automatizados.
+- **Agente siguiente:** `pau` (quality-report-generator) — consolida todo, incluida la reconciliación de vale.
+- **Tipo de handoff:** Automático — orden real confirmado en `qa/QA_FLOW_README.md`: `moni→rena→sara/xime→vale→pau`, ya implementado en `run_qa_sweep`.
+---
+
+
 ## Suggested Input
 
 > "Run a static analysis for technical debt and Clean Code violations. Verify that `architecture.md` matches the current implementation. Validate test coverage and produce a structured report."

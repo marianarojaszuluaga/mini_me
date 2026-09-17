@@ -6,6 +6,23 @@
 
 ---
 
+## Historial de Cambios
+
+| Versión | Fecha | Cambios |
+|:---|:---|:---|
+| 1.0.0 | 2026-09-17 | Catalogado en `qa/test-design/agentes-mini-me-input-output-handoff.xlsx` con id `tami_mcpintegrationtester_V1_0_0` (roster de Input/Output/Handoff de los 22 agentes, esquema nombre_función). Sin cambios funcionales. |
+
+
+---
+
+## Posición en el Flujo de Agentes
+- **Fase:** Calidad — **Capa 3 (Integración), SOLO a demanda, nunca automática** — no es parte del `qa-sweep` de Capa 2 (`moni→rena→sara/xime→vale→pau`).
+- **Agente anterior:** ninguno dentro del sweep automático — se dispara aparte, después de que la Capa 2 ya corrió, cuando alguien pide la verificación de integración más costosa (validación de campos, pixel-perfect, flujos alternos, prueba de carga).
+- **Agente siguiente:** `vane` (test-video-recorder) — captura evidencia visual de esta ejecución.
+- **Tipo de handoff:** Manual, a demanda explícita — `qa/QA_FLOW_README.md` §2 Capa 3: "nunca se dispara sola".
+---
+
+
 ## Entrada Sugerida
 
 > \"Con base en resultados de calidad (Sonar) y la evidencia de integración previa, define y ejecuta (o especifica ejecución) de pruebas MCP para flujos end-to-end: validación de contrato API, escenarios cross-módulo y checks de paridad de ambiente. Adjunta resultados.\"  
