@@ -4,9 +4,12 @@ comment for the full rationale (kept here in condensed form); this is a
 faithful port, not a redesign.
 
 Agent ids renamed 2026-08-14 (Mariana's request — short first-name ids,
-English by default, instead of role-descriptive slugs): the mapping below
-is id-only — source .md filenames on disk are unchanged, since those are an
-implementation detail, not something callers see.
+English by default, instead of role-descriptive slugs).
+
+Source .md filenames renamed 2026-09-17 to the `id_función.md` scheme (e.g.
+`sofi_architect.md`) so the id and the file agree at a glance — see
+`qa/test-design/agentes-mini-me-input-output-handoff.xlsx` for the full
+roster (input/output/handoff per agent) this rename was done alongside.
 
     gimena -> gime          santi -> santi (unchanged)
     gabi -> gabi (unchanged) daniel -> dani
@@ -22,17 +25,17 @@ implementation detail, not something callers see.
 
 Two agent families, one lookup table:
 
-1. PM agents (gaby, santi, dani) — prompts are inline, built from the
-   input/context at call time. gime and gabi look like PM agents by name
-   but are actually loaded from spec-kit .md files (see SPEC_KIT_FILES) —
-   this matches the real registry.js exactly, not the task's naive
-   assumption that all 5 "PM" names are inline.
+1. Spec-kit agents — prompts are loaded VERBATIM from
+   SPEC_KIT_AGENTS_DIR/*.md at request time. Never paraphrased. This
+   includes gaby/santi/dani (migrated 2026-09-17 from inline Python
+   prompts to .md files, for consistency with the other 19 agents —
+   version + changelog now live with the prompt, not buried in code).
 
-2. Spec-kit agents — prompts are loaded VERBATIM from
-   SPEC_KIT_AGENTS_DIR/*.md at request time. Never paraphrased.
-
-3. External agents (mila, diana, cami) — same verbatim-load mechanism,
+2. External agents (mila, diana, cami) — same verbatim-load mechanism,
    from EXTERNAL_AGENTS_DIR.
+
+There is no more "PM inline" family — PM_AGENT_PROMPTS is gone. All 22
+agents load their prompt from a .md file.
 
 MODEL SELECTION: every agent has a declared model tier + max_tokens in
 AGENT_MODEL_CONFIG, instead of one hardcoded model for every call.
@@ -43,8 +46,6 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable
-
 from app.core.config import get_settings
 
 # canon agent_id -> source .md filename (per ia-hybrid-teams/spec-kit/AGENT_REGISTRY.md,
@@ -52,101 +53,50 @@ from app.core.config import get_settings
 # Filenames on disk keep their original (role-descriptive) names — only the
 # id callers use was renamed.
 SPEC_KIT_FILES: dict[str, str] = {
-    "sofi": "architect.md",
-    "mafe": "fullstack-developer.md",
-    "isa": "flutter-developer.md",
-    "fer": "data-engineer.md",
-    "vale": "auditor.md",
-    "lore": "fixed-errors.md",
-    "gime": "Gimena-userstorywriter.md",
-    "gabi": "Gabi-workplanner.md",
-    # NOTE: AGENT_REGISTRY.md references "gimena-scheduler.md" but the actual
-    # file in agents/ is "Gina-scheduler.md" — pre-existing inconsistency in
-    # ia-hybrid-teams itself, not introduced here. Pointing at the real file.
-    "gina": "Gina-scheduler.md",
-    "moni": "qa-integrator.md",
-    "rena": "integration.md",
-    "sara": "sonar-quality-gate.md",
-    "tami": "mcp-integration-tester.md",
-    "vane": "test-video-recorder.md",
-    "xime": "unit-test-standards-reviewer.md",
-    "pau": "quality-report-generator.md",
+    "sofi": "sofi_architect.md",
+    "mafe": "mafe_fullstackdeveloper.md",
+    "isa": "isa_flutterdeveloper.md",
+    "fer": "fer_dataengineer.md",
+    "vale": "vale_auditor.md",
+    "lore": "lore_fixederrors.md",
+    "gime": "gime_userstorywriter.md",
+    "gabi": "gabi_workplanner.md",
+    "gina": "gina_scheduler.md",
+    "moni": "moni_qaintegrator.md",
+    "rena": "rena_integration.md",
+    "sara": "sara_sonarqualitygate.md",
+    "tami": "tami_mcpintegrationtester.md",
+    "vane": "vane_testvideorecorder.md",
+    "xime": "xime_unittestreviewer.md",
+    "pau": "pau_qualityreportgenerator.md",
 }
 
 EXTERNAL_AGENT_FILES: dict[str, str] = {
-    "mila": "milestone-writer.md",
-    "diana": "dod-definer.md",
-    "cami": "capacity-reconciler.md",
+    "mila": "mila_milestonewriter.md",
+    "diana": "diana_doddefiner.md",
+    "cami": "cami_capacityreconciler.md",
 }
 
-
-def _gabriela_prompt(input_: str, context: dict | None) -> str:
-    return f"""Eres GABRIELA, guardiana del Project Brain.
-
-Tu responsabilidad es mantener el Project Brain del proyecto siguiendo EXACTAMENTE
-la estructura del template canónico (ia-hybrid-teams/agents/Gabriela-ProjectBrain.md,
-V2.0.0), no una estructura libre:
-
-1. Strategic Definition & Governance (Executive Summary, Stakeholders and Approvers)
-2. Scope Management (Scope Matrix In/Out por módulo)
-3. Timeline & Milestones (Start/End Date, Delivery Roadmap con status)
-4. Dynamic Knowledge & Meeting Logs (Master Meeting Doc, Change Log / Decision Log)
-5. Functional Requirements (Key Characteristics, Critical Business Rules)
-
-IMPORTANTE:
-1. Archivo: project_brain_[project_name].md
-2. Ante cualquier discrepancia entre este documento y el Decision Log, gana el Decision Log
-3. Los agentes gime/gabi consultan este documento ANTES de cualquier decisión
-4. Responde SOLO en JSON
-
-CONTEXTO: {json.dumps(context or {}, ensure_ascii=False)}
-INPUT: {input_}
-
-Proporciona resumen del Project Brain siguiendo esa estructura de 5 secciones."""
-
-
-def _santi_prompt(input_: str, context: dict | None) -> str:
-    return f"""Eres SANTI, especialista en documentación de reuniones técnicas.
-Tu trabajo es transformar transcripciones en actas profesionales:
-- Estructura: Notas (H2/H3) + Action Items ☐ + Alertas + RedFlags
-- Formato: H1 (Título), H2 (Secciones), H3 (Numeradas en subsecciones)
-- Accionables con ☐ [Tarea] [[Owner] DUE: [Fecha]]
-- Output: Acta profesional lista para Google Docs
-
-IMPORTANTE:
-1. Lenguaje directo y técnico
-2. Prohibido 'X mencionó que'
-3. Marca ambigüedades con [POR CONFIRMAR]
-4. Responde SOLO en JSON
-
-CONTEXTO: {json.dumps(context or {}, ensure_ascii=False)}
-INPUT: {input_}
-
-Genera acta de reunión profesional."""
-
-
-def _daniel_prompt(input_: str, context: dict | None) -> str:
-    return f"""Eres DANIEL, especialista en Release Notes.
-Tu trabajo es generar dos versiones:
-1. Bitbucket (Técnico): commits, package versions, contributors
-2. Basecamp (Client-friendly): sin términos técnicos
-
-IMPORTANTE:
-1. Bitbucket: Incluir todos los commits funcionales
-2. Basecamp: Máximo 2-4 oraciones por item, lenguaje plano
-3. Responde SOLO en JSON
-
-CONTEXTO: {json.dumps(context or {}, ensure_ascii=False)}
-INPUT: {input_}
-
-Genera ambas versiones de release notes."""
-
-
-PM_AGENT_PROMPTS: dict[str, Callable[[str, dict | None], str]] = {
-    "gaby": _gabriela_prompt,
-    "santi": _santi_prompt,
-    "dani": _daniel_prompt,
+# PM agents (gaby, santi, dani) — Mini me's own agents, NOT part of the
+# ia-hybrid-teams spec-kit sync (see README's "Sincronía con
+# ia-hybrid-teams/agents/" — that folder is a verbatim copy of an external
+# repo). Kept in their own dir/dict so a future spec-kit sync never touches
+# or gets confused with these. Migrated 2026-09-17 from inline Python
+# prompts (see git history) to .md files for version/changelog parity with
+# every other agent.
+PM_AGENT_FILES: dict[str, str] = {
+    "gaby": "gaby_projectbrain.md",
+    "santi": "santi_actas.md",
+    "dani": "dani_releasenotes.md",
+    # Added 2026-09-17: close the gap where no agent designed test cases in
+    # parallel with development, or consolidated manual test results. See
+    # qa/test-design/agentes-mini-me-input-output-handoff.xlsx.
+    "cata": "cata_testdesigner.md",
+    "leo": "leo_testconsolidator.md",
+    "mia": "mia_meetingmessenger.md",
+    "nico": "nico_docsync.md",
 }
+
 
 # ---------------------------------------------------------------------------
 # Model selection
@@ -199,6 +149,10 @@ AGENT_MODEL_CONFIG: dict[str, ModelTierConfig] = {
     "mila": ModelTierConfig("sonnet", 2500),
     "diana": ModelTierConfig("sonnet", 2500),
     "cami": ModelTierConfig("sonnet", 2500),
+    "cata": ModelTierConfig("sonnet", 3000),
+    "leo": ModelTierConfig("sonnet", 2000),
+    "mia": ModelTierConfig("haiku", 1500),
+    "nico": ModelTierConfig("haiku", 2000),
 }
 
 
@@ -241,6 +195,14 @@ def _load_external_prompt(agent_id: str) -> str | None:
     return _load_prompt_file(settings.external_agents_dir, filename, agent_id, "EXTERNAL_AGENTS_DIR")
 
 
+def _load_pm_prompt(agent_id: str) -> str | None:
+    filename = PM_AGENT_FILES.get(agent_id)
+    if not filename:
+        return None
+    settings = get_settings()
+    return _load_prompt_file(settings.pm_agents_dir, filename, agent_id, "PM_AGENTS_DIR")
+
+
 @dataclass(frozen=True)
 class BuiltPrompt:
     system: str | None
@@ -250,9 +212,6 @@ class BuiltPrompt:
 def build_prompt(agent_id: str, input_: str, context: dict | None = None) -> BuiltPrompt | None:
     """Returns the system prompt + human message for a given agent invocation.
     Returns None if the agent is unknown."""
-    if agent_id in PM_AGENT_PROMPTS:
-        return BuiltPrompt(system=None, user=PM_AGENT_PROMPTS[agent_id](input_, context))
-
     if agent_id in SPEC_KIT_FILES:
         system_prompt = _load_spec_kit_prompt(agent_id)
         return BuiltPrompt(
@@ -272,6 +231,17 @@ def build_prompt(agent_id: str, input_: str, context: dict | None = None) -> Bui
                 f"CONTEXT: {json.dumps(context or {}, ensure_ascii=False)}\n"
                 f"INPUT: {input_}\n\n"
                 "Follow your role and rules exactly as defined above."
+            ),
+        )
+
+    if agent_id in PM_AGENT_FILES:
+        system_prompt = _load_pm_prompt(agent_id)
+        return BuiltPrompt(
+            system=system_prompt,
+            user=(
+                f"CONTEXTO: {json.dumps(context or {}, ensure_ascii=False)}\n"
+                f"INPUT: {input_}\n\n"
+                "Responde siguiendo estrictamente tu rol, comportamiento y restricciones definidos arriba."
             ),
         )
 
@@ -308,14 +278,14 @@ Responde SOLO con este JSON, sin texto adicional:
 
 def list_agents() -> list[dict[str, str]]:
     return (
-        [{"id": agent_id, "family": "pm"} for agent_id in PM_AGENT_PROMPTS]
-        + [{"id": agent_id, "family": "spec-kit"} for agent_id in SPEC_KIT_FILES]
+        [{"id": agent_id, "family": "spec-kit"} for agent_id in SPEC_KIT_FILES]
         + [{"id": agent_id, "family": "external"} for agent_id in EXTERNAL_AGENT_FILES]
+        + [{"id": agent_id, "family": "pm"} for agent_id in PM_AGENT_FILES]
     )
 
 
 def is_known_agent(agent_id: str) -> bool:
-    return agent_id in PM_AGENT_PROMPTS or agent_id in SPEC_KIT_FILES or agent_id in EXTERNAL_AGENT_FILES
+    return agent_id in SPEC_KIT_FILES or agent_id in EXTERNAL_AGENT_FILES or agent_id in PM_AGENT_FILES
 
 
 def get_agent_prompt(agent_id: str, input_: str = "", context: dict | None = None) -> BuiltPrompt | None:

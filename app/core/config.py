@@ -87,6 +87,7 @@ class Settings(BaseSettings):
 
     # External agents folder (milestone-writer, dod-definer, capacity-reconciler).
     EXTERNAL_AGENTS_DIR: str | None = None
+    PM_AGENTS_DIR: str | None = None
 
     # Frontend URL (for CORS, if restricting origins later — CORS is wide
     # open today, matching the Express app's bare `cors()`).
@@ -166,6 +167,12 @@ class Settings(BaseSettings):
         if self.EXTERNAL_AGENTS_DIR:
             return Path(self.EXTERNAL_AGENTS_DIR)
         return REPO_ROOT / "src" / "agents" / "external-agents"
+
+    @property
+    def pm_agents_dir(self) -> Path:
+        if self.PM_AGENTS_DIR:
+            return Path(self.PM_AGENTS_DIR)
+        return REPO_ROOT / "src" / "agents" / "pm-agents"
 
 
 @lru_cache

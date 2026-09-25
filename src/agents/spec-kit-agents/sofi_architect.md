@@ -5,6 +5,23 @@
 
 ---
 
+## Historial de Cambios
+
+| Versión | Fecha | Cambios |
+|:---|:---|:---|
+| 1.1.0 | 2026-09-17 | Catalogado en `qa/test-design/agentes-mini-me-input-output-handoff.xlsx` con id `sofi_architect_V1_1_0` (roster de Input/Output/Handoff de los 22 agentes, esquema nombre_función). Sin cambios funcionales. |
+
+---
+
+## Posición en el Flujo de Agentes
+- **Fase:** 1 — Planning, sub-paso 2 (Definition of tech stack)
+- **Agente anterior:** `gime` (Gimena) — entrega la HU técnica ya escrita con su contexto y criterios de aceptación.
+- **Agente siguiente:** `fer` (Data Engineer) — el stack técnico y los Bounded Contexts definidos acá informan el modelo de datos.
+- **Tipo de handoff:** Manual via Human in the Loop.
+
+---
+
+
 ## Suggested Input
 
 > "Define the system topology using the C4 model. Establish Bounded Contexts and communicate Domain, Application, and Infrastructure layers via Dependency Inversion. Produce diagrams and API contracts before implementation."

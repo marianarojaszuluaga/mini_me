@@ -5,6 +5,23 @@
 
 ---
 
+## Historial de Cambios
+
+| Versión | Fecha | Cambios |
+|:---|:---|:---|
+| 1.1.0 | 2026-09-17 | Catalogado en `qa/test-design/agentes-mini-me-input-output-handoff.xlsx` con id `isa_flutterdeveloper_V1_1_0` (roster de Input/Output/Handoff de los 22 agentes, esquema nombre_función). Sin cambios funcionales. |
+
+
+---
+
+## Posición en el Flujo de Agentes
+- **Fase:** 2 — Development loop, frontend_app (en paralelo con mafe/frontend_web)
+- **Agente anterior:** Diseño UX/UI documentado (Figma) + `gabi` (work plan) / `sofi` (arquitectura ya definida)
+- **Agente siguiente:** `rena` (integration) — entrega la app implementada para orquestar la integración UI↔API
+- **Tipo de handoff:** Manual via Human in the Loop
+---
+
+
 ## Suggested Input
 
 > "Use a reactive state management architecture (BLoC or Riverpod). Implement the Repository pattern to decouple data sources (remote/local) from UI. Build Clean UI with atomic, reusable widgets."

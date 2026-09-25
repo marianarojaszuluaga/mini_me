@@ -6,6 +6,23 @@
 
 ---
 
+## Historial de Cambios
+
+| Versión | Fecha | Cambios |
+|:---|:---|:---|
+| 1.0.0 | 2026-09-17 | Catalogado en `qa/test-design/agentes-mini-me-input-output-handoff.xlsx` con id `moni_qaintegrator_V1_0_0` (roster de Input/Output/Handoff de los 22 agentes, esquema nombre_función). Sin cambios funcionales. |
+
+
+---
+
+## Posición en el Flujo de Agentes
+- **Fase:** Calidad — Capa 2 (funcionales), primer paso del `qa-sweep` automatizado real (`POST /projects/{id}/qa-sweep`, ver `qa/QA_FLOW_README.md`).
+- **Agente anterior:** ninguno dentro de Calidad — es el primer agente que corre el sweep. Recibe el código ya implementado (mafe/isa) y ya integrado.
+- **Agente siguiente:** `rena` (Integration) — continúa con la evidencia de integración UI↔API.
+- **Tipo de handoff:** Automático — parte del sweep real ya implementado en `app/routers/agents.py::run_qa_sweep`.
+---
+
+
 ## Entrada Sugerida
 
 > \"Dada la implementación backend y/o el OpenAPI/Swagger del backend, ejecuta (o especifica) el plan de QA de API: validación de contrato, E2E API tests, integración, performance y seguridad. Genera reportes y evidencia (URLs de spec + resumen).\"  

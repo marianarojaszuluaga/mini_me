@@ -23,6 +23,7 @@ from app.schemas.qa import Finding, QaSweepReport, Signoff
 from app.services import agent_registry
 from app.services.agent_evaluator import AgentEvaluator
 from app.services.brain.reconciliation import run_reconciliation
+from app.services.google_chat_client import GoogleChatError, send_message
 from app.services.metrics import collector
 from app.services.metrics.evaluate_invocation import evaluate_and_check
 
@@ -205,6 +206,48 @@ async def invoke_agent(
     input_ = body.get("input", "")
     context = body.get("context")
     return await invoke_agent_core(client, name, project_id, input_, context)
+
+
+@router.post("/agents/leo/notify")
+async def leo_notify(
+    body: dict[str, Any] = Body(...),
+    client: AsyncAnthropic = Depends(_get_anthropic_client),
+) -> dict[str, Any]:
+    """Runs `leo` (test result consolidator) and, unlike the generic
+    `/agents/{name}/invoke`, actually delivers its `chat_message` to a real
+    Google Chat space — closes the gap `leo_testconsolidator.md` flagged as
+    blocked (no webhook existed). Still requires the caller to supply a real
+    incoming-webhook URL (Space settings > Apps & integrations > Add webhook)
+    — Mini me has no stored per-project webhook config yet, so this stays
+    explicit per call rather than fabricating a default destination."""
+    project_id = body.get("projectId")
+    input_ = body.get("input", "")
+    context = body.get("context")
+    webhook_url = body.get("webhookUrl")
+
+    result = await invoke_agent_core(client, "leo", project_id, input_, context)
+
+    if not webhook_url:
+        result["chatNotification"] = {"sent": False, "reason": "No webhookUrl provided — result generated but not sent."}
+        return result
+
+    try:
+        parsed = json.loads(result["output"])
+        chat_message = parsed.get("chat_message")
+    except (json.JSONDecodeError, AttributeError):
+        chat_message = None
+
+    if not chat_message:
+        result["chatNotification"] = {"sent": False, "reason": "leo's output had no parseable chat_message field."}
+        return result
+
+    try:
+        await send_message(webhook_url, chat_message)
+        result["chatNotification"] = {"sent": True, "message": chat_message}
+    except GoogleChatError as error:
+        result["chatNotification"] = {"sent": False, "reason": str(error)}
+
+    return result
 
 
 @router.post("/orchestrate")

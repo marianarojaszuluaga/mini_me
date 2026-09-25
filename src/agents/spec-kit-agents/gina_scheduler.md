@@ -6,6 +6,23 @@
 
 ---
 
+## Historial de Cambios
+
+| Versión | Fecha | Cambios |
+|:---|:---|:---|
+| 1.0.0 | 2026-09-17 | Catalogado en `qa/test-design/agentes-mini-me-input-output-handoff.xlsx` con id `gina_scheduler_V1_0_0` (roster de Input/Output/Handoff de los 22 agentes, esquema nombre_función). Sin cambios funcionales. |
+
+---
+
+## Posición en el Flujo de Agentes
+- **Fase:** 1 — Planning, sub-paso 8 (schedule creation) — último paso de Planning.
+- **Agente anterior:** `cami` (Capacity Reconciler) — necesita el gate de reconciliación alcance↔capacidad↔fecha ya resuelto antes de armar el cronograma final.
+- **Agente siguiente:** ninguno dentro de Planning — el scheduler consolidado es el disparador para arrancar "2 — Development loop" (Desarrollo).
+- **Tipo de handoff:** Manual via Human in the Loop.
+
+---
+
+
 ## Entrada Sugerida
 
 > \"Tengo HUs consolidadas para TODOS los módulos. Valida dependencias, organiza por módulos, asigna recursos (Backend/Frontend) y genera un schedule completo con timing en horas y fases/hitos del proyecto.\"

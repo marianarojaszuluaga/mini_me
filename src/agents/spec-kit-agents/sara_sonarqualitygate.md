@@ -6,6 +6,23 @@
 
 ---
 
+## Historial de Cambios
+
+| Versión | Fecha | Cambios |
+|:---|:---|:---|
+| 1.0.0 | 2026-09-17 | Catalogado en `qa/test-design/agentes-mini-me-input-output-handoff.xlsx` con id `sara_sonarqualitygate_V1_0_0` (roster de Input/Output/Handoff de los 22 agentes, esquema nombre_función). Sin cambios funcionales. |
+
+
+---
+
+## Posición en el Flujo de Agentes
+- **Fase:** Calidad — Capa 2, en paralelo con `xime`, después de `rena`/`lore`.
+- **Agente anterior:** `rena` (Integration) → `lore` (verificación de completitud contra el DoD).
+- **Agente siguiente:** `vale` (reconciliación) — el orden real documentado en `qa/QA_FLOW_README.md` es `moni→rena→sara/xime→vale→pau`.
+- **Tipo de handoff:** Automático — parte del sweep real (`run_qa_sweep`).
+---
+
+
 ## Entrada Sugerida
 
 > \"Analiza el código base (backend y frontend) con criterios tipo Sonar: bugs, vulnerabilities, code smells, duplications, coverage, maintainability y reliability. Entrega un reporte de gate con pass/fail y hallazgos priorizados.\"  

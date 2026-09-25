@@ -201,7 +201,7 @@ Triggers, fórmulas y validaciones de servidor.
 ### Historial de Cambios
 | Versión | Fecha | Cambios |
 |:---|:---|:---|
-| V1.6 | 2026-02-04 | Estandarización IA Hybrid Teams: Agent Setup con variables, Contexto MCP con placeholders, Posición en Flujo de Agentes, Casos de Uso para Activación, eliminación del campo Prioridad, documentación de handoff manual via Human in the Loop |
+| V1.6 | 2026-02-04 | Estandarización IA Hybrid Teams: Agent Setup con variables, Contexto MCP con placeholders, Posición en Flujo de Agentes, Casos de Uso para Activación, eliminación del campo Prioridad, documentación de handoff manual via Human in the Loop Catalogado 2026-09-17 en `qa/test-design/agentes-mini-me-input-output-handoff.xlsx` como `gime_userstorywriter_V1_6`. |
 | V1.5 | 2026-02-04 | Eliminación de Status del backlog y reglas de validación de estados |
 | V1.4 | 2026-02-04 | Sistema de archivos de salida individuales por corrida. Backlog ampliado con tracking de archivos generados |
 | V1.3 | 2026-01-16 | Consolidación de reglas y protocolo de autocreación de archivos |

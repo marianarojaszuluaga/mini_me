@@ -5,6 +5,23 @@
 
 ---
 
+## Historial de Cambios
+
+| Versión | Fecha | Cambios |
+|:---|:---|:---|
+| 1.1.0 | 2026-09-17 | Catalogado en `qa/test-design/agentes-mini-me-input-output-handoff.xlsx` con id `mafe_fullstackdeveloper_V1_1_0` (roster de Input/Output/Handoff de los 22 agentes, esquema nombre_función). Sin cambios funcionales. |
+
+
+---
+
+## Posición en el Flujo de Agentes
+- **Fase:** 2 — Development loop, frontend_web (en paralelo con isa/frontend_app)
+- **Agente anterior:** Diseño UX/UI documentado (Figma) + `gabi` (work plan) / `sofi` (arquitectura ya definida)
+- **Agente siguiente:** `rena` (integration) — entrega el código web implementado para orquestar la integración UI↔API
+- **Tipo de handoff:** Manual via Human in the Loop
+---
+
+
 ## Suggested Input
 
 > "Implement a monorepo with type-safe communication between frontend (e.g., Next.js) and backend (e.g., NestJS). Ensure domain entities are shared or strictly mapped between layers. Follow the structure in templates."

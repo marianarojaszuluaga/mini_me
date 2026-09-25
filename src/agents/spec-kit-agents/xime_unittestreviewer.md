@@ -6,6 +6,23 @@
 
 ---
 
+## Historial de Cambios
+
+| Versión | Fecha | Cambios |
+|:---|:---|:---|
+| 1.0.0 | 2026-09-17 | Catalogado en `qa/test-design/agentes-mini-me-input-output-handoff.xlsx` con id `xime_unittestreviewer_V1_0_0` (roster de Input/Output/Handoff de los 22 agentes, esquema nombre_función). Sin cambios funcionales. |
+
+
+---
+
+## Posición en el Flujo de Agentes
+- **Fase:** Calidad — Capa 2, en paralelo con `sara`, después de `rena`/`lore`.
+- **Agente anterior:** `rena` (Integration) → `lore` (verificación de completitud contra el DoD).
+- **Agente siguiente:** `vale` (reconciliación).
+- **Tipo de handoff:** Automático — parte del sweep real (`run_qa_sweep`).
+---
+
+
 ## Entrada Sugerida
 
 > \"Dado un reporte de Sonar y el set de unit tests (o un resumen de ejecución), evalúa estándares: convención de nombres, umbral de cobertura (>80%), calidad de aserciones, aislamiento e independencia, edge cases, uso de mocks/stubs. Entrega reporte de cumplimiento.\"  
