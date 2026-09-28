@@ -81,7 +81,13 @@
       "namePlaceholder": "E.g.: Mobile App Redesign",
       "description": "Description",
       "descriptionPlaceholder": "One line about what this project is",
-      "owner": "Assigned to (optional)"
+      "owner": "Assigned to (optional)",
+      "showOptional": "Add client, dates or scope (optional)",
+      "hideOptional": "Hide optional fields",
+      "client": "Client",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "scopeAttachment": "Scope (.md/.txt file)"
     },
     "repoNote": "The repository is connected later, from the project detail — a repo always belongs to a project, it never stays unassigned.",
     "actions": {
@@ -115,7 +121,8 @@
     "stats": {
       "gaps": "Gaps",
       "alerts": "Alerts",
-      "decisions": "Decisions"
+      "decisions": "Decisions",
+      "dod": "DoD"
     }
   },
   "settings": {
@@ -399,7 +406,17 @@
       "uploadToRepo": "Upload to repo",
       "uploading": "Uploading...",
       "uploaded": "Uploaded",
-      "uploadedConfirm": "Uploaded to the repo at {{path}}."
+      "uploadedConfirm": "Uploaded to the repo at {{path}}.",
+      "showLinkedTasks": "Show linked tasks",
+      "hideLinkedTasks": "Hide linked tasks",
+      "brainExplainer": "A new project starts with no Project Brain: it is the project's shared memory — decisions, alerts, meeting notes, and which services (QA, Drive/Basecamp sync) are active. It lives in two places: what you write here and, once a repo is connected, a mirrored document there. Activate it so gime and gabi consult it before deciding anything.",
+      "showHistory": "View previous results ({{count}})",
+      "hideHistory": "Hide previous results",
+      "viewResult": "View",
+      "rejectResult": "Didn't work",
+      "correctionPlaceholder": "What correction is needed for the next attempt?",
+      "submitCorrection": "Retry with this correction",
+      "retryingWithCorrection": "This attempt includes the previous result and your correction as context."
     }
   },
   "basecamp": {

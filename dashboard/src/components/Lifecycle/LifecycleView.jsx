@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { BasecampCardsPanel } from "../ProjectDetail/BasecampCardsPanel.jsx";
 import "./lifecycle.css";
 
 // Real per-agent photos, same source AnalyticsDrillDown already uses (one
@@ -53,6 +54,49 @@ function PhaseConsole({ api, project, phase, onProjectUpdated, t }) {
   const [activated, setActivated] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadedPath, setUploadedPath] = useState(null);
+  const [uploadedArtifactId, setUploadedArtifactId] = useState(null);
+  const [showLinkedTasks, setShowLinkedTasks] = useState(false);
+
+  // Gaps "contexto ciego" + "sin historial/feedback" (auditoría de flujos,
+  // 2026-09-26): el context de Project Brain ahora lo agrega el backend
+  // automáticamente (ver app/routers/agents.py::_with_brain_context), así
+  // que acá solo falta (b) listar resultados previos y (c) permitir marcar
+  // uno como "no sirvió" y reintentar con esa corrección como contexto.
+  const [previousArtifacts, setPreviousArtifacts] = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [correcting, setCorrecting] = useState(false);
+  const [correctionNote, setCorrectionNote] = useState("");
+  const [correctionOf, setCorrectionOf] = useState(null); // id del artefacto que se está corrigiendo
+
+  // Real per-card Basecamp Card Table state, same data BasecampCardsPanel
+  // already renders in Proyectos → Detalle. Only surfaced here (not built
+  // twice) so running an agent and seeing the real tasks it maps to don't
+  // require leaving the phase console — the gap flagged in the flow review
+  // (2026-09-22) was that this already-real kanban was invisible from here,
+  // not that it didn't exist. Hidden entirely (no toggle) when the project
+  // has no Basecamp Card Table linked, so phases with nothing to show don't
+  // grow an empty section.
+  const hasLinkedCardTables = (project.basecamp?.selectedCardTableIds || []).length > 0;
+
+  // DoD/checklist real de la fase (2026-09-26) — cada item viene 1:1 de los
+  // `outputs` reales de esa fase (app/phases/phase_contracts.py), nunca
+  // inventado aquí. `progress` en el proyecto ya se calcula desde esto en
+  // el backend; togglear un item es la única forma real de moverlo.
+  const checklist = project.memory?.phaseChecklists?.[phase.key] || [];
+  const [checklistBusy, setChecklistBusy] = useState(null); // item id en vuelo
+
+  const handleToggleChecklistItem = async (item) => {
+    setChecklistBusy(item.id);
+    setError("");
+    try {
+      await api.toggleChecklistItem(project.id, phase.key, item.id, !item.done);
+      const fresh = await api.getProject(project.id);
+      onProjectUpdated?.(fresh);
+    } catch (err) {
+      setError(err.message);
+    }
+    setChecklistBusy(null);
+  };
 
   const brainStatus = project.memory?.projectBrain?.status;
   const isEmptyProject = brainStatus === "pending" && !(project.memory?.backlogs?.hu?.ids || []).length;
@@ -66,7 +110,25 @@ function PhaseConsole({ api, project, phase, onProjectUpdated, t }) {
     setResult(null);
     setActivated(false);
     setUploadedPath(null);
+    setUploadedArtifactId(null);
     setError("");
+    setCorrecting(false);
+    setCorrectionNote("");
+    setCorrectionOf(null);
+    setShowHistory(false);
+    if (agentId && agentId !== "__project_brain__") {
+      api
+        .listPhaseArtifacts(project.id, phase.key)
+        .then((list) => setPreviousArtifacts((list || []).filter((a) => a.agent === agentId)))
+        .catch(() => setPreviousArtifacts([]));
+    }
+  };
+
+  const handleViewPreviousArtifact = (artifact) => {
+    setResult({ agent: artifact.agent, output: artifact.output });
+    setActivated(artifact.status === "activated");
+    setUploadedPath(artifact.repoPath || null);
+    setUploadedArtifactId(artifact.id);
   };
 
   const handleRun = async () => {
@@ -75,9 +137,12 @@ function PhaseConsole({ api, project, phase, onProjectUpdated, t }) {
     try {
       const response = await api.invokeAgent(runningAgent, project.id, input, {
         phase: phase.key,
-        source: "lifecycle"
+        source: "lifecycle",
+        ...(correctionOf ? { previousArtifactId: correctionOf, correctionNote } : {})
       });
       setResult({ agent: runningAgent, output: response.output });
+      setUploadedArtifactId(null);
+      setUploadedPath(null);
       await logBrainEvent(
         "agent_invocation",
         `Se corrió el agente ${runningAgent} en la fase ${phase.key} del proyecto ${project.name}.`,
@@ -118,8 +183,17 @@ function PhaseConsole({ api, project, phase, onProjectUpdated, t }) {
     setError("");
     try {
       const filename = `${result.agent}-${Date.now()}.md`;
-      const { path } = await api.uploadPhaseArtifact(project.id, phase.key, filename, result.output);
+      const { path, artifactId } = await api.uploadPhaseArtifact(
+        project.id,
+        phase.key,
+        filename,
+        result.output,
+        result.agent,
+        input,
+        correctionOf
+      );
       setUploadedPath(path);
+      setUploadedArtifactId(artifactId);
       await logBrainEvent("phase_artifact_uploaded", `Resultado de ${result.agent} subido a ${path}.`, {
         agent: result.agent,
         phase: phase.key,
@@ -131,6 +205,44 @@ function PhaseConsole({ api, project, phase, onProjectUpdated, t }) {
     setUploading(false);
   };
 
+  // Gap "sin feedback/corrección": marca el resultado actual como "no
+  // sirvió" y arma el siguiente run con el resultado anterior + la
+  // corrección pedida como contexto, en vez de perderlo y arrancar de cero.
+  const handleRejectResult = async () => {
+    if (!correctionNote.trim()) return;
+    setBusy(true);
+    setError("");
+    try {
+      let artifactId = uploadedArtifactId;
+      if (!artifactId) {
+        const filename = `${result.agent}-${Date.now()}.md`;
+        const uploaded = await api.uploadPhaseArtifact(
+          project.id,
+          phase.key,
+          filename,
+          result.output,
+          result.agent,
+          input,
+          correctionOf,
+          /* commitToRepo */ false
+        );
+        artifactId = uploaded.artifactId;
+      }
+      await api.submitArtifactFeedback(project.id, artifactId, correctionNote);
+      setCorrectionOf(artifactId);
+      setInput(`Resultado anterior:\n${result.output}\n\nCorrección pedida:\n${correctionNote}`);
+      setResult(null);
+      setActivated(false);
+      setUploadedPath(null);
+      setUploadedArtifactId(null);
+      setCorrecting(false);
+      setCorrectionNote("");
+    } catch (err) {
+      setError(err.message);
+    }
+    setBusy(false);
+  };
+
   return (
     <div className="lifecycle-console" onClick={(e) => e.stopPropagation()}>
       {/* 1. Indicador de progreso */}
@@ -138,6 +250,26 @@ function PhaseConsole({ api, project, phase, onProjectUpdated, t }) {
         <strong>{phase.title}</strong>
         <span className="lifecycle-progress-pill">{project.progress ?? 0}%</span>
       </div>
+
+      {/* 1b. DoD / checklist real de la fase */}
+      {checklist.length > 0 && (
+        <ul className="lifecycle-checklist">
+          {checklist.map((item) => (
+            <li key={item.id} className={item.done ? "done" : ""}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={!!item.done}
+                  disabled={checklistBusy === item.id}
+                  onChange={() => handleToggleChecklistItem(item)}
+                />
+                <span>{item.label}</span>
+              </label>
+              {item.done && item.evidence && <span className="lifecycle-checklist-evidence">{item.evidence}</span>}
+            </li>
+          ))}
+        </ul>
+      )}
 
       {/* 3. Asistente visible */}
       {primaryAgent && (
@@ -149,9 +281,12 @@ function PhaseConsole({ api, project, phase, onProjectUpdated, t }) {
 
       {/* 2. Acciones relevantes */}
       {isEmptyProject ? (
-        <button className="btn-secondary" onClick={() => handleOpenAgent("__project_brain__")}>
-          {t("lifecycle.console.activateProjectBrain")}
-        </button>
+        <div className="lifecycle-brain-intro">
+          <p>{t("lifecycle.console.brainExplainer")}</p>
+          <button className="btn-secondary" onClick={() => handleOpenAgent("__project_brain__")}>
+            {t("lifecycle.console.activateProjectBrain")}
+          </button>
+        </div>
       ) : (
         <div className="lifecycle-console-actions">
           {(phase.agents || []).map((agentId) => (
@@ -170,6 +305,29 @@ function PhaseConsole({ api, project, phase, onProjectUpdated, t }) {
       )}
       {runningAgent && runningAgent !== "__project_brain__" && (
         <div className="lifecycle-console-form">
+          {previousArtifacts.length > 0 && (
+            <div className="lifecycle-artifact-history">
+              <button className="btn-link" onClick={() => setShowHistory((v) => !v)}>
+                {showHistory
+                  ? t("lifecycle.console.hideHistory")
+                  : t("lifecycle.console.showHistory", { count: previousArtifacts.length })}
+              </button>
+              {showHistory && (
+                <ul className="lifecycle-artifact-history-list">
+                  {previousArtifacts.map((artifact) => (
+                    <li key={artifact.id}>
+                      <span className={`lifecycle-artifact-status status-${artifact.status}`}>{artifact.status}</span>
+                      <span className="lifecycle-artifact-date">{new Date(artifact.createdAt).toLocaleString()}</span>
+                      <button className="btn-link" onClick={() => handleViewPreviousArtifact(artifact)}>
+                        {t("lifecycle.console.viewResult")}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+          {correctionOf && <div className="lifecycle-correction-flag">↺ {t("lifecycle.console.retryingWithCorrection")}</div>}
           <textarea
             placeholder={t("lifecycle.console.inputPlaceholder")}
             value={input}
@@ -205,7 +363,34 @@ function PhaseConsole({ api, project, phase, onProjectUpdated, t }) {
                   : t("lifecycle.console.uploadToRepo")}
               </button>
             )}
+            {/* Gap "sin feedback/corrección" (auditoría de flujos, 2026-09-26):
+                marcar el resultado como no útil y reintentar con esa
+                corrección como contexto, en vez de perderlo y arrancar de
+                cero. No tiene sentido una vez ya se subió al repo. */}
+            {!uploadedPath && (
+              <button className="btn-cancel" onClick={() => setCorrecting((v) => !v)} disabled={busy}>
+                {t("lifecycle.console.rejectResult")}
+              </button>
+            )}
           </div>
+          {correcting && (
+            <div className="lifecycle-console-form">
+              <textarea
+                placeholder={t("lifecycle.console.correctionPlaceholder")}
+                value={correctionNote}
+                onChange={(e) => setCorrectionNote(e.target.value)}
+                rows={2}
+              />
+              <div className="modal-buttons">
+                <button className="btn-cancel" onClick={() => setCorrecting(false)} disabled={busy}>
+                  {t("lifecycle.console.cancel")}
+                </button>
+                <button className="btn-primary" onClick={handleRejectResult} disabled={busy || !correctionNote.trim()}>
+                  {t("lifecycle.console.submitCorrection")}
+                </button>
+              </div>
+            </div>
+          )}
           {/* Confirmación explícita de qué pasó, no solo el cambio de label del
               botón — pedido de claridad de flujo (2026-09-11). */}
           {activated && (
@@ -216,6 +401,21 @@ function PhaseConsole({ api, project, phase, onProjectUpdated, t }) {
           {uploadedPath && (
             <div className="lifecycle-console-confirm">
               ✓ {t("lifecycle.console.uploadedConfirm", { path: uploadedPath })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 6. Tareas reales vinculadas (Basecamp) — colapsado por defecto para
+          no cambiar la altura/densidad habitual de la consola. */}
+      {hasLinkedCardTables && (
+        <div className="lifecycle-console-row lifecycle-linked-tasks">
+          <button className="btn-link" onClick={() => setShowLinkedTasks((v) => !v)}>
+            {showLinkedTasks ? t("lifecycle.console.hideLinkedTasks") : t("lifecycle.console.showLinkedTasks")}
+          </button>
+          {showLinkedTasks && (
+            <div className="lifecycle-linked-tasks-panel">
+              <BasecampCardsPanel api={api} project={project} />
             </div>
           )}
         </div>

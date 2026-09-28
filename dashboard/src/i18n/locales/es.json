@@ -81,7 +81,13 @@
       "namePlaceholder": "Ej.: Rediseño App Móvil",
       "description": "Descripción",
       "descriptionPlaceholder": "Una línea sobre qué es este proyecto",
-      "owner": "Asignado a (opcional)"
+      "owner": "Asignado a (opcional)",
+      "showOptional": "Agregar cliente, fechas o alcance (opcional)",
+      "hideOptional": "Ocultar campos opcionales",
+      "client": "Cliente",
+      "startDate": "Fecha de inicio",
+      "endDate": "Fecha de fin",
+      "scopeAttachment": "Alcance (archivo .md/.txt)"
     },
     "repoNote": "El repositorio se conecta después, desde el detalle del proyecto — un repo siempre pertenece a un proyecto, nunca queda suelto.",
     "actions": {
@@ -115,7 +121,8 @@
     "stats": {
       "gaps": "Gaps",
       "alerts": "Alertas",
-      "decisions": "Decisiones"
+      "decisions": "Decisiones",
+      "dod": "DoD"
     }
   },
   "settings": {
@@ -399,7 +406,17 @@
       "uploadToRepo": "Subir a repo",
       "uploading": "Subiendo...",
       "uploaded": "Subido",
-      "uploadedConfirm": "Subido al repo en {{path}}."
+      "uploadedConfirm": "Subido al repo en {{path}}.",
+      "showLinkedTasks": "Ver tareas vinculadas",
+      "hideLinkedTasks": "Ocultar tareas vinculadas",
+      "brainExplainer": "Un proyecto nuevo empieza sin Project Brain: es la memoria compartida del proyecto — decisiones, alertas, actas y qué servicios (QA, sync con Drive/Basecamp) están activos. Vive en dos lados: este texto que escribas y, si conectas un repo, un documento espejo ahí. Actívalo para que gime y gabi lo consulten antes de decidir.",
+      "showHistory": "Ver resultados anteriores ({{count}})",
+      "hideHistory": "Ocultar resultados anteriores",
+      "viewResult": "Ver",
+      "rejectResult": "No sirvió",
+      "correctionPlaceholder": "¿Qué corrección hace falta para el próximo intento?",
+      "submitCorrection": "Reintentar con esta corrección",
+      "retryingWithCorrection": "Este intento incluye el resultado anterior y tu corrección como contexto."
     }
   },
   "basecamp": {

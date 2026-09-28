@@ -12,6 +12,7 @@ import re
 import time
 from datetime import datetime, timezone
 from typing import Any
+from uuid import uuid4
 
 from anthropic import AsyncAnthropic
 from fastapi import APIRouter, Body, Depends, HTTPException
@@ -61,7 +62,15 @@ def _now_iso() -> str:
 
 
 def _default_project_brain() -> dict[str, Any]:
-    return {"status": "pending", "decisionLog": [], "alerts": [], "meetingLog": []}
+    from app.schemas.project import _default_services
+
+    return {
+        "status": "pending",
+        "decisionLog": [],
+        "alerts": [],
+        "meetingLog": [],
+        "services": [s.model_dump() for s in _default_services()],
+    }
 
 
 def _new_project_record(
@@ -70,6 +79,10 @@ def _new_project_record(
     owner: str | None,
     description: str | None,
     phase: int | None,
+    client: str | None = None,
+    start_date: str | None = None,
+    end_date: str | None = None,
+    scope_attachment: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     timestamp = _now_iso()
     return {
@@ -77,6 +90,10 @@ def _new_project_record(
         "name": name,
         "owner": owner,
         "description": description,
+        "client": client,
+        "startDate": start_date,
+        "endDate": end_date,
+        "scopeAttachment": scope_attachment,
         "currentPhase": phase or 1,
         "currentStep": "iniciando",
         "status": "active",
@@ -91,20 +108,50 @@ def _new_project_record(
             },
             "sprints": {"current": 1, "status": "pending"},
             "timeline": {"createdAt": timestamp, "activities": []},
+            "phaseChecklists": _default_phase_checklists_dict(),
         },
         "repositories": [],
     }
 
 
+def _default_phase_checklists_dict() -> dict[str, list[dict[str, Any]]]:
+    from app.schemas.project import default_phase_checklists
+
+    return {
+        key: [item.model_dump() for item in items] for key, items in default_phase_checklists().items()
+    }
+
+
 def _ensure_brain_shape(project: dict[str, Any]) -> dict[str, Any]:
-    """Projects created before decisionLog/alerts/meetingLog existed won't
-    have them — backfill defensively rather than crashing on append."""
+    """Projects created before decisionLog/alerts/meetingLog/services/
+    phaseChecklists existed won't have them — backfill defensively rather
+    than crashing on append."""
+    from app.schemas.project import _default_services
+
     memory = project.setdefault("memory", {})
     brain = memory.setdefault("projectBrain", {})
     brain.setdefault("decisionLog", [])
     brain.setdefault("alerts", [])
     brain.setdefault("meetingLog", [])
+    brain.setdefault("services", [s.model_dump() for s in _default_services()])
+    memory.setdefault("phaseChecklists", _default_phase_checklists_dict())
+    memory.setdefault("phaseArtifacts", [])
     return project
+
+
+def _recompute_progress(project: dict[str, Any]) -> int:
+    """Real progress: % of the CURRENT phase's checklist items marked done.
+    Replaces the old "+15 per agent invocation, cap 95" heuristic (tracked
+    activity, not completion) — see app/routers/agents.py's orchestrate
+    endpoint, the only other place progress is set."""
+    from app.phases.phase_contracts import get_phase
+
+    phase = get_phase(project.get("currentPhase"))
+    checklist = phase and project.get("memory", {}).get("phaseChecklists", {}).get(phase["key"])
+    if not checklist:
+        return project.get("progress", 0)
+    done = sum(1 for item in checklist if item.get("done"))
+    return round((done / len(checklist)) * 100)
 
 
 def _new_project_id() -> str:
@@ -165,6 +212,43 @@ async def get_project(
     return project
 
 
+@router.patch("/projects/{project_id}/phase-checklist/{phase_key}/{item_id}")
+async def toggle_phase_checklist_item(
+    project_id: str,
+    phase_key: str,
+    item_id: str,
+    body: dict[str, Any] = Body(...),
+    current_user: User | None = Depends(get_current_user_optional),
+) -> dict[str, Any]:
+    """Mark one DoD item done/not-done, with optional evidence (artifact
+    path, QA sweep id, PR link — a free-text pointer to what proves it's
+    really done, never required when unchecking). Recomputes `progress`
+    from the resulting checklist state — the only place besides
+    /orchestrate that progress changes, and both go through
+    `_recompute_progress` so they can never disagree."""
+    storage = get_storage()
+    projects = storage.read_projects()
+    project = _get_owned_project(projects, project_id, current_user)
+    _ensure_brain_shape(project)
+
+    checklist = project["memory"]["phaseChecklists"].get(phase_key)
+    if checklist is None:
+        raise HTTPException(status_code=404, detail=f"Unknown phase key: {phase_key}")
+    item = next((i for i in checklist if i.get("id") == item_id), None)
+    if item is None:
+        raise HTTPException(status_code=404, detail=f"Unknown checklist item: {item_id}")
+
+    done = bool(body.get("done"))
+    item["done"] = done
+    if "evidence" in body:
+        item["evidence"] = body["evidence"]
+    item["completedAt"] = _now_iso() if done else None
+
+    project["progress"] = _recompute_progress(project)
+    storage.write_projects(projects)
+    return {"item": item, "progress": project["progress"]}
+
+
 @router.post("/projects", status_code=201)
 async def create_project(
     body: ProjectCreateRequest,
@@ -177,6 +261,10 @@ async def create_project(
         owner=body.owner,
         description=body.description,
         phase=body.phase,
+        client=body.client,
+        start_date=body.startDate,
+        end_date=body.endDate,
+        scope_attachment=body.scopeAttachment.model_dump() if body.scopeAttachment else None,
     )
     if current_user is not None:
         new_project["owner_user_id"] = current_user.id
@@ -227,7 +315,7 @@ async def scaffold_project(
     repository = repositories[0]
     auth_profiles = storage.read_auth_profiles()
     try:
-        written = await scaffold_project_repo(repository, auth_profiles)
+        written = await scaffold_project_repo(repository, auth_profiles, project_name=project.get("name"))
     except Exception as error:  # noqa: BLE001 - surfaced as a clean 502, not a 500
         raise HTTPException(status_code=502, detail=f"Failed to write scaffold: {error}") from error
 
@@ -258,29 +346,111 @@ async def upload_phase_artifact(
     """TAREA B, pieza 7 ("Subir a repo"): commits one user-activated agent
     result into the phase's mapped folder (project_scaffold.PHASE_KEY_TO_FOLDER)
     of the project's first connected repo. The frontend only calls this
-    after the person explicitly clicked "Activar" on a result — never
-    automatically."""
+    with `commitToRepo=True` after the person explicitly clicked "Activar"
+    on a result — never automatically.
+
+    2026-09-26 (gap "resultados + feedback" de la auditoría de flujos):
+    además del commit real al repo, deja un registro consultable en
+    project.memory.phaseArtifacts — antes no había forma de listar
+    artefactos ya subidos sin ir directo al repo a mano. `commitToRepo`
+    (default False) separa "registrar el resultado" de "subirlo al repo":
+    el flujo de "no sirvió" necesita lo primero para poder adjuntar una
+    corrección, incluso en proyectos que todavía no tienen un repo
+    conectado — exigir un repo ahí bloqueaba el feedback por completo."""
     phase = body.get("phase")
     filename = body.get("filename")
     content = body.get("content")
     if not (phase and filename and content):
         raise HTTPException(status_code=400, detail="phase, filename and content are required")
+    # Default True to preserve the original contract (every call commits to
+    # the repo unless the caller opts out) — the "no sirvió" flow is the one
+    # exception, and it passes commitToRepo=False explicitly.
+    commit_to_repo = body.get("commitToRepo", True)
 
     storage = get_storage()
     projects = storage.read_projects()
     project = _get_owned_project(projects, project_id, current_user)
 
-    repositories = project.get("repositories", [])
-    if not repositories:
-        raise HTTPException(status_code=400, detail="Project has no connected repository")
+    path = None
+    if commit_to_repo:
+        repositories = project.get("repositories", [])
+        if not repositories:
+            raise HTTPException(status_code=400, detail="Project has no connected repository")
 
-    auth_profiles = storage.read_auth_profiles()
-    try:
-        path = await write_phase_artifact(repositories[0], auth_profiles, phase, filename, content)
-    except Exception as error:  # noqa: BLE001 - surfaced as a clean 502, not a 500
-        raise HTTPException(status_code=502, detail=f"Failed to write phase artifact: {error}") from error
+        auth_profiles = storage.read_auth_profiles()
+        try:
+            path = await write_phase_artifact(repositories[0], auth_profiles, phase, filename, content)
+        except Exception as error:  # noqa: BLE001 - surfaced as a clean 502, not a 500
+            raise HTTPException(status_code=502, detail=f"Failed to write phase artifact: {error}") from error
 
-    return {"projectId": project_id, "path": path}
+    entry = {
+        "id": str(uuid4()),
+        "phase": phase,
+        "agent": body.get("agent") or "",
+        "filename": filename,
+        "repoPath": path,
+        "input": body.get("input") or "",
+        "output": content,
+        "status": "activated" if path else "draft",
+        "correctionOf": body.get("correctionOf"),
+        "correctionNote": None,
+        "createdAt": _now_iso(),
+        "createdBy": current_user.id if current_user is not None else None,
+    }
+    project.setdefault("memory", {}).setdefault("phaseArtifacts", []).append(entry)
+    storage.write_projects(projects)
+
+    return {"projectId": project_id, "path": path, "artifactId": entry["id"]}
+
+
+@router.get("/projects/{project_id}/phase-artifacts")
+async def list_phase_artifacts(
+    project_id: str,
+    phase: str | None = None,
+    current_user: User | None = Depends(get_current_user_optional),
+) -> list[dict[str, Any]]:
+    """Cierra el gap "no hay vista de resultados": lee el historial dejado
+    por upload_phase_artifact/submit_phase_artifact_feedback, sin pegarle al
+    repo real en cada carga de PhaseConsole."""
+    storage = get_storage()
+    projects = storage.read_projects()
+    project = _get_owned_project(projects, project_id, current_user)
+
+    artifacts = project.get("memory", {}).get("phaseArtifacts", [])
+    if phase:
+        artifacts = [a for a in artifacts if a.get("phase") == phase]
+    return artifacts
+
+
+@router.post("/projects/{project_id}/phase-artifact/{artifact_id}/feedback")
+async def submit_phase_artifact_feedback(
+    project_id: str,
+    artifact_id: str,
+    body: dict[str, Any] = Body(...),
+    current_user: User | None = Depends(get_current_user_optional),
+) -> dict[str, Any]:
+    """Cierra el gap "no hay mecanismo de feedback/corrección": marca un
+    resultado ya corrido como rechazado + por qué, para que el siguiente
+    rerun (una invocación normal de /agents/{name}/invoke desde el
+    frontend) pueda incluir el resultado anterior + la corrección como
+    contexto en vez de arrancar de cero."""
+    correction_note = body.get("correctionNote")
+    if not correction_note:
+        raise HTTPException(status_code=400, detail="correctionNote is required")
+
+    storage = get_storage()
+    projects = storage.read_projects()
+    project = _get_owned_project(projects, project_id, current_user)
+
+    artifacts = project.get("memory", {}).get("phaseArtifacts", [])
+    artifact = next((a for a in artifacts if a.get("id") == artifact_id), None)
+    if not artifact:
+        raise HTTPException(status_code=404, detail="Phase artifact not found")
+
+    artifact["status"] = "rejected"
+    artifact["correctionNote"] = correction_note
+    storage.write_projects(projects)
+    return artifact
 
 
 @router.put("/projects/{project_id}/basecamp")

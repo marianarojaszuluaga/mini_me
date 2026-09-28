@@ -209,6 +209,45 @@ class BuiltPrompt:
     user: str
 
 
+# Tamaño máximo (caracteres del JSON serializado) del contexto de Project
+# Brain inyectado por invocación — red de seguridad defensiva, no una
+# política de recorte: la decisión (2026-09-26, Mariana) fue pasar el brain
+# completo sin curar por agente/fase; esto solo evita reventar el
+# `max_tokens` de los agentes más chicos (mia/nico/vane, 1000-1500) en
+# proyectos con historial muy largo.
+_BRAIN_CONTEXT_MAX_CHARS = 8000
+
+
+def build_brain_context(project: dict) -> dict:
+    """Resumen del Project Brain (decisionLog, alerts, backlog de HUs,
+    servicios habilitados) para inyectar automáticamente como `context` en
+    cada invocación de agente — antes, los agentes solo veían lo que el
+    humano escribía en el input (gap detectado en la auditoría de flujos,
+    2026-09-26)."""
+    memory = (project or {}).get("memory", {}) or {}
+    brain = memory.get("projectBrain", {}) or {}
+    backlog_ids = ((memory.get("backlogs", {}) or {}).get("hu", {}) or {}).get("ids", [])
+    services = [s for s in brain.get("services", []) or [] if s.get("enabled")]
+
+    payload = {
+        "decisionLog": brain.get("decisionLog", []),
+        "alerts": brain.get("alerts", []),
+        "backlogHuIds": backlog_ids,
+        "enabledServices": [s.get("id") for s in services],
+    }
+
+    if len(json.dumps(payload, ensure_ascii=False)) > _BRAIN_CONTEXT_MAX_CHARS:
+        payload = {
+            "note": "brain truncado por tamaño — ver decisionLog/alerts completos en el Project Brain",
+            "decisionLogCount": len(payload["decisionLog"]),
+            "alertsCount": len(payload["alerts"]),
+            "backlogHuIds": backlog_ids,
+            "enabledServices": payload["enabledServices"],
+        }
+
+    return payload
+
+
 def build_prompt(agent_id: str, input_: str, context: dict | None = None) -> BuiltPrompt | None:
     """Returns the system prompt + human message for a given agent invocation.
     Returns None if the agent is unknown."""

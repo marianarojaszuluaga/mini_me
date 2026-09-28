@@ -71,12 +71,70 @@ class Reconciliation(BaseModel):
     gaps: list[ReconciliationGap] = Field(default_factory=list)
 
 
+class ProjectService(BaseModel):
+    """One of the 5 canonical project services Gabriela's Project Brain
+    template declares (2026-09-24, Mariana: "servicios que tienen agencia y
+    capacidad de ejecutarse desde el repo, solo con que corra en local").
+    `entrypoint` is the REAL route/command that runs it today — never a
+    placeholder — so `invocable` only ever reflects "does this code exist
+    and run locally", not "is this wired to a nice button yet"."""
+
+    id: Literal["qa_human", "qa_automated", "pr_review", "drive_sync", "basecamp_sync"]
+    label: str
+    enabled: bool = False
+    invocable: bool = True
+    entrypoint: str
+    agents: list[str] = Field(default_factory=list)
+    lastRunAt: str | None = None
+    model_config = {"extra": "allow"}
+
+
+def _default_services() -> list[ProjectService]:
+    return [
+        ProjectService(
+            id="qa_human",
+            label="QA humano",
+            entrypoint="POST /projects/{project_id}/qa-sweeps/{sweep_id}/signoff",
+            agents=[],
+        ),
+        ProjectService(
+            id="qa_automated",
+            label="QA automatizado",
+            entrypoint="POST /projects/{project_id}/qa-sweep",
+            agents=["moni"],
+        ),
+        ProjectService(
+            id="pr_review",
+            label="Revisión y seguimiento de PRs",
+            entrypoint="POST /projects/{project_id}/repositories/{repo_id}/sync",
+            agents=["rena"],
+        ),
+        ProjectService(
+            id="drive_sync",
+            label="Sincronización con Drive",
+            entrypoint="POST /agents/mia/invoke, POST /agents/nico/invoke",
+            agents=["mia", "nico"],
+        ),
+        ProjectService(
+            id="basecamp_sync",
+            label="Sincronización con Basecamp",
+            entrypoint="GET /projects/{project_id}/basecamp-mirror",
+            agents=[],
+        ),
+    ]
+
+
 class ProjectBrain(BaseModel):
     status: Literal["pending", "active"] = "pending"
     decisionLog: list[DecisionLogEntry] = Field(default_factory=list)
     alerts: list[AlertEntry] = Field(default_factory=list)
     meetingLog: list[MeetingLogEntry] = Field(default_factory=list)
     reconciliation: Reconciliation | None = None
+    # Section 6 of the Project Brain template (Gabriela) — which of the 5
+    # canonical services are enabled for THIS project, and what really
+    # executes each one. See ProjectService docstring for the "real,
+    # invocable now" requirement.
+    services: list[ProjectService] = Field(default_factory=_default_services)
 
 
 # ---------------------------------------------------------------------------
@@ -146,11 +204,66 @@ class BasecampMirror(BaseModel):
     lastSyncAt: str | None = None
 
 
+class PhaseChecklistItem(BaseModel):
+    """One DoD item for a phase, derived 1:1 from that phase's real
+    `outputs` in app/phases/phase_contracts.py / src/phases/phaseContracts.js
+    (2026-09-26, Mariana: "revisar los DoD de cada fase y la evidencia para
+    cerrarla... el checklist debe mostrar completitud y alimentar el
+    dashboard"). Never a freestanding invented criterion — if a phase's real
+    outputs change, `default_phase_checklists()` picks that up automatically,
+    it never duplicates the list by hand."""
+
+    id: str
+    label: str
+    done: bool = False
+    evidence: str | None = None
+    completedAt: str | None = None
+    model_config = {"extra": "allow"}
+
+
+def default_phase_checklists() -> dict[str, list[PhaseChecklistItem]]:
+    from app.phases.phase_contracts import list_phases
+
+    checklists: dict[str, list[PhaseChecklistItem]] = {}
+    for phase in list_phases():
+        checklists[phase["key"]] = [
+            PhaseChecklistItem(id=f"{phase['key']}-{i}", label=output)
+            for i, output in enumerate(phase.get("outputs", []))
+        ]
+    return checklists
+
+
+class PhaseArtifactEntry(BaseModel):
+    """One agent run tied to a phase — created on upload to the repo
+    (POST /projects/{id}/phase-artifact) and updated by the feedback endpoint
+    when a human marks it as not useful. Keeps the full history per phase/
+    agent instead of overwriting, so a rejected result + its correction stay
+    visible alongside the run that followed it (correctionOf)."""
+
+    id: str
+    phase: str
+    agent: str
+    filename: str | None = None
+    repoPath: str | None = None
+    input: str
+    output: str
+    status: Literal["draft", "activated", "rejected"] = "draft"
+    correctionOf: str | None = None
+    correctionNote: str | None = None
+    createdAt: str = Field(default_factory=_now_iso)
+    createdBy: str | None = None
+    model_config = {"extra": "allow"}
+
+
 class ProjectMemory(BaseModel):
     projectBrain: ProjectBrain = Field(default_factory=ProjectBrain)
     backlogs: Backlogs = Field(default_factory=Backlogs)
     sprints: Sprints = Field(default_factory=Sprints)
     timeline: Timeline = Field(default_factory=Timeline)
+    # Historial de artefactos/resultados por fase (gap "resultados +
+    # feedback" de la auditoría de flujos, 2026-09-26) — ver
+    # PhaseArtifactEntry.
+    phaseArtifacts: list[PhaseArtifactEntry] = Field(default_factory=list)
     # Tarea 2 Gap 3 — real Basecamp mirror, separate from projectBrain/
     # backlogs (doesn't overwrite either), None until first synced.
     basecampMirror: BasecampMirror | None = None
@@ -158,6 +271,10 @@ class ProjectMemory(BaseModel):
     # plain dicts here to avoid a schema-module cycle; the real shape is
     # enforced where it's written (app/routers/agents.py).
     qaSweeps: list[dict[str, Any]] = Field(default_factory=list)
+    # DoD/checklist per phase key (planning/backend/frontend/
+    # integration_quality/deploy) — see PhaseChecklistItem docstring.
+    # `progress` should be derived from this, not incremented arbitrarily.
+    phaseChecklists: dict[str, list[PhaseChecklistItem]] = Field(default_factory=default_phase_checklists)
 
 
 # ---------------------------------------------------------------------------
@@ -234,10 +351,30 @@ class BasecampLink(BaseModel):
 # ---------------------------------------------------------------------------
 
 
+class ScopeAttachment(BaseModel):
+    """Optional scope document attached at project creation (2026-09-28,
+    Mariana: "alcance: un archivo adjunto"). Stored inline as text — small
+    scope docs (.md/.txt), not a general file-storage system; a real repo
+    attachment belongs in the connected repo once one exists (see
+    project_scaffold), which a brand-new project doesn't have yet."""
+
+    filename: str
+    content: str
+    uploadedAt: str = Field(default_factory=_now_iso)
+
+
 class Project(BaseModel):
     id: str
     name: str
     owner: str | None = None
+    # Optional project-framing fields (2026-09-28, Mariana: formulario de
+    # creación más completo). Section 3 "Timeline & Milestones" and Section 1
+    # "Stakeholders" of Gaby's template already expect Start/End Date and a
+    # client — these feed those sections instead of leaving them blank.
+    client: str | None = None
+    startDate: str | None = None
+    endDate: str | None = None
+    scopeAttachment: ScopeAttachment | None = None
     # Real user ownership (multi-usuario, 2026-09-09) — the `owner` field
     # above stays as the free-text label already in use; this is the actual
     # User.id used to filter GET /projects per authenticated user. Optional
@@ -264,3 +401,8 @@ class ProjectCreateRequest(BaseModel):
     owner: str | None = None
     description: str | None = None
     phase: int | None = None
+    # Optional — see Project's own docstring-equivalent comment above.
+    client: str | None = None
+    startDate: str | None = None
+    endDate: str | None = None
+    scopeAttachment: ScopeAttachment | None = None

@@ -223,3 +223,129 @@
   border-radius: 6px;
   padding: 6px 8px;
 }
+
+/* Historial de resultados previos por agente/fase + flag de "reintentando
+   con corrección" (gap "sin historial/feedback", auditoría de flujos,
+   2026-09-26). Deliberadamente discreto — motion casi invisible, es una
+   superficie utilitaria (LifecycleView), no flagship. */
+.lifecycle-artifact-history {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lifecycle-artifact-history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lifecycle-artifact-history-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  color: hsl(var(--text-2));
+}
+
+.lifecycle-artifact-status {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 10px;
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.lifecycle-artifact-status.status-activated {
+  color: hsl(var(--green));
+  background: hsl(var(--green-soft));
+}
+
+.lifecycle-artifact-status.status-rejected {
+  color: hsl(var(--red));
+  background: hsl(var(--red-soft));
+}
+
+.lifecycle-artifact-status.status-draft {
+  color: hsl(var(--text-3));
+  background: hsl(var(--bg-2));
+}
+
+.lifecycle-artifact-date {
+  color: hsl(var(--text-3));
+}
+
+.lifecycle-correction-flag {
+  font-size: 11.5px;
+  color: hsl(var(--amber));
+  background: hsl(var(--amber-soft));
+  border-radius: 6px;
+  padding: 6px 8px;
+}
+
+/* Explicación del Project Brain antes del botón "Activar" — solo para
+   proyectos vacíos, una vez (isEmptyProject deja de ser true al activarlo). */
+.lifecycle-brain-intro {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.lifecycle-brain-intro p {
+  margin: 0;
+  font-size: 12.5px;
+  color: hsl(var(--text-2));
+  line-height: 1.5;
+}
+
+/* DoD / checklist real de la fase — un item por cada `output` real de esa
+   fase (nunca inventado), con evidencia inline cuando está marcado. */
+.lifecycle-checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lifecycle-checklist li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12.5px;
+  color: hsl(var(--text-2));
+}
+
+.lifecycle-checklist li.done {
+  color: hsl(var(--text-1));
+}
+
+.lifecycle-checklist label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.lifecycle-checklist-evidence {
+  margin-left: 24px;
+  font-size: 11px;
+  color: hsl(var(--text-3));
+}
+
+/* Tareas reales vinculadas (Basecamp), colapsado por defecto — reusa
+   BasecampCardsPanel tal cual, solo controla el espacio alrededor. */
+.lifecycle-linked-tasks {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.lifecycle-linked-tasks-panel {
+  width: 100%;
+  margin-top: 4px;
+}

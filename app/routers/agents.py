@@ -196,6 +196,24 @@ async def get_phase(id_or_key: str) -> dict[str, Any]:
     return phase
 
 
+def _with_brain_context(project_id: str | None, context: dict[str, Any] | None) -> dict[str, Any] | None:
+    """Fusiona el context recibido con un resumen del Project Brain del
+    proyecto (decisionLog, alerts, backlog HU, servicios habilitados) — sin
+    esto, un agente invocado desde LifecycleView solo veía {phase, source} y
+    nada de lo que el resto del equipo ya había decidido/registrado (gap
+    detectado en la auditoría de flujos, 2026-09-26). Si el proyecto no se
+    puede resolver, se sigue con el context original sin la clave
+    `projectBrain` — nunca bloquea la invocación."""
+    if not project_id:
+        return context
+    storage = get_storage()
+    projects = storage.read_projects()
+    project = next((p for p in projects if p.get("id") == project_id), None)
+    if not project:
+        return context
+    return {**(context or {}), "projectBrain": agent_registry.build_brain_context(project)}
+
+
 @router.post("/agents/{name}/invoke")
 async def invoke_agent(
     name: str,
@@ -204,7 +222,7 @@ async def invoke_agent(
 ) -> dict[str, Any]:
     project_id = body.get("projectId")
     input_ = body.get("input", "")
-    context = body.get("context")
+    context = _with_brain_context(project_id, body.get("context"))
     return await invoke_agent_core(client, name, project_id, input_, context)
 
 
@@ -293,13 +311,20 @@ async def orchestrate(
         raise HTTPException(status_code=404, detail="Project not found")
 
     agent_result = await invoke_agent_core(
-        client, agent_to_invoke, project_id, step, {"phase": phase_contract["key"], "step": step}
+        client,
+        agent_to_invoke,
+        project_id,
+        step,
+        {"phase": phase_contract["key"], "step": step, "projectBrain": agent_registry.build_brain_context(project)},
     )
+
+    from app.routers.projects import _ensure_brain_shape, _recompute_progress
 
     timestamp = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
     project["currentPhase"] = phase_contract["id"]
     project["currentStep"] = step
-    project["progress"] = min(project.get("progress", 0) + 15, 95)
+    _ensure_brain_shape(project)
+    project["progress"] = _recompute_progress(project)
     project.setdefault("memory", {}).setdefault("timeline", {}).setdefault("activities", []).append(
         {
             "timestamp": timestamp,

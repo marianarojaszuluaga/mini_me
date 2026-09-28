@@ -76,11 +76,39 @@ export default class ApiClient {
   }
 
   // TAREA B (LifecycleView rediseño, 2026-09-11): commits one activated
-  // agent-result artifact into the phase's mapped folder.
-  uploadPhaseArtifact(projectId, phase, filename, content) {
+  // agent-result artifact into the phase's mapped folder. `commitToRepo`
+  // (2026-09-26) separates "record this result" from "commit it to the
+  // repo" — the feedback/correction flow needs the former even when the
+  // project has no repo connected yet.
+  uploadPhaseArtifact(projectId, phase, filename, content, agent, input, correctionOf, commitToRepo = true) {
     return this.request(`/projects/${projectId}/phase-artifact`, {
       method: "POST",
-      body: JSON.stringify({ phase, filename, content })
+      body: JSON.stringify({ phase, filename, content, agent, input, correctionOf, commitToRepo })
+    });
+  }
+
+  // Gap "vista de resultados" (auditoría de flujos, 2026-09-26): historial
+  // de artefactos/resultados ya subidos, sin ir al repo real a mano.
+  listPhaseArtifacts(projectId, phase) {
+    const query = phase ? `?phase=${encodeURIComponent(phase)}` : "";
+    return this.request(`/projects/${projectId}/phase-artifacts${query}`);
+  }
+
+  // Gap "feedback/corrección" (auditoría de flujos, 2026-09-26): marca un
+  // resultado como "no sirvió" con la corrección pedida.
+  submitArtifactFeedback(projectId, artifactId, correctionNote) {
+    return this.request(`/projects/${projectId}/phase-artifact/${artifactId}/feedback`, {
+      method: "POST",
+      body: JSON.stringify({ correctionNote })
+    });
+  }
+
+  // DoD/checklist por fase (2026-09-26) — marca un item hecho/no-hecho con
+  // evidencia opcional; el backend recalcula progress desde ahí.
+  toggleChecklistItem(projectId, phaseKey, itemId, done, evidence) {
+    return this.request(`/projects/${projectId}/phase-checklist/${phaseKey}/${itemId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ done, evidence })
     });
   }
 
