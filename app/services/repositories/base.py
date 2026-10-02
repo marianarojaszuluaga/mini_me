@@ -13,11 +13,15 @@ from datetime import datetime
 from typing import Protocol
 
 from app.schemas.auth_profile import AuthProfile
-from app.schemas.repository import Commit, FileNode, PullRequest, RepoSummary
+from app.schemas.repository import CIStatus, Commit, FileNode, PullRequest, RepoSummary
 
 
 class RepoAdapter(Protocol):
     async def list_repos(self, auth_profile: AuthProfile) -> list[RepoSummary]: ...
+
+    async def get_ci_status(
+        self, auth_profile: AuthProfile, owner: str, repo: str, ref: str
+    ) -> CIStatus: ...
 
     async def validate_access(
         self, auth_profile: AuthProfile, owner: str, repo: str

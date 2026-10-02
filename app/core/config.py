@@ -89,6 +89,12 @@ class Settings(BaseSettings):
     EXTERNAL_AGENTS_DIR: str | None = None
     PM_AGENTS_DIR: str | None = None
 
+    # Obsidian vault the backend exports Mar Memory + Project Brain data to
+    # (app/services/obsidian_sync.py), every 3h via app/cron/sync_scheduler.py.
+    # Was hardcoded to Mariana's machine; now per-deployment/per-team via env
+    # var (deck "Brain" rollout gap #1: "vault configurable por equipo").
+    OBSIDIAN_VAULT_DIR: str | None = None
+
     # Frontend URL (for CORS, if restricting origins later — CORS is wide
     # open today, matching the Express app's bare `cors()`).
     FRONTEND_URL: str = "http://localhost:5173"
@@ -173,6 +179,12 @@ class Settings(BaseSettings):
         if self.PM_AGENTS_DIR:
             return Path(self.PM_AGENTS_DIR)
         return REPO_ROOT / "src" / "agents" / "pm-agents"
+
+    @property
+    def obsidian_vault_dir(self) -> Path:
+        if self.OBSIDIAN_VAULT_DIR:
+            return Path(self.OBSIDIAN_VAULT_DIR)
+        return Path(r"C:\Users\marir\OneDrive\Documentos\Obsidian Vault\Orquestrador 360 - Memoria de la App")
 
 
 @lru_cache

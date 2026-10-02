@@ -133,13 +133,39 @@ El dashboard pide una **App API Key** al iniciar sesión — usa uno de los valo
 
 ## Sincronía con ia-hybrid-teams/agents/
 
-`src/agents/spec-kit-agents/*.md` es una **copia** de los 14 archivos canónicos en
-`ia-hybrid-teams/agents/`. Se cargan verbatim como system prompt (no se reescriben), para no
-inventar comportamiento que no esté documentado ahí. Si se edita un agente en `ia-hybrid-teams`,
-hay que volver a copiar el archivo aquí (o apuntar `SPEC_KIT_AGENTS_DIR` en `.env` directo a esa
-carpeta para desarrollo local). Nota: `AGENT_REGISTRY.md` en ia-hybrid-teams referencia
-`gimena-scheduler.md`, pero el archivo real es `Gina-scheduler.md` — inconsistencia preexistente
-en ese repo, no introducida aquí.
+`src/agents/spec-kit-agents/*.md` y `src/agents/external-agents/*.md` son una **copia** de los
+archivos canónicos en `ia-hybrid-teams/agents/` (y de `esquema-planeacion.md` para los external).
+Se cargan verbatim como system prompt (no se reescriben), para no inventar comportamiento que no
+esté documentado ahí.
+
+**Esto es lo único que hace que Mini me dependa de un path externo** — y solo en desarrollo, si
+defines `SPEC_KIT_AGENTS_DIR`/`EXTERNAL_AGENTS_DIR` en `.env` apuntando a tu checkout local de
+`ia-hybrid-teams`. En despliegue no se define ninguna de las dos, y el código usa la copia
+bundleada en el repo (`src/agents/registry.js:58-61`) — no hay dependencia de filesystem externo
+en producción.
+
+Lo que sí era una brecha real: nada garantizaba que la copia bundleada reflejara el estado
+vigente de `ia-hybrid-teams`. Eso se resuelve con `src/agents/agents.lock.json` (hash sha256 por
+archivo) y `scripts/sync-agents.js`:
+
+```bash
+npm run sync-agents          # recalcula hashes; si SPEC_KIT_AGENTS_DIR/EXTERNAL_AGENTS_DIR
+                              # apuntan fuera del repo, también copia los .md actualizados
+npm run sync-agents:check    # falla si algún .md bundleado no coincide con el lock,
+                              # o si divergió del checkout externo (cuando está configurado)
+```
+
+`npm run sync-agents:check` (o el equivalente `pytest tests/test_agents_lockfile.py`) reemplaza
+"acordarse de copiar el archivo" por una verificación computable — correr después de editar
+cualquier agente en `ia-hybrid-teams` y antes de commitear la copia.
+
+Nota: `AGENT_REGISTRY.md` en ia-hybrid-teams referencia `gimena-scheduler.md`, pero el archivo
+real es `Gina-scheduler.md` — inconsistencia preexistente en ese repo, no introducida aquí.
+
+`tests/test_boundary_coupling.py` vigila, por su parte, que el código de Mini me (fuera de
+`agent_registry.py`/`registry.js` y `basecamp_client.py`) no crezca nuevos imports directos o
+rutas hardcodeadas hacia `ia-hybrid-teams` o un paquete Basecamp externo — Mini me solo debe
+*invocar* esos sistemas, nunca depender de su código.
 
 ---
 
@@ -170,6 +196,7 @@ Todo corre en Vercel — dos proyectos separados, mismo repo:
 | `MAP_URL` | la URL pública de este mismo deployment (ej. `https://backmar-in-theinternet.vercel.app`) — el Orchestrator se llama a sí mismo para invocar agentes, y en serverless no existe `localhost` |
 | `FRONTEND_URL` | la URL pública del dashboard (ej. `https://mar-in-theinternet.vercel.app`) — usada por CORS, ver instrucciones de la corrección de CORS |
 | `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | ver Redis abajo |
+| `OBSIDIAN_VAULT_DIR` | ruta absoluta del vault de Obsidian de **este** equipo/deployment (opcional — sin ella, usa el default histórico de un solo usuario). Ver `docs/BRAIN_VAULT_ROLLOUT.md` para el plan completo de rollout por equipo. |
 
 **Requiere Redis para persistir datos entre invocaciones.** Sin esto, la app funciona
 dentro de un mismo request pero cada proyecto/decisión/alerta se pierde al siguiente cold start —

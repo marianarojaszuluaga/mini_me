@@ -156,6 +156,12 @@ const P0Section = ({ api, outputCounts, usageEvents, reconciliationRuns }) => {
   const gapsClosed = reconciliationRuns.reduce((acc, r) => acc + (r.gaps_closed_since_last || 0), 0);
   const lastUsage = usageEvents[usageEvents.length - 1];
   const lastRecon = reconciliationRuns[reconciliationRuns.length - 1];
+  // UX audit fix (2026-10-01): a bare "412" in red, with no period or count
+  // of runs behind it, read as a panic number on first glance. Real context
+  // only — never a fabricated trend/delta we don't have data for.
+  const reconciliationSublabel = reconciliationRuns.length
+    ? t("analytics.p0.acrossRuns", { count: reconciliationRuns.length })
+    : t("analytics.p0.noRunsYet");
 
   return (
     <section className="analytics-section analytics-section-p0">
@@ -200,6 +206,7 @@ const P0Section = ({ api, outputCounts, usageEvents, reconciliationRuns }) => {
           api={api}
           label={t("analytics.p0.gapsFound")}
           value={gapsFound}
+          sublabel={reconciliationSublabel}
           row={lastRecon}
           eventType="reconciliation_run"
           accent="red"
@@ -208,6 +215,7 @@ const P0Section = ({ api, outputCounts, usageEvents, reconciliationRuns }) => {
           api={api}
           label={t("analytics.p0.gapsClosed")}
           value={gapsClosed}
+          sublabel={reconciliationSublabel}
           row={lastRecon}
           eventType="reconciliation_run"
           accent="green"
@@ -574,6 +582,11 @@ function DashboardBody({ api, projects, projectId, onProjectIdChange }) {
                 api={api}
                 label={t("analytics.dashboard.gapsFoundProject")}
                 value={data.reconciliationRuns.reduce((acc, r) => acc + (r.gaps_found || 0), 0)}
+                sublabel={
+                  data.reconciliationRuns.length
+                    ? t("analytics.p0.acrossRuns", { count: data.reconciliationRuns.length })
+                    : t("analytics.p0.noRunsYet")
+                }
                 row={data.reconciliationRuns[data.reconciliationRuns.length - 1]}
                 eventType="reconciliation_run"
                 accent="red"
@@ -582,31 +595,48 @@ function DashboardBody({ api, projects, projectId, onProjectIdChange }) {
                 api={api}
                 label={t("analytics.dashboard.gapsClosedProject")}
                 value={data.reconciliationRuns.reduce((acc, r) => acc + (r.gaps_closed_since_last || 0), 0)}
+                sublabel={
+                  data.reconciliationRuns.length
+                    ? t("analytics.p0.acrossRuns", { count: data.reconciliationRuns.length })
+                    : t("analytics.p0.noRunsYet")
+                }
                 row={data.reconciliationRuns[data.reconciliationRuns.length - 1]}
                 eventType="reconciliation_run"
                 accent="green"
               />
             </div>
-            <div className="analytics-grid" style={{ marginTop: 12 }}>
-              <div className="tile">
-                <div className="metric-value">
-                  {sprint ? `${sprint.tasks_done}/${sprint.tasks_total}` : <span className="metric-value metric-empty">—</span>}
+            {/* UX audit fix (2026-10-01): these 3 tiles used className="tile"/
+                "metric-value"/"metric-label"/"analytics-grid" — none of those
+                classes exist anywhere in analytics.css, so they rendered as
+                bare, unstyled stacked text (the "broken-looking" dashboard
+                section from the audit). Switched to the real `.metric-tile`
+                system already used two sections above, for visual parity. */}
+            <div className="metric-grid" style={{ marginTop: 12 }}>
+              <div className="metric-tile">
+                <div className="metric-tile-trigger" style={{ cursor: "default" }}>
+                  <div className="metric-tile-value">
+                    {sprint ? `${sprint.tasks_done}/${sprint.tasks_total}` : <span className="metric-empty">—</span>}
+                  </div>
+                  <div className="metric-tile-label">{t("analytics.dashboard.sprintTasks")}</div>
                 </div>
-                <div className="metric-label">{t("analytics.dashboard.sprintTasks")}</div>
               </div>
-              <div className="tile">
-                <div className="metric-value" style={{ fontSize: 16 }}>
-                  {selectedProject
-                    ? t(`analytics.projectStatus.${selectedProject.status}`, {
-                        defaultValue: SEMAPHORE_LABEL_ES[selectedProject.status] || selectedProject.status
-                      })
-                    : "—"}
+              <div className="metric-tile">
+                <div className="metric-tile-trigger" style={{ cursor: "default" }}>
+                  <div className="metric-tile-value" style={{ fontSize: 16 }}>
+                    {selectedProject
+                      ? t(`analytics.projectStatus.${selectedProject.status}`, {
+                          defaultValue: SEMAPHORE_LABEL_ES[selectedProject.status] || selectedProject.status
+                        })
+                      : <span className="metric-empty">—</span>}
+                  </div>
+                  <div className="metric-tile-label">{t("analytics.dashboard.projectStatus")}</div>
                 </div>
-                <div className="metric-label">{t("analytics.dashboard.projectStatus")}</div>
               </div>
-              <div className="tile">
-                <div className="metric-value metric-empty">—</div>
-                <div className="metric-label">{t("analytics.dashboard.workTime7d")}</div>
+              <div className="metric-tile">
+                <div className="metric-tile-trigger" style={{ cursor: "default" }}>
+                  <div className="metric-tile-value"><span className="metric-empty">—</span></div>
+                  <div className="metric-tile-label">{t("analytics.dashboard.workTime7d")}</div>
+                </div>
               </div>
             </div>
             {sprintError && (

@@ -78,10 +78,22 @@ function useSystemRailData(api) {
   return { gapsTotal, alerts, usageToday };
 }
 
-function StatusRail({ api, purpose, turnCount, tokenCount }) {
+function StatusRail({ api, purpose, turnCount, tokenCount, projects = [] }) {
   const { t } = useTranslation();
   const { gapsTotal, alerts, usageToday } = useSystemRailData(api);
   const usageTodayTokens = usageToday ? (usageToday.input_tokens || 0) + (usageToday.output_tokens || 0) : 0;
+  // UX audit fix (2026-10-01): this used to print the raw project_id
+  // ("Proyecto_1786594894614") straight from the aggregate event — the only
+  // place in the app that skipped name resolution entirely. Same lookup
+  // ChatPanel's own `projectName()` already uses for tabs, with an honest
+  // fallback (not the id) for a project that no longer exists.
+  const resolveProjectLabel = (run) => {
+    const id = run.project_id;
+    const match = projects.find((p) => p.id === id);
+    if (match) return match.name;
+    if (run.project_name) return run.project_name;
+    return id ? t("chat.rail.unknownProject") : "—";
+  };
   return (
     <aside className="chat-status-rail">
       <div className="rail-group session">
@@ -121,7 +133,7 @@ function StatusRail({ api, purpose, turnCount, tokenCount }) {
                 <span className="pill-dot" />
                 {t("chat.rail.gapsCount", { count: run.gaps_found })}
               </span>
-              <span className="rail-alert-text">{run.project_id || run.project_name || "—"}</span>
+              <span className="rail-alert-text">{resolveProjectLabel(run)}</span>
             </div>
           ))}
         </div>
@@ -205,7 +217,10 @@ export default function ChatPanel({ api: apiProp, projects = [] } = {}) {
     }
   }, [messages, isSending]);
 
-  const projectName = (projectId) => projects.find((p) => p.id === projectId)?.name || projectId;
+  // UX audit fix (2026-10-01): used to fall back to the raw internal id
+  // when a session's project was archived/deleted — now a plain, honest
+  // label instead of a slug no end user should ever read.
+  const projectName = (projectId) => projects.find((p) => p.id === projectId)?.name || t("chat.rail.unknownProject");
 
   const handleNewTab = () => {
     setSessionEnded(false);
@@ -460,7 +475,13 @@ export default function ChatPanel({ api: apiProp, projects = [] } = {}) {
           )}
         </div>
 
-        <StatusRail api={apiRef.current} purpose={pendingPurpose || "—"} turnCount={turnCount} tokenCount={tokenTotal} />
+        <StatusRail
+          api={apiRef.current}
+          purpose={pendingPurpose || "—"}
+          turnCount={turnCount}
+          tokenCount={tokenTotal}
+          projects={projects}
+        />
       </div>
 
       {error && <div className="flag">{AlertIcon} {error}</div>}

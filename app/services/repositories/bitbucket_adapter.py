@@ -16,9 +16,17 @@ from datetime import datetime
 import httpx
 
 from app.schemas.auth_profile import AuthProfile
-from app.schemas.repository import Commit, FileNode, PullRequest, RepoSummary
+from app.schemas.repository import CIStatus, Commit, FileNode, PullRequest, RepoSummary
 
 _API_BASE = "https://api.bitbucket.org/2.0"
+
+# Bitbucket Pipelines build-status states -> our normalized CIStatus.status
+_BUILD_STATE_MAP = {
+    "SUCCESSFUL": "success",
+    "FAILED": "failure",
+    "STOPPED": "failure",
+    "INPROGRESS": "pending",
+}
 
 
 def _resolve_token(auth_profile: AuthProfile) -> str | None:
@@ -68,6 +76,32 @@ class BitbucketAdapter:
                 )
             )
         return summaries
+
+    async def get_ci_status(
+        self, auth_profile: AuthProfile, owner: str, repo: str, ref: str
+    ) -> CIStatus:
+        """Real CI result for `ref` via Bitbucket's commit statuses endpoint
+        (Pipelines builds show up here as `type: "build"` statuses). No
+        statuses at all (no Pipelines configured) maps to "unknown", never a
+        fabricated pass."""
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            response = await client.get(
+                f"{_API_BASE}/repositories/{owner}/{repo}/commit/{ref}/statuses",
+                headers=_headers(auth_profile),
+            )
+        if response.status_code == 404:
+            return CIStatus(status="unknown")
+        response.raise_for_status()
+        values = response.json().get("values", [])
+        if not values:
+            return CIStatus(status="unknown")
+
+        latest = max(values, key=lambda v: v.get("created_on") or "")
+        return CIStatus(
+            status=_BUILD_STATE_MAP.get(latest.get("state", ""), "unknown"),
+            url=(latest.get("links") or {}).get("html", {}).get("href"),
+            checkedAt=latest.get("updated_on"),
+        )
 
     async def validate_access(self, auth_profile: AuthProfile, owner: str, repo: str) -> bool:
         async with httpx.AsyncClient(timeout=10.0) as client:

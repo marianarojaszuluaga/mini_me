@@ -32,22 +32,21 @@ Pipeline:
    RepoAdapter.get_file_tree, read every file under a "test"-ish path via
    get_file_content, and look for a `@ac:<acId>` link comment (Python `#` or
    JS/TS `//` style).
-3. Fold every AC into a `gaps[]`-shaped record: `sin_test` (no linked test),
-   `con_test_sin_resultado` (linked test found, but no CI result available
-   yet — see TODO below), or `no_reconciliable` (HU has no parseable AC
-   checkboxes at all, HU-004 §2.3).
+3. For each connected repo, also resolve one real CI status via
+   RepoAdapter.get_ci_status(owner, repo, defaultBranch) — GitHub's Checks
+   API / Bitbucket's commit-statuses endpoint, normalized to "success" |
+   "failure" | "pending" | "unknown" (see `_collect_ci_statuses`).
+4. Fold every AC into a `gaps[]`-shaped record: `sin_test` (no linked test),
+   `cumple` / `no_cumple` (linked test + a resolved CI result for that
+   repo), `con_test_sin_resultado` (linked test, but CI is still running or
+   no CI is configured on that repo — never a fabricated result), or
+   `no_reconciliable` (HU has no parseable AC checkboxes at all, HU-004
+   §2.3).
 
-# TODO: calibrar en implementacion — CI result lookup. HU-004-JarvisMode asks
-# for "cumple"/"no_cumple" once a linked test's real CI outcome is known, but
-# no CI provider API (GitHub Actions / Bitbucket Pipelines) is wired yet in
-# this codebase. Rather than invent a result, a linked test is left in the
-# honest intermediate state "con_test_sin_resultado" until that integration
-# lands — never a fabricated "cumple".
-#
-# TODO: calibrar en implementacion — workspace path. Gimena's backlog.md /
-# outputs/*.md live at the repo root today (single-project setup). Once
-# multi-project workspaces exist, `project["workspacePath"]` (if/when that
-# field is added to the Project schema) should override `REPO_ROOT` below.
+2026-10-01 (deck "Brain" rollout, gaps #2/#3): both TODOs this docstring
+used to describe are resolved — CI result lookup above, and
+`project["workspacePath"]` (schemas/project.py) now overrides `REPO_ROOT` in
+`_workspace_root` below for real multi-project reconciliation.
 """
 
 from __future__ import annotations
@@ -60,6 +59,7 @@ from typing import Any
 from app.core.config import REPO_ROOT
 from app.core.storage import get_storage
 from app.schemas.auth_profile import AuthProfile
+from app.schemas.repository import CIStatus
 from app.services.metrics.collector import record_reconciliation_run
 from app.services.repositories import get_adapter
 
@@ -278,12 +278,49 @@ def _help_text(status: str, ac_id: str | None, reason: str | None = None) -> str
         )
     if status == "con_test_sin_resultado":
         return (
-            "Ya hay un test vinculado, pero todavía no hay un proveedor de CI conectado "
-            "que reporte si pasó o falló — conectá CI para que este gap se cierre de verdad."
+            "Ya hay un test vinculado, pero el proveedor de CI no reportó un resultado "
+            "resuelto todavía (corrida en curso, o ningún pipeline configurado en el repo)."
         )
+    if status == "no_cumple":
+        return "El test vinculado corrió en CI y falló — revisá el run antes de marcar este criterio como cumplido."
+    if status == "cumple":
+        return "El test vinculado corrió en CI y pasó — criterio verificado con evidencia real."
     if status == "no_reconciliable":
         return reason or "Esta HU no tiene una sección de Acceptance Criteria parseable — revisá su formato."
     return "Sin acción real definida para este estado todavía."
+
+
+async def _collect_ci_statuses(project: dict[str, Any]) -> dict[str, CIStatus]:
+    """Resolves one real CI status per connected repo (gap #2 of the "Brain"
+    deck, 2026-10-01: before this, a linked test could only ever sit in
+    "con_test_sin_resultado" — no CI provider was ever queried). Keyed by
+    "owner/repo" to match `_collect_test_links`'s testRef prefix. Best-effort
+    per repo, same as `_collect_test_links`: a repo that errors out (token
+    revoked, rate-limited, no CI configured) stays "unknown", never a
+    fabricated result."""
+    repositories = project.get("repositories", [])
+    if not repositories:
+        return {}
+
+    auth_profiles = get_storage().read_auth_profiles()
+    statuses: dict[str, CIStatus] = {}
+
+    for repository in repositories:
+        provider = repository.get("provider")
+        owner = repository.get("owner")
+        repo = repository.get("repo")
+        branch = repository.get("defaultBranch", "main")
+        if not (provider and owner and repo):
+            continue
+
+        try:
+            adapter = get_adapter(provider)
+            auth_profile = _build_auth_profile(repository, auth_profiles)
+            statuses[f"{owner}/{repo}"] = await adapter.get_ci_status(auth_profile, owner, repo, branch)
+        except Exception:
+            statuses[f"{owner}/{repo}"] = CIStatus(status="unknown")
+
+    return statuses
 
 
 async def _collect_test_links(project: dict[str, Any]) -> dict[str, str]:
@@ -373,19 +410,32 @@ async def run_reconciliation(project_id: str) -> dict[str, Any] | None:
     registry = _parse_backlog_registry(workspace)
     ac_units, unreconcilable_hus = _parse_acceptance_criteria(workspace, registry)
     test_links = await _collect_test_links(project)
+    ci_statuses = await _collect_ci_statuses(project)
 
     gaps: list[dict[str, Any]] = []
     sin_test = 0
 
     for ac in ac_units:
         test_ref = test_links.get(ac["acId"])
+        evidence = test_ref
         if test_ref is None:
             status = "sin_test"
             sin_test += 1
         else:
-            # No CI provider wired yet (see module TODO) — a linked test is
-            # real evidence of *intent to verify*, not yet a pass/fail result.
-            status = "con_test_sin_resultado"
+            # Real CI provider lookup (closes the gap the module docstring's
+            # TODO used to describe): a linked test's repo prefix ("owner/
+            # repo:path") keys into ci_statuses, resolved once per run by
+            # _collect_ci_statuses — never a fabricated "cumple".
+            repo_key = test_ref.split(":", 1)[0]
+            ci_status = ci_statuses.get(repo_key, CIStatus(status="unknown"))
+            if ci_status.status == "success":
+                status = "cumple"
+                evidence = f"{test_ref} — CI: success" + (f" ({ci_status.url})" if ci_status.url else "")
+            elif ci_status.status == "failure":
+                status = "no_cumple"
+                evidence = f"{test_ref} — CI: failure" + (f" ({ci_status.url})" if ci_status.url else "")
+            else:
+                status = "con_test_sin_resultado"
 
         gaps.append(
             {
@@ -393,7 +443,7 @@ async def run_reconciliation(project_id: str) -> dict[str, Any] | None:
                 "acceptanceCriterion": ac["text"],
                 "claim": "done",
                 "testRef": test_ref,
-                "evidence": test_ref,
+                "evidence": evidence,
                 "status": status,
                 # BUG-019 fix (2026-08-21): la usuaria veía el estado pero no
                 # la acción real que lo resuelve — nunca genérico, siempre
@@ -417,7 +467,9 @@ async def run_reconciliation(project_id: str) -> dict[str, Any] | None:
         )
 
     def _is_open(gap: dict[str, Any]) -> bool:
-        return gap.get("status") in ("sin_test", "no_reconciliable")
+        # "no_cumple" (real CI failure) is a genuine open gap too, same as
+        # never having a test at all — only "cumple" (real CI pass) closes one.
+        return gap.get("status") in ("sin_test", "no_reconciliable", "no_cumple")
 
     # `status: "open"` is kept alongside the finer-grained status above so
     # existing consumers that filter on gaps[].status == "open" (pre-HU-004

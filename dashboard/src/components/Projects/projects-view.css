@@ -237,3 +237,18 @@
   flex-direction: column;
   gap: 14px;
 }
+
+/* Campos opcionales (cliente, fechas, alcance) — 2026-09-28 */
+.pv-optional-toggle {
+  align-self: flex-start;
+  font-size: 12.5px;
+}
+
+.pv-modal-form-row {
+  display: flex;
+  gap: 12px;
+}
+
+.pv-modal-form-row > div {
+  flex: 1;
+}

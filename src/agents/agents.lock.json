@@ -1,0 +1,103 @@
+{
+  "agents": {
+    "spec-kit-agents": {
+      "fer_dataengineer.md": {
+        "sha256": "d7b1f1febac540b03a0224505f30391e937f40aafceea9a8f0bc2171726eb809",
+        "syncedAt": "2026-09-28T14:23:16.606Z",
+        "sourcePath": null
+      },
+      "gabi_workplanner.md": {
+        "sha256": "f6a8ca708185a7080a6989b8e3d1f6a0a2b88887a296cf49d88aa5863f7d0ec2",
+        "syncedAt": "2026-09-28T14:23:16.607Z",
+        "sourcePath": null
+      },
+      "gime_userstorywriter.md": {
+        "sha256": "633b677eb994237e83843937875891327f4b7b84f27d795260a3ae7338bad18e",
+        "syncedAt": "2026-09-28T14:23:16.608Z",
+        "sourcePath": null
+      },
+      "gina_scheduler.md": {
+        "sha256": "c8f9a366d398a1802f268d3a4b50d5b3bbd82a4f133d157b5263e7083a756dae",
+        "syncedAt": "2026-09-28T14:23:16.608Z",
+        "sourcePath": null
+      },
+      "isa_flutterdeveloper.md": {
+        "sha256": "2fc16e33feacc9441ac853f268e3f90a0a5d4929dd2e1dd7c5356858e1f51156",
+        "syncedAt": "2026-09-28T14:23:16.609Z",
+        "sourcePath": null
+      },
+      "lore_fixederrors.md": {
+        "sha256": "f64ee17760a241e7e7c78fd76987f0ba39608abd53a29151dfb3fb3b0c1b086e",
+        "syncedAt": "2026-09-28T14:23:16.610Z",
+        "sourcePath": null
+      },
+      "mafe_fullstackdeveloper.md": {
+        "sha256": "688193d1d75ee92224ed6a5a839ce59e3d612143a71dee9f698e6b7b9511d64b",
+        "syncedAt": "2026-09-28T14:23:16.610Z",
+        "sourcePath": null
+      },
+      "moni_qaintegrator.md": {
+        "sha256": "aa3d8728b31be7bd103b6ae1fb8c19f6989965d248ed95bfce453ca84e663f48",
+        "syncedAt": "2026-09-28T14:23:16.611Z",
+        "sourcePath": null
+      },
+      "pau_qualityreportgenerator.md": {
+        "sha256": "76e2451c3414c945d86ea5582d985122a8ed98afa2a36d3693ada2dde213dffa",
+        "syncedAt": "2026-09-28T14:23:16.611Z",
+        "sourcePath": null
+      },
+      "rena_integration.md": {
+        "sha256": "bd92ca6e66b26aa53be7111aaec7f1e01a1892716c1c4c5a85bf1c25fc2b6a4f",
+        "syncedAt": "2026-09-28T14:23:16.612Z",
+        "sourcePath": null
+      },
+      "sara_sonarqualitygate.md": {
+        "sha256": "541f1e12166ea0b1db0b9fa9bcb3d91ffa78b532ab5d0e8e9cdd39b5955243cd",
+        "syncedAt": "2026-09-28T14:23:16.612Z",
+        "sourcePath": null
+      },
+      "sofi_architect.md": {
+        "sha256": "3f2bcb024bb31fa3db6ebcc150a0dfdbab7226229c32ff222648b336681765a0",
+        "syncedAt": "2026-09-28T14:23:16.612Z",
+        "sourcePath": null
+      },
+      "tami_mcpintegrationtester.md": {
+        "sha256": "d69519f8ac323d5efe074a4974371ef6ea17349f1dd60aec038eb13f74407b1b",
+        "syncedAt": "2026-09-28T14:23:16.613Z",
+        "sourcePath": null
+      },
+      "vale_auditor.md": {
+        "sha256": "21a57b63c8acd37f98ada4f32d59673820465a5147fb98d933cffb447706e173",
+        "syncedAt": "2026-09-28T14:23:16.613Z",
+        "sourcePath": null
+      },
+      "vane_testvideorecorder.md": {
+        "sha256": "e8c052c54d70e42474297ccd73cf9dd1c968757f8a234a62d36f8f84f57d969e",
+        "syncedAt": "2026-09-28T14:23:16.613Z",
+        "sourcePath": null
+      },
+      "xime_unittestreviewer.md": {
+        "sha256": "491a24a9ecc8abef482b76904b6e4b0e0950599886fa7a193c564fae31325e5a",
+        "syncedAt": "2026-09-28T14:23:16.614Z",
+        "sourcePath": null
+      }
+    },
+    "external-agents": {
+      "cami_capacityreconciler.md": {
+        "sha256": "ed617c18d39c674625ce45b6b0e36934d64df57a9d3374a0fe70326315384273",
+        "syncedAt": "2026-09-28T14:23:16.615Z",
+        "sourcePath": null
+      },
+      "diana_doddefiner.md": {
+        "sha256": "1f8483c17d610ed5d3b2cb9255e4859e0214b8af54090e6bb6f783b6b4a3a8d0",
+        "syncedAt": "2026-09-28T14:23:16.615Z",
+        "sourcePath": null
+      },
+      "mila_milestonewriter.md": {
+        "sha256": "c7fe67f9c1558269c777b2882d473fd94443294d376e494f7e0d1b481d72f7b1",
+        "syncedAt": "2026-09-28T14:23:16.615Z",
+        "sourcePath": null
+      }
+    }
+  }
+}

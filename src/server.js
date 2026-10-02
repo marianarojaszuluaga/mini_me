@@ -104,8 +104,94 @@ app.get("/phases/:idOrKey", (req, res) => {
 // PROJECT MANAGEMENT
 // ============================================================================
 
+// Mirrors app/schemas/project.py's _default_services() exactly — 5 canonical
+// services, each with the REAL route/command that runs it today (2026-09-24,
+// Mariana: "servicios que tienen agencia... solo con que corra en local").
+function defaultServices() {
+  return [
+    {
+      id: "qa_human",
+      label: "QA humano",
+      enabled: false,
+      invocable: true,
+      entrypoint: "POST /projects/{project_id}/qa-sweeps/{sweep_id}/signoff",
+      agents: [],
+      lastRunAt: null
+    },
+    {
+      id: "qa_automated",
+      label: "QA automatizado",
+      enabled: false,
+      invocable: true,
+      entrypoint: "POST /projects/{project_id}/qa-sweep",
+      agents: ["moni"],
+      lastRunAt: null
+    },
+    {
+      id: "pr_review",
+      label: "Revisión y seguimiento de PRs",
+      enabled: false,
+      invocable: true,
+      entrypoint: "POST /projects/{project_id}/repositories/{repo_id}/sync",
+      agents: ["rena"],
+      lastRunAt: null
+    },
+    {
+      id: "drive_sync",
+      label: "Sincronización con Drive",
+      enabled: false,
+      invocable: true,
+      entrypoint: "POST /agents/mia/invoke, POST /agents/nico/invoke",
+      agents: ["mia", "nico"],
+      lastRunAt: null
+    },
+    {
+      id: "basecamp_sync",
+      label: "Sincronización con Basecamp",
+      enabled: false,
+      invocable: true,
+      entrypoint: "GET /projects/{project_id}/basecamp-mirror",
+      agents: [],
+      lastRunAt: null
+    }
+  ];
+}
+
 function defaultProjectBrain() {
-  return { status: "pending", decisionLog: [], alerts: [], meetingLog: [] };
+  return { status: "pending", decisionLog: [], alerts: [], meetingLog: [], services: defaultServices() };
+}
+
+// DoD/checklist per phase, derived 1:1 from that phase's real `outputs` in
+// phaseContracts.js — mirrors app/schemas/project.py's
+// default_phase_checklists() exactly (2026-09-26, Mariana: "revisar los DoD
+// de cada fase y la evidencia para cerrarla... el checklist debe alimentar
+// el dashboard"). Never a hand-duplicated list — if a phase's outputs
+// change, this picks it up automatically.
+function defaultPhaseChecklists() {
+  const checklists = {};
+  for (const phase of phaseContracts.listPhases()) {
+    checklists[phase.key] = (phase.outputs || []).map((label, i) => ({
+      id: `${phase.key}-${i}`,
+      label,
+      done: false,
+      evidence: null,
+      completedAt: null
+    }));
+  }
+  return checklists;
+}
+
+// Real progress: % of the CURRENT phase's checklist items marked done.
+// Replaces the old "+15 per agent invocation, cap 95" heuristic, which
+// tracked activity, not completion. Falls back to the stored value only if
+// the current phase has no checklist recorded (shouldn't happen once
+// ensurePhaseChecklists has run, but never divide by zero).
+function recomputeProgress(project) {
+  const phase = phaseContracts.getPhase(project.currentPhase);
+  const checklist = phase && project.memory?.phaseChecklists?.[phase.key];
+  if (!checklist || checklist.length === 0) return project.progress || 0;
+  const done = checklist.filter((item) => item.done).length;
+  return Math.round((done / checklist.length) * 100);
 }
 
 function newProjectRecord({ id, name, owner, description, phase }) {
@@ -127,7 +213,8 @@ function newProjectRecord({ id, name, owner, description, phase }) {
         actas: { status: "pending", actas: [] }
       },
       sprints: { current: 1, status: "pending" },
-      timeline: { createdAt: new Date().toISOString(), activities: [] }
+      timeline: { createdAt: new Date().toISOString(), activities: [] },
+      phaseChecklists: defaultPhaseChecklists()
     }
   };
 }
@@ -139,6 +226,8 @@ function ensureBrainShape(project) {
   project.memory.projectBrain.decisionLog = project.memory.projectBrain.decisionLog || [];
   project.memory.projectBrain.alerts = project.memory.projectBrain.alerts || [];
   project.memory.projectBrain.meetingLog = project.memory.projectBrain.meetingLog || [];
+  project.memory.projectBrain.services = project.memory.projectBrain.services || defaultServices();
+  project.memory.phaseChecklists = project.memory.phaseChecklists || defaultPhaseChecklists();
   return project;
 }
 
@@ -156,6 +245,35 @@ app.get("/projects/:id", async (req, res) => {
     const project = projects.find((p) => p.id === req.params.id);
     if (!project) return res.status(404).json({ error: "Project not found" });
     res.json(project);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Toggle one DoD/checklist item for a project's phase — the only way
+// `progress` should change now (see recomputeProgress). `evidence` is a
+// free-text pointer (artifact path, QA sweep id, PR link) to what proves the
+// item is really done; never required to mark done=false.
+app.patch("/projects/:id/phase-checklist/:phaseKey/:itemId", async (req, res) => {
+  try {
+    const { done, evidence } = req.body;
+    const projects = await store.readProjects();
+    const project = projects.find((p) => p.id === req.params.id);
+    if (!project) return res.status(404).json({ error: "Project not found" });
+
+    ensureBrainShape(project);
+    const checklist = project.memory.phaseChecklists[req.params.phaseKey];
+    if (!checklist) return res.status(404).json({ error: `Unknown phase key: ${req.params.phaseKey}` });
+    const item = checklist.find((i) => i.id === req.params.itemId);
+    if (!item) return res.status(404).json({ error: `Unknown checklist item: ${req.params.itemId}` });
+
+    item.done = !!done;
+    item.evidence = evidence ?? item.evidence;
+    item.completedAt = item.done ? new Date().toISOString() : null;
+    project.progress = recomputeProgress(project);
+
+    await store.writeProjects(projects);
+    res.json({ item, progress: project.progress });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -316,7 +434,8 @@ app.post("/orchestrate", async (req, res) => {
 
     project.currentPhase = phaseContract.id;
     project.currentStep = step;
-    project.progress = Math.min(project.progress + 15, 95);
+    ensureBrainShape(project);
+    project.progress = recomputeProgress(project);
     project.memory.timeline.activities.push({
       timestamp: new Date().toISOString(),
       agent: agentToInvoke,

@@ -10,10 +10,11 @@ Snapshot exporter: reads directly from app/core/storage.py (not a running
 HTTP round-trip) and fully regenerates the markdown files below on every
 call — safe to re-run, not something to hand-edit downstream.
 
-Writes to a fixed local path (the vault lives on Mariana's machine, same
-host as the backend in dev and, for now, the only place this runs) rather
-than a configurable env var — if this ever needs to run somewhere the vault
-isn't mounted, that's the point to make it configurable, not before.
+Writes to app.core.config's `obsidian_vault_dir` (env var
+`OBSIDIAN_VAULT_DIR`), which still defaults to Mariana's machine when unset
+so existing single-user deployments keep working unchanged — see
+`get_settings().obsidian_vault_dir`. Each team/deployment sets its own path
+via env var instead of every team writing into the same hardcoded folder.
 """
 
 from __future__ import annotations
@@ -25,11 +26,14 @@ from typing import Any
 
 import httpx
 
+from app.core.config import get_settings
 from app.core.storage import get_storage
 
 logger = logging.getLogger(__name__)
 
-VAULT_DIR = Path(r"C:\Users\marir\OneDrive\Documentos\Obsidian Vault\Orquestrador 360 - Memoria de la App")
+
+def _vault_dir() -> Path:
+    return get_settings().obsidian_vault_dir
 
 
 def _now_iso() -> str:
@@ -64,7 +68,7 @@ def _sync_mar_memory(entries: list[dict[str, Any]]) -> int:
                 lines.append(f"- **{entry.get('createdAt', '?')}** ({entry.get('source', '?')}): {entry.get('content', '')}")
             lines.append("")
 
-    _write(VAULT_DIR / "mar-memory.md", "\n".join(lines))
+    _write(_vault_dir() / "mar-memory.md", "\n".join(lines))
     return len(entries)
 
 
@@ -126,16 +130,16 @@ def _sync_projects(projects: list[dict[str, Any]]) -> int:
     for project in projects:
         name = project.get("name", project.get("id"))
         slug = "".join(c if c.isalnum() or c in "-_ " else "_" for c in name).strip()
-        _write(VAULT_DIR / "projects" / f"{slug}.md", _project_markdown(project))
+        _write(_vault_dir() / "projects" / f"{slug}.md", _project_markdown(project))
         index_lines.append(f"- [[{slug}]] — {project.get('status')}")
 
-    _write(VAULT_DIR / "projects" / "README.md", "\n".join(index_lines))
+    _write(_vault_dir() / "projects" / "README.md", "\n".join(index_lines))
     return len(projects)
 
 
 def _write_vault(mar_entries: list[dict[str, Any]], projects: list[dict[str, Any]]) -> dict[str, int]:
     _write(
-        VAULT_DIR / "README.md",
+        _vault_dir() / "README.md",
         "\n".join(
             [
                 "# Orquestrador 360 — Memoria de la App",
@@ -163,7 +167,7 @@ def _write_vault(mar_entries: list[dict[str, Any]], projects: list[dict[str, Any
         "obsidian_sync: synced %d Mar Memory entries, %d projects -> %s",
         mar_count,
         project_count,
-        VAULT_DIR,
+        _vault_dir(),
     )
     return {"mar_memory_entries": mar_count, "projects": project_count}
 

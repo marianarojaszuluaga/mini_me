@@ -375,6 +375,12 @@ class Project(BaseModel):
     startDate: str | None = None
     endDate: str | None = None
     scopeAttachment: ScopeAttachment | None = None
+    # Multi-project reconciliation (2026-10-01, deck "Brain" rollout gap #3).
+    # app/services/brain/reconciliation.py's _workspace_root() already reads
+    # this field and falls back to the single-project REPO_ROOT when it's
+    # None — this is the other half of that cable: letting a project set its
+    # own workspace so reconciliation never reads a sibling project's files.
+    workspacePath: str | None = None
     # Real user ownership (multi-usuario, 2026-09-09) — the `owner` field
     # above stays as the free-text label already in use; this is the actual
     # User.id used to filter GET /projects per authenticated user. Optional
@@ -406,3 +412,4 @@ class ProjectCreateRequest(BaseModel):
     startDate: str | None = None
     endDate: str | None = None
     scopeAttachment: ScopeAttachment | None = None
+    workspacePath: str | None = None

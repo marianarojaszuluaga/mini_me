@@ -64,6 +64,7 @@
     "talkToJarvis": "Hablar con Jarvis",
     "work": "Trabajo",
     "projects": "Proyectos",
+    "lifecycle": "Ciclo de vida",
     "analytics": "Analítica & integraciones",
     "dashboard": "Dashboard",
     "integrations": "Integraciones",
@@ -87,7 +88,10 @@
       "client": "Cliente",
       "startDate": "Fecha de inicio",
       "endDate": "Fecha de fin",
-      "scopeAttachment": "Alcance (archivo .md/.txt)"
+      "scopeAttachment": "Alcance (archivo .md/.txt)",
+      "workspacePath": "Ruta del workspace (opcional)",
+      "workspacePathPlaceholder": "Ej.: C:\\proyectos\\cliente-x",
+      "workspacePathHint": "Carpeta propia de este proyecto para la reconciliación de evidencia — déjalo vacío para usar la raíz compartida del repo."
     },
     "repoNote": "El repositorio se conecta después, desde el detalle del proyecto — un repo siempre pertenece a un proyecto, nunca queda suelto.",
     "actions": {
@@ -212,7 +216,12 @@
       "delete": "Borrar",
       "deleting": "Borrando...",
       "sourceManual": "manual",
-      "sourceChat": "desde chat"
+      "sourceChat": "desde chat",
+      "deleteModalTitle": "Borrar entrada de memoria",
+      "deleteModalDescription": "Vas a borrar esta entrada de la Memoria de Mar de forma permanente. No queda respaldo ni forma de recuperarla.",
+      "deleteVerificationPhrase": "eliminar",
+      "deleteVerificationLabel": "escribe la palabra para confirmar",
+      "deleteBandText": "Borrar esta entrada es permanente — no se puede deshacer."
     },
     "newEntry": {
       "title": "Agregar entrada manual",
@@ -240,7 +249,8 @@
       "totalGaps": "Gaps totales",
       "reconciliationAlerts": "Alertas de reconciliación",
       "noAlerts": "Sin alertas abiertas.",
-      "gapsCount": "{{count}} gaps"
+      "gapsCount": "{{count}} gaps",
+      "unknownProject": "Proyecto no encontrado"
     },
     "newConversationTitle": "Nueva conversación",
     "emptyState": {
@@ -297,7 +307,10 @@
       "chatMessages": "Mensajes de chat (acumulado)",
       "reconciliationTitle": "Reconciliación — gaps encontrados vs. cerrados",
       "gapsFound": "Gaps encontrados (acumulado)",
-      "gapsClosed": "Gaps cerrados desde la última corrida (acumulado)"
+      "gapsClosed": "Gaps cerrados desde la última corrida (acumulado)",
+      "acrossRuns": "en {{count}} corrida de reconciliación",
+      "acrossRuns_other": "en {{count}} corridas de reconciliación",
+      "noRunsYet": "sin corridas de reconciliación todavía"
     },
     "p1": {
       "title": "P1 — Valor, no solo actividad",
@@ -506,6 +519,18 @@
       "translateLabel": "Sugerir traducción ES→EN en la auditoría",
       "save": "Guardar regla",
       "saving": "Guardando..."
+    }
+  },
+  "reconciliation": {
+    "status": {
+      "cumple": "Cumple",
+      "no_cumple": "No cumple",
+      "gap": "Gap",
+      "sin_test": "Sin test",
+      "con_test_sin_resultado": "Con test, sin resultado",
+      "no_reconciliable": "No reconciliable",
+      "open": "Abierto (legacy)",
+      "closed": "Cerrado (legacy)"
     }
   }
 }

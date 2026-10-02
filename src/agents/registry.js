@@ -99,6 +99,12 @@ V2.0.0), no una estructura libre:
 3. Timeline & Milestones (Start/End Date, Delivery Roadmap con status)
 4. Dynamic Knowledge & Meeting Logs (Master Meeting Doc, Change Log / Decision Log)
 5. Functional Requirements (Key Characteristics, Critical Business Rules)
+6. Enabled Services (Servicios Habilitados) — cuáles de los 5 servicios canónicos
+   del proyecto están activos: QA humano, QA automatizado, Revisión y seguimiento
+   de PRs, Sincronización con Drive, Sincronización con Basecamp. Cada uno tiene
+   agencia real: se ejecuta desde el repo (solo con que corra en local), nunca
+   es solo metadata descriptiva — ver project.memory.projectBrain.services para
+   el entrypoint real de cada uno.
 
 IMPORTANTE:
 1. Archivo: project_brain_[project_name].md
@@ -109,7 +115,7 @@ IMPORTANTE:
 CONTEXTO: ${JSON.stringify(context)}
 INPUT: ${input}
 
-Proporciona resumen del Project Brain siguiendo esa estructura de 5 secciones.`,
+Proporciona resumen del Project Brain siguiendo esa estructura de 6 secciones.`,
 
   // Santi is the on-demand path: paste a raw transcript in the dashboard and get
   // an acta back. The real, automated path is the "Proyecto Actas" Google Apps

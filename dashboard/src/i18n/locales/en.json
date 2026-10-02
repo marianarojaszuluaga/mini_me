@@ -64,6 +64,7 @@
     "talkToJarvis": "Talk to Jarvis",
     "work": "Work",
     "projects": "Projects",
+    "lifecycle": "Lifecycle",
     "analytics": "Analytics & integrations",
     "dashboard": "Dashboard",
     "integrations": "Integrations",
@@ -87,7 +88,10 @@
       "client": "Client",
       "startDate": "Start date",
       "endDate": "End date",
-      "scopeAttachment": "Scope (.md/.txt file)"
+      "scopeAttachment": "Scope (.md/.txt file)",
+      "workspacePath": "Workspace path (optional)",
+      "workspacePathPlaceholder": "E.g.: C:\\projects\\client-x",
+      "workspacePathHint": "This project's own folder for evidence reconciliation — leave blank to use the shared repo root."
     },
     "repoNote": "The repository is connected later, from the project detail — a repo always belongs to a project, it never stays unassigned.",
     "actions": {
@@ -212,7 +216,12 @@
       "delete": "Delete",
       "deleting": "Deleting...",
       "sourceManual": "manual",
-      "sourceChat": "from chat"
+      "sourceChat": "from chat",
+      "deleteModalTitle": "Delete memory entry",
+      "deleteModalDescription": "You're about to permanently delete this entry from Mar's Memory. There's no backup and no way to recover it.",
+      "deleteVerificationPhrase": "delete",
+      "deleteVerificationLabel": "type the word to confirm",
+      "deleteBandText": "Deleting this entry is permanent — it cannot be undone."
     },
     "newEntry": {
       "title": "Add manual entry",
@@ -240,7 +249,8 @@
       "totalGaps": "Total gaps",
       "reconciliationAlerts": "Reconciliation alerts",
       "noAlerts": "No open alerts.",
-      "gapsCount": "{{count}} gaps"
+      "gapsCount": "{{count}} gaps",
+      "unknownProject": "Project not found"
     },
     "newConversationTitle": "New conversation",
     "emptyState": {
@@ -297,7 +307,10 @@
       "chatMessages": "Chat messages (cumulative)",
       "reconciliationTitle": "Reconciliation — gaps found vs. closed",
       "gapsFound": "Gaps found (cumulative)",
-      "gapsClosed": "Gaps closed since last run (cumulative)"
+      "gapsClosed": "Gaps closed since last run (cumulative)",
+      "acrossRuns": "across {{count}} reconciliation run",
+      "acrossRuns_other": "across {{count}} reconciliation runs",
+      "noRunsYet": "no reconciliation runs yet"
     },
     "p1": {
       "title": "P1 — Value, not just activity",
@@ -506,6 +519,18 @@
       "translateLabel": "Suggest ES→EN translation in the audit",
       "save": "Save rule",
       "saving": "Saving..."
+    }
+  },
+  "reconciliation": {
+    "status": {
+      "cumple": "Passes",
+      "no_cumple": "Fails",
+      "gap": "Gap",
+      "sin_test": "No test",
+      "con_test_sin_resultado": "Test linked, no result",
+      "no_reconciliable": "Not reconcilable",
+      "open": "Open (legacy)",
+      "closed": "Closed (legacy)"
     }
   }
 }

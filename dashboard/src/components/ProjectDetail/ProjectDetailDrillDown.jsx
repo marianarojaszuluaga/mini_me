@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import Modal from "../Modal/Modal.jsx";
 import DestructiveActionModal from "../Modal/DestructiveActionModal.jsx";
-import { AlertIcon, CheckIcon } from "../icons.jsx";
+import { AlertIcon, CheckIcon, InfoIcon } from "../icons.jsx";
 import { BasecampPublishSettings, SprintPublicationStatus } from "./BasecampPublishSettings.jsx";
 import { BasecampCardsPanel } from "./BasecampCardsPanel.jsx";
 import { BasecampNomenclatureRules } from "./BasecampNomenclatureRules.jsx";
@@ -77,20 +78,22 @@ const SECTIONS = [
 //   no_reconciliable         -> gray    (neither pass nor fail — can't even be evaluated)
 //   open (legacy)            -> red     (pre-HU-004 gap == unresolved == treated as gap)
 //   closed (legacy)          -> green
-const STATUS_STYLE = {
-  cumple: { label: "Cumple", cls: "recon-status-green" },
-  no_cumple: { label: "No cumple", cls: "recon-status-red" },
-  gap: { label: "Gap", cls: "recon-status-red" },
-  sin_test: { label: "Sin test", cls: "recon-status-amber" },
-  con_test_sin_resultado: { label: "Con test, sin resultado", cls: "recon-status-amber" },
-  no_reconciliable: { label: "No reconciliable", cls: "recon-status-gray" },
-  open: { label: "Abierto (legacy)", cls: "recon-status-red" },
-  closed: { label: "Cerrado (legacy)", cls: "recon-status-green" }
+const STATUS_CLASS = {
+  cumple: "recon-status-green",
+  no_cumple: "recon-status-red",
+  gap: "recon-status-red",
+  sin_test: "recon-status-amber",
+  con_test_sin_resultado: "recon-status-amber",
+  no_reconciliable: "recon-status-gray",
+  open: "recon-status-red",
+  closed: "recon-status-green"
 };
 
 function StatusPill({ status }) {
-  const style = STATUS_STYLE[status] || { label: status || "—", cls: "recon-status-gray" };
-  return <span className={`recon-status-pill ${style.cls}`}>{style.label}</span>;
+  const { t } = useTranslation();
+  const cls = STATUS_CLASS[status] || "recon-status-gray";
+  const label = status ? t(`reconciliation.status.${status}`, { defaultValue: status }) : "—";
+  return <span className={`recon-status-pill ${cls}`}>{label}</span>;
 }
 
 // ---------------------------------------------------------------------------
@@ -238,11 +241,35 @@ function ReconciliationSubsection({ api, project, onProjectUpdated }) {
   );
 }
 
+// Tooltip persistente (no solo en el primer uso) para explicar qué es el
+// Project Brain — pedido explícito de Mariana tras la auditoría de flujos
+// (2026-09-28): la explicación en LifecycleView desaparece una vez activado
+// el Brain, así que quien vuelve semanas después a esta pestaña no tiene
+// dónde recordar qué es. `title` nativo: sin librería, accesible por defecto.
+function InfoTooltip({ text }) {
+  return (
+    <span className="pd-info-tooltip" title={text} tabIndex={0} role="img" aria-label={text}>
+      {InfoIcon}
+    </span>
+  );
+}
+
+const PROJECT_BRAIN_EXPLAINER =
+  "El Project Brain es la memoria compartida del proyecto: decisiones, alertas, actas y qué " +
+  "servicios (QA, sync con Drive/Basecamp) están activos. gime y gabi lo consultan antes de " +
+  "tomar cualquier decisión. Si hay un repo conectado, existe también como documento espejo ahí.";
+
 function ProjectBrainSection({ api, project, onProjectUpdated }) {
   const brain = project.memory?.projectBrain || { decisionLog: [], alerts: [], meetingLog: [] };
 
   return (
     <div>
+      <div className="pd-subsection-header">
+        <div className="pd-subsection-title-with-info">
+          <h3>Project Brain</h3>
+          <InfoTooltip text={PROJECT_BRAIN_EXPLAINER} />
+        </div>
+      </div>
       <div className="pd-subsection">
         <h3>Decision Log ({brain.decisionLog.length})</h3>
         {brain.decisionLog.length === 0 ? (
@@ -1122,10 +1149,26 @@ const ARCHIVE_ICON = (
   </svg>
 );
 
+// UX audit fix (2026-10-01): "Eliminar proyecto" used to sit as a full-time
+// red primary button right next to the status badge — same visual weight as
+// the project's actual state, for an action that isn't even permanent
+// (archive, recoverable — see DestructiveActionModal's own description
+// text below). Apple HIG: a destructive-but-recoverable action belongs in
+// an overflow menu, not a standing button. Kept the confirmation modal
+// exactly as-is — only where the trigger lives changed.
+const OVERFLOW_ICON = (
+  <svg viewBox="0 0 24 24" fill="currentColor">
+    <circle cx="12" cy="5" r="1.8" />
+    <circle cx="12" cy="12" r="1.8" />
+    <circle cx="12" cy="19" r="1.8" />
+  </svg>
+);
+
 export default function ProjectDetailDrillDown({ api, project, agents = [], phases = [], onProjectUpdated, onProjectArchived }) {
   const [activeSection, setActiveSection] = useState(SECTIONS[0].id);
   const [currentProject, setCurrentProject] = useState(project);
   const [showArchiveModal, setShowArchiveModal] = useState(false);
+  const [showOverflowMenu, setShowOverflowMenu] = useState(false);
 
   useEffect(() => {
     setCurrentProject(project);
@@ -1152,28 +1195,53 @@ export default function ProjectDetailDrillDown({ api, project, agents = [], phas
         <h2>{currentProject.name}</h2>
         <span className={`status-badge status-${currentProject.status}`}>{currentProject.status}</span>
         {currentProject.status !== "archived" && (
-          <button className="btn-danger pd-archive-btn" onClick={() => setShowArchiveModal(true)}>
-            Eliminar proyecto
-          </button>
+          <div className="pd-overflow">
+            <button
+              className="pd-overflow-trigger"
+              aria-label="Más acciones del proyecto"
+              aria-haspopup="true"
+              aria-expanded={showOverflowMenu}
+              onClick={() => setShowOverflowMenu((v) => !v)}
+            >
+              {OVERFLOW_ICON}
+            </button>
+            {showOverflowMenu && (
+              <>
+                <div className="pd-overflow-backdrop" onClick={() => setShowOverflowMenu(false)} />
+                <div className="pd-overflow-menu" role="menu">
+                  <button
+                    className="pd-overflow-item pd-overflow-item-danger"
+                    role="menuitem"
+                    onClick={() => {
+                      setShowOverflowMenu(false);
+                      setShowArchiveModal(true);
+                    }}
+                  >
+                    Archivar proyecto…
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         )}
       </div>
 
       <DestructiveActionModal
         open={showArchiveModal}
         onClose={() => setShowArchiveModal(false)}
-        title="Eliminar proyecto"
+        title="Archivar proyecto"
         icon={ARCHIVE_ICON}
         description={
           <>
-            Vas a eliminar <strong>{currentProject.name}</strong> de la vista de Proyectos. No se
-            borran sus datos — queda archivado y se puede recuperar. Sus repositorios/Basecamp
+            Vas a archivar <strong>{currentProject.name}</strong> y sacarlo de la vista de
+            Proyectos. No se borran sus datos — se puede recuperar. Sus repositorios/Basecamp
             vinculados dejan de sincronizarse mientras esté archivado.
           </>
         }
         verificationPhrase={currentProject.name}
         verificationLabel="nombre del proyecto"
-        confirmLabel="Eliminar proyecto"
-        bandText={`Eliminar ${currentProject.name} lo archiva y lo saca de la vista de Proyectos — puede recuperarse después, no borra datos.`}
+        confirmLabel="Archivar proyecto"
+        bandText={`Archivar ${currentProject.name} lo saca de la vista de Proyectos — puede recuperarse después, no borra datos.`}
         onConfirm={handleArchive}
       />
 

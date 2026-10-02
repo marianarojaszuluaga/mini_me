@@ -21,9 +21,20 @@ from datetime import datetime
 import httpx
 
 from app.schemas.auth_profile import AuthProfile
-from app.schemas.repository import Commit, FileNode, PullRequest, RepoSummary
+from app.schemas.repository import CIStatus, Commit, FileNode, PullRequest, RepoSummary
 
 _API_BASE = "https://api.github.com"
+
+# GitHub Checks API conclusions -> our normalized CIStatus.status
+_CHECK_CONCLUSION_MAP = {
+    "success": "success",
+    "failure": "failure",
+    "timed_out": "failure",
+    "cancelled": "failure",
+    "action_required": "failure",
+    "neutral": "success",
+    "skipped": "success",
+}
 
 
 def _resolve_token(auth_profile: AuthProfile) -> str | None:
@@ -70,6 +81,38 @@ class GitHubAdapter:
             )
             for item in response.json()
         ]
+
+    async def get_ci_status(
+        self, auth_profile: AuthProfile, owner: str, repo: str, ref: str
+    ) -> CIStatus:
+        """Real CI result for `ref` (branch or sha) via the Checks API —
+        GitHub Actions workflow runs show up here as check-runs. A run still
+        in progress (no `conclusion` yet) maps to "pending"; no check-runs at
+        all (no workflow configured for this repo) maps to "unknown", never
+        a fabricated pass — same rule reconciliation.py already follows for
+        "sin_test"/"no_reconciliable"."""
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            response = await client.get(
+                f"{_API_BASE}/repos/{owner}/{repo}/commits/{ref}/check-runs",
+                headers=_headers(auth_profile),
+            )
+        if response.status_code == 404:
+            return CIStatus(status="unknown")
+        response.raise_for_status()
+        runs = response.json().get("check_runs", [])
+        if not runs:
+            return CIStatus(status="unknown")
+
+        latest = max(runs, key=lambda r: r.get("started_at") or "")
+        if latest.get("status") != "completed":
+            return CIStatus(status="pending", url=latest.get("html_url"))
+
+        conclusion = latest.get("conclusion") or "neutral"
+        return CIStatus(
+            status=_CHECK_CONCLUSION_MAP.get(conclusion, "unknown"),
+            url=latest.get("html_url"),
+            checkedAt=latest.get("completed_at"),
+        )
 
     async def validate_access(self, auth_profile: AuthProfile, owner: str, repo: str) -> bool:
         async with httpx.AsyncClient(timeout=10.0) as client:

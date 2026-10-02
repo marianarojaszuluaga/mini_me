@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import DrillDown from "../CommandCenter/DrillDown.jsx";
+import DestructiveActionModal from "../Modal/DestructiveActionModal.jsx";
 import ApiClient from "../../api-client.js";
 import { BrainIcon, AlertIcon } from "../icons.jsx";
 import "./mar-memory.css";
@@ -54,6 +55,14 @@ const MemoryEntryCard = ({ entry, onSave, onDelete }) => {
   const [content, setContent] = useState(entry.content);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  // UX audit fix (2026-10-01): this used to delete permanently on one click,
+  // the only irreversible action in the app with no confirmation at all —
+  // every other destructive action (archiving a project) already goes
+  // through DestructiveActionModal. Same pattern here, just a shorter typed
+  // phrase ("eliminar") instead of the entry's own text, since forcing
+  // someone to retype a whole freeform memory entry would be its own
+  // usability failure.
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const handleSave = async () => {
     setBusy(true);
@@ -72,10 +81,11 @@ const MemoryEntryCard = ({ entry, onSave, onDelete }) => {
     setError("");
     try {
       await onDelete(entry.id);
+      setShowDeleteModal(false);
     } catch (err) {
       setError(err.message);
-      setBusy(false);
     }
+    setBusy(false);
   };
 
   if (editing) {
@@ -107,10 +117,21 @@ const MemoryEntryCard = ({ entry, onSave, onDelete }) => {
         <button type="button" className="btn-cancel" onClick={() => setEditing(true)} disabled={busy}>
           {t("marMemory.entry.edit")}
         </button>
-        <button type="button" className="btn-danger" onClick={handleDelete} disabled={busy}>
-          {busy ? t("marMemory.entry.deleting") : t("marMemory.entry.delete")}
+        <button type="button" className="btn-danger" onClick={() => setShowDeleteModal(true)} disabled={busy}>
+          {t("marMemory.entry.delete")}
         </button>
       </div>
+      <DestructiveActionModal
+        open={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        title={t("marMemory.entry.deleteModalTitle")}
+        description={t("marMemory.entry.deleteModalDescription")}
+        verificationPhrase={t("marMemory.entry.deleteVerificationPhrase")}
+        verificationLabel={t("marMemory.entry.deleteVerificationLabel")}
+        confirmLabel={busy ? t("marMemory.entry.deleting") : t("marMemory.entry.delete")}
+        bandText={t("marMemory.entry.deleteBandText")}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 };

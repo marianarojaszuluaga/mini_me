@@ -39,6 +39,18 @@ class FileNode(BaseModel):
     size: int | None = None
 
 
+class CIStatus(BaseModel):
+    """Real CI result for a ref (branch/sha), per gap #2 of the "Brain" deck
+    (2026-10-01): Brain's reconciliation could only say "a test is linked",
+    never whether it actually passed — this is what closes that. `status` is
+    normalized across providers to `"success" | "failure" | "pending" |
+    "unknown"` ("unknown" = no CI configured/no runs found, not an error)."""
+
+    status: str
+    url: str | None = None
+    checkedAt: str | None = None
+
+
 class RepoSummary(BaseModel):
     """One repo from the connected account's real list — Tarea 2 Gap 2
     (2026-08-21): 'jalar (pull) los repos que existen en la cuenta' instead

@@ -16,18 +16,56 @@ function NewProjectModal({ open, onClose, onCreate }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [owner, setOwner] = useState("");
+  // Campos opcionales (2026-09-28) — alimentan Secciones 1/3 del template de
+  // Gaby (client/startDate/endDate) y Sección 2 (scopeAttachment), en vez de
+  // quedar siempre vacíos o inventados por el agente.
+  const [showOptional, setShowOptional] = useState(false);
+  const [client, setClient] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [scopeAttachment, setScopeAttachment] = useState(null); // {filename, content}
+  // workspacePath (2026-10-01) — lets reconciliation.py read this project's
+  // own backlog/outputs folder instead of the single shared REPO_ROOT, so
+  // two projects running in parallel never mix each other's evidence.
+  const [workspacePath, setWorkspacePath] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+
+  const handleAttachmentChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      setScopeAttachment(null);
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => setScopeAttachment({ filename: file.name, content: reader.result });
+    reader.readAsText(file);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setBusy(true);
     setError("");
     try {
-      await onCreate({ name, description, owner: owner || t("projects.defaultOwner"), phase: 1 });
+      await onCreate({
+        name,
+        description,
+        owner: owner || t("projects.defaultOwner"),
+        phase: 1,
+        client: client || undefined,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
+        scopeAttachment: scopeAttachment || undefined,
+        workspacePath: workspacePath || undefined
+      });
       setName("");
       setDescription("");
       setOwner("");
+      setClient("");
+      setStartDate("");
+      setEndDate("");
+      setScopeAttachment(null);
+      setWorkspacePath("");
       onClose();
     } catch (err) {
       setError(err.message);
@@ -69,6 +107,43 @@ function NewProjectModal({ open, onClose, onCreate }) {
             onChange={(e) => setOwner(e.target.value)}
           />
         </div>
+        <button type="button" className="btn-link pv-optional-toggle" onClick={() => setShowOptional((v) => !v)}>
+          {showOptional ? t("projects.fields.hideOptional") : t("projects.fields.showOptional")}
+        </button>
+        {showOptional && (
+          <>
+            <div>
+              <label className="field-label">{t("projects.fields.client")}</label>
+              <input className="field-input" type="text" value={client} onChange={(e) => setClient(e.target.value)} />
+            </div>
+            <div className="pv-modal-form-row">
+              <div>
+                <label className="field-label">{t("projects.fields.startDate")}</label>
+                <input className="field-input" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+              </div>
+              <div>
+                <label className="field-label">{t("projects.fields.endDate")}</label>
+                <input className="field-input" type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+              </div>
+            </div>
+            <div>
+              <label className="field-label">{t("projects.fields.scopeAttachment")}</label>
+              <input className="field-input" type="file" accept=".md,.txt" onChange={handleAttachmentChange} />
+              {scopeAttachment && <div className="pd-meta">{scopeAttachment.filename}</div>}
+            </div>
+            <div>
+              <label className="field-label">{t("projects.fields.workspacePath")}</label>
+              <input
+                className="field-input"
+                type="text"
+                placeholder={t("projects.fields.workspacePathPlaceholder")}
+                value={workspacePath}
+                onChange={(e) => setWorkspacePath(e.target.value)}
+              />
+              <div className="pd-meta">{t("projects.fields.workspacePathHint")}</div>
+            </div>
+          </>
+        )}
         <div className="modal-note modal-note-neutral">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 9v4M12 17h.01" />
@@ -214,6 +289,11 @@ export default function ProjectsView({ api, agents, phases, initialProjectId, on
           {visibleProjects.map((project) => {
             const brain = project.memory?.projectBrain || {};
             const semaphore = semaphoreFor(project.id);
+            // DoD real de la fase actual (2026-09-26) — mismo dato que
+            // alimenta project.progress en el backend, no un conteo aparte.
+            const currentPhaseKey = phases?.find((p) => p.id === project.currentPhase)?.key;
+            const currentChecklist = project.memory?.phaseChecklists?.[currentPhaseKey] || [];
+            const dodDone = currentChecklist.filter((i) => i.done).length;
             return (
               <div key={project.id} className="pv-card" onClick={() => handleSelect(project.id)}>
                 <div className="pv-card-top">
@@ -239,6 +319,12 @@ export default function ProjectsView({ api, agents, phases, initialProjectId, on
                     <span className="pv-stat-value">{(brain.decisionLog || []).length}</span>
                     <span className="pv-stat-label">{t("projects.stats.decisions")}</span>
                   </div>
+                  {currentChecklist.length > 0 && (
+                    <div className="pv-stat">
+                      <span className="pv-stat-value">{dodDone}/{currentChecklist.length}</span>
+                      <span className="pv-stat-label">{t("projects.stats.dod")}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             );

@@ -180,7 +180,7 @@ export default function Sidebar({ activeView, onNavigate, onOpenIntegrations, on
           onClick={() => onNavigate("lifecycle")}
         >
           {ICONS.lifecycle}
-          Ciclo de vida
+          {t("sidebar.lifecycle")}
         </button>
       </nav>
 

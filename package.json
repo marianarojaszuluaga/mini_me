@@ -10,7 +10,9 @@
     "dev:map": "nodemon src/server.js",
     "dev:orchestrator": "nodemon src/orchestrator.js",
     "dev": "concurrently -n MAP,ORCH -c blue,green \"npm:dev:map\" \"npm:dev:orchestrator\"",
-    "test:health": "curl -H \"Authorization: Bearer $APP_API_KEYS\" http://localhost:3001/health"
+    "test:health": "curl -H \"Authorization: Bearer $APP_API_KEYS\" http://localhost:3001/health",
+    "sync-agents": "node scripts/sync-agents.js",
+    "sync-agents:check": "node scripts/sync-agents.js --check"
   },
   "keywords": [
     "agents",

@@ -83,6 +83,7 @@ def _new_project_record(
     start_date: str | None = None,
     end_date: str | None = None,
     scope_attachment: dict[str, Any] | None = None,
+    workspace_path: str | None = None,
 ) -> dict[str, Any]:
     timestamp = _now_iso()
     return {
@@ -94,6 +95,7 @@ def _new_project_record(
         "startDate": start_date,
         "endDate": end_date,
         "scopeAttachment": scope_attachment,
+        "workspacePath": workspace_path,
         "currentPhase": phase or 1,
         "currentStep": "iniciando",
         "status": "active",
@@ -265,6 +267,7 @@ async def create_project(
         start_date=body.startDate,
         end_date=body.endDate,
         scope_attachment=body.scopeAttachment.model_dump() if body.scopeAttachment else None,
+        workspace_path=body.workspacePath,
     )
     if current_user is not None:
         new_project["owner_user_id"] = current_user.id

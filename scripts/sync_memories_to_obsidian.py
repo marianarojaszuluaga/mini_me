@@ -27,7 +27,8 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
-from app.services.obsidian_sync import VAULT_DIR, sync_to_obsidian_from_api  # noqa: E402
+from app.core.config import get_settings  # noqa: E402
+from app.services.obsidian_sync import sync_to_obsidian_from_api  # noqa: E402
 
 _DEFAULT_BASE_URL = "https://backmar-in-theinternet.vercel.app"
 
@@ -45,7 +46,7 @@ async def main() -> None:
     counts = await sync_to_obsidian_from_api(base_url, api_key)
     print(
         f"Sincronizado desde {base_url}: {counts['mar_memory_entries']} entradas de Mar Memory, "
-        f"{counts['projects']} proyectos -> {VAULT_DIR}"
+        f"{counts['projects']} proyectos -> {get_settings().obsidian_vault_dir}"
     )
 
 

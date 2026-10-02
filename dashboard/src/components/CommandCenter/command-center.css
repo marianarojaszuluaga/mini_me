@@ -468,6 +468,72 @@
   padding: 6px 12px;
 }
 
+/* Overflow menu for secondary/archival project actions (UX audit fix,
+   2026-10-01) — replaces a standing red "Eliminar proyecto" button that
+   sat with the same visual weight as the status badge for an action that
+   isn't even permanent (archive, recoverable). */
+.pd-overflow {
+  position: relative;
+}
+.pd-overflow-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius-material-base);
+  background: hsl(var(--surface));
+  color: hsl(var(--text-2));
+  cursor: pointer;
+}
+.pd-overflow-trigger svg {
+  width: 20px;
+  height: 20px;
+}
+.pd-overflow-trigger:hover {
+  background: hsl(var(--bg-2));
+  color: hsl(var(--text));
+}
+.pd-overflow-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+}
+.pd-overflow-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 11;
+  min-width: 200px;
+  padding: 6px;
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius-material-medium);
+  background: hsl(var(--surface));
+  box-shadow: var(--shadow-modal);
+}
+.pd-overflow-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 40px;
+  padding: 0 12px;
+  border: none;
+  border-radius: var(--radius-material-small);
+  background: none;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  text-align: left;
+  color: hsl(var(--text));
+  cursor: pointer;
+}
+.pd-overflow-item:hover {
+  background: hsl(var(--bg-2));
+}
+.pd-overflow-item-danger {
+  color: hsl(var(--red));
+}
+
 .pd-tabs {
   display: flex;
   gap: var(--space-2x);
@@ -601,13 +667,24 @@
   position: relative;
 }
 .agent-tag-invoke {
+  /* UX audit fix (2026-10-01): was a 10px/2px-padding target — the only
+     real action in this dense tag, previously far below any usable hit
+     size. Full 44pt would break this list's density (7 tags/row), so this
+     is the practical floor for a mouse-driven desktop control: a real
+     ~28px hit area via padding, not just a bigger glyph. */
   background: none;
   border: none;
-  padding: 0 2px;
+  min-width: 28px;
+  min-height: 28px;
+  padding: 4px 6px;
   margin-left: 2px;
-  font-size: 10px;
+  font-size: 13px;
+  line-height: 1;
   color: hsl(var(--accent));
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .agent-tag-invoke:disabled {
   opacity: 0.5;
@@ -644,6 +721,30 @@
   justify-content: space-between;
   gap: var(--space-4x);
   margin-bottom: var(--space-2x);
+}
+
+.pd-subsection-title-with-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Tooltip persistente (Project Brain, etc.) — icono discreto, no compite
+   con el título; usa el `title` nativo del navegador, sin JS de hover. */
+.pd-info-tooltip {
+  display: inline-flex;
+  color: hsl(var(--ds-gray-500));
+  cursor: help;
+}
+
+.pd-info-tooltip svg {
+  width: 15px;
+  height: 15px;
+}
+
+.pd-info-tooltip:hover,
+.pd-info-tooltip:focus-visible {
+  color: hsl(var(--ds-accent));
 }
 
 .pd-meta {
