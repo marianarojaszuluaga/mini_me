@@ -234,32 +234,32 @@ export default function Landing({ onAuthenticated, onUseAppKey, externalError })
             <div className="landing-mock-sidebar">
               <div className="landing-mock-brand">
                 <span className="landing-mock-brand-mark">{BrandIcon}</span>
-                Mini me
+                {t("landing.brand")}
               </div>
-              <div className="landing-mock-cta">{ChatIcon} Hablar con Jarvis</div>
-              <div className="landing-mock-nav-label">Trabajo</div>
-              <div className="landing-mock-nav-item active">{FolderIcon} Proyectos</div>
-              <div className="landing-mock-nav-item">{AgentsIcon} Ciclo de vida</div>
-              <div className="landing-mock-nav-label">Analítica</div>
-              <div className="landing-mock-nav-item">{QaIcon} Dashboard</div>
-              <div className="landing-mock-nav-item">{IntegrationsIcon} Integraciones</div>
+              <div className="landing-mock-cta">{ChatIcon} {t("sidebar.talkToJarvis")}</div>
+              <div className="landing-mock-nav-label">{t("sidebar.work")}</div>
+              <div className="landing-mock-nav-item active">{FolderIcon} {t("sidebar.projects")}</div>
+              <div className="landing-mock-nav-item">{AgentsIcon} {t("sidebar.lifecycle")}</div>
+              <div className="landing-mock-nav-label">{t("sidebar.analytics")}</div>
+              <div className="landing-mock-nav-item">{QaIcon} {t("sidebar.dashboard")}</div>
+              <div className="landing-mock-nav-item">{IntegrationsIcon} {t("sidebar.integrations")}</div>
             </div>
             <div className="landing-mock-main">
-              <div className="landing-mock-heading">3 proyectos</div>
+              <div className="landing-mock-heading">{t("landing.mock.projectsHeading", { count: 3 })}</div>
               <div className="landing-mock-cards">
                 <div className="landing-mock-card">
                   <div className="landing-mock-card-top">
-                    <span className="landing-mock-card-name">Rediseño App Móvil</span>
-                    <span className="landing-mock-pill landing-mock-pill-ok">En curso</span>
+                    <span className="landing-mock-card-name">{t("landing.mock.project1Name")}</span>
+                    <span className="landing-mock-pill landing-mock-pill-ok">{t("landing.mock.statusOnTrack")}</span>
                   </div>
-                  <span className="landing-mock-card-sub">Fase 2 · desarrollo</span>
+                  <span className="landing-mock-card-sub">{t("landing.mock.project1Phase")}</span>
                 </div>
                 <div className="landing-mock-card">
                   <div className="landing-mock-card-top">
-                    <span className="landing-mock-card-name">Backend Facturación</span>
-                    <span className="landing-mock-pill landing-mock-pill-warn">Atención</span>
+                    <span className="landing-mock-card-name">{t("landing.mock.project2Name")}</span>
+                    <span className="landing-mock-pill landing-mock-pill-warn">{t("landing.mock.statusAttention")}</span>
                   </div>
-                  <span className="landing-mock-card-sub">Fase 3 · QA</span>
+                  <span className="landing-mock-card-sub">{t("landing.mock.project2Phase")}</span>
                 </div>
               </div>
             </div>

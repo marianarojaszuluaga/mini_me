@@ -10,31 +10,40 @@
       },
       "agents": {
         "title": "Agentes especializados",
-        "body": "Un equipo de agentes de IA que ejecutan fases del proyecto por vos."
+        "body": "Un equipo de agentes de IA que ejecutan fases del proyecto por ti."
       },
       "chat": {
         "title": "Jarvis, tu chat conversacional",
-        "body": "Preguntale por el estado real de tus proyectos, en lenguaje natural."
+        "body": "Pregúntale por el estado real de tus proyectos, en lenguaje natural."
       },
       "qa": {
         "title": "QA integrado",
         "body": "Reconciliación automática entre lo que se dice hecho y la evidencia real."
       }
     },
+    "mock": {
+      "projectsHeading": "{{count}} proyectos",
+      "project1Name": "Rediseño App Móvil",
+      "project1Phase": "Fase 2 · desarrollo",
+      "project2Name": "Backend Facturación",
+      "project2Phase": "Fase 3 · QA",
+      "statusOnTrack": "En curso",
+      "statusAttention": "Atención"
+    },
     "how": {
       "title": "Cómo funciona",
       "steps": {
         "connect": {
-          "title": "Conectá tus repos y Basecamp",
+          "title": "Conecta tus repos y Basecamp",
           "body": "GitHub, Bitbucket, Basecamp y Google, con integraciones reales — un solo lugar para todo tu contexto de proyecto."
         },
         "work": {
           "title": "Jarvis y los agentes trabajan",
-          "body": "Le pedís algo a Jarvis en lenguaje natural y los agentes especializados ejecutan las fases del proyecto por vos."
+          "body": "Le pides algo a Jarvis en lenguaje natural y los agentes especializados ejecutan las fases del proyecto por ti."
         },
         "review": {
-          "title": "Vos revisás y aprobás",
-          "body": "Cada resultado queda a la vista antes de activarse — vos decidís qué se sube al repo y qué no."
+          "title": "Tú revisas y apruebas",
+          "body": "Cada resultado queda a la vista antes de activarse — tú decides qué se sube al repo y qué no."
         }
       }
     },
@@ -48,14 +57,14 @@
     "googleButton": "Continuar con Google",
     "googleNotConfigured": "Google no está configurado en este servidor",
     "googleLoading": "Cargando Google...",
-    "switchToRegister": "¿No tenés cuenta? Creá una",
-    "switchToLogin": "¿Ya tenés cuenta? Iniciá sesión",
-    "orAppKey": "¿Preferís entrar con tu App API Key?",
+    "switchToRegister": "¿No tienes cuenta? Crea una",
+    "switchToLogin": "¿Ya tienes cuenta? Inicia sesión",
+    "orAppKey": "¿Prefieres entrar con tu App API Key?",
     "appKeyPlaceholder": "App API Key",
     "errors": {
-      "invalidEmail": "Ingresá un correo electrónico válido.",
+      "invalidEmail": "Ingresa un correo electrónico válido.",
       "passwordTooShort": "La contraseña debe tener al menos 8 caracteres.",
-      "nameRequired": "Ingresá tu nombre."
+      "nameRequired": "Ingresa tu nombre."
     }
   },
   "sidebar": {
@@ -102,8 +111,8 @@
     },
     "defaultOwner": "sin asignar",
     "empty": {
-      "title": "Todavía no tenés proyectos",
-      "body": "Un proyecto en Mini me agrupa un repo, sus agentes y su ciclo de vida en un solo lugar. Creá el primero para empezar."
+      "title": "Todavía no tienes proyectos",
+      "body": "Un proyecto en Mini me agrupa un repo, sus agentes y su ciclo de vida en un solo lugar. Crea el primero para empezar."
     },
     "semaphore": {
       "onTrack": "En curso",
@@ -398,7 +407,7 @@
     "loadingPhases": "Cargando fases...",
     "projectCount_one": "{{count}} proyecto",
     "projectCount_other": "{{count}} proyectos",
-    "noProjectsHere": "Sin proyectos acá",
+    "noProjectsHere": "Sin proyectos aquí",
     "startingStep": "iniciando",
     "console": {
       "expand": "Ver consola de fase",
@@ -467,7 +476,7 @@
     },
     "cardsPanel": {
       "title": "Basecamp Cards",
-      "noCardTables": "Elegí al menos una Card Table vinculada para poder crear o editar cards.",
+      "noCardTables": "Elige al menos una Card Table vinculada para poder crear o editar cards.",
       "auditButton": "Auditar nomenclatura",
       "bulkButton": "Crear en lote",
       "newCardButton": "+ Nueva card",
@@ -503,7 +512,7 @@
     },
     "bulk": {
       "title": "Crear cards en lote",
-      "helpText": "Pegá filas con columna, título, contenido (opcional) y fecha (opcional), separadas por coma — una por línea.",
+      "helpText": "Pega filas con columna, título, contenido (opcional) y fecha (opcional), separadas por coma — una por línea.",
       "placeholder": "list-123, HU-10-Modulo: descriptor, contenido opcional, 2026-10-01",
       "parse": "Leer filas",
       "preview": "Ver preview",

@@ -21,6 +21,15 @@
         "body": "Automatic reconciliation between what's claimed done and the real evidence."
       }
     },
+    "mock": {
+      "projectsHeading": "{{count}} projects",
+      "project1Name": "Mobile App Redesign",
+      "project1Phase": "Phase 2 · development",
+      "project2Name": "Billing Backend",
+      "project2Phase": "Phase 3 · QA",
+      "statusOnTrack": "On track",
+      "statusAttention": "Needs attention"
+    },
     "how": {
       "title": "How it works",
       "steps": {

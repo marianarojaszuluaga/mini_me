@@ -111,7 +111,7 @@ function AgentInvokeTag({ api, project, agent }) {
     setBusy(true);
     setResult(null);
     try {
-      const res = await api.invokeAgent(agent, project.id, `Corré tu verificación real para el proyecto ${project.name}.`, {
+      const res = await api.invokeAgent(agent, project.id, `Corre tu verificación real para el proyecto ${project.name}.`, {
         trigger: "fases_y_agentes_tab",
       });
       setResult({ ok: true, message: (res.output || "").slice(0, 160) });
@@ -463,7 +463,7 @@ function ConnectRepoForm({ api, project, authProfiles, onConnected, onCancel }) 
             <>
               {reposError && (
                 <div className="flag" style={{ marginBottom: 8 }}>
-                  {AlertIcon} No se pudo traer la lista real de repos ({reposError}). Escribí owner/repo a mano.
+                  {AlertIcon} No se pudo traer la lista real de repos ({reposError}). Escribe owner/repo a mano.
                 </div>
               )}
               <input
